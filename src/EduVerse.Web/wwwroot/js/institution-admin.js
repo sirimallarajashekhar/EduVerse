@@ -26,9 +26,9 @@
     }
   }
   async function refresh() {
-    const [dashboard,profile,settings,departments,buildings,campuses] = await Promise.all([
+    const [dashboard,profile,settings,departments,buildings,campuses,plans] = await Promise.all([
       api('dashboard'),api('profile'),api('settings'),api('resources/departments'),
-      api('resources/buildings'),api('campuses')
+      api('resources/buildings'),api('campuses'),api('plans')
     ]);
     el('campus-count').textContent=dashboard.campuses;
     el('department-count').textContent=dashboard.departments;
@@ -41,6 +41,8 @@
     for(const name of ['legalName','contactEmail','contactPhone','addressLine','city','stateRegion','postalCode'])
       el(name).value=profile?.[name] || '';
     renderItems('settings-list',settings,x=>x.key+': '+x.value);
+    renderItems('campuses-list',campuses,x=>x.code+' — '+x.name);
+    renderItems('plans-list',plans,x=>x.name+' — '+x.description);
     renderItems('departments-list',departments,x=>x.code+' — '+x.name);
     renderItems('buildings-list',buildings,x=>x.code+' — '+x.name);
     const menu=el('resource-campus');menu.replaceChildren();
@@ -66,6 +68,14 @@
     try{
       await api('settings','PUT',{key:el('setting-key').value,value:el('setting-value').value});
       await refresh();message('Setting saved.');
+    }catch(error){message(error.message);}
+  });
+  el('campus-form').addEventListener('submit',async e=>{
+    e.preventDefault();
+    try{
+      await api('campuses','POST',{code:el('campus-code').value,name:el('campus-name').value});
+      el('campus-code').value='';el('campus-name').value='';
+      await refresh();message('Campus created.');
     }catch(error){message(error.message);}
   });
   el('resource-form').addEventListener('submit',async e=>{
