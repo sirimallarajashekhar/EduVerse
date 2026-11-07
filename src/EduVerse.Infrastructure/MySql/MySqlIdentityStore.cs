@@ -201,6 +201,30 @@ public sealed class MySqlIdentityStore(string connectionString) : IIdentityStore
         return Convert.ToInt32(await cmd.ExecuteScalarAsync(ct)) == 1;
     }
 
+    public async Task<bool> DeactivateMembershipAsync(Guid tenantId, Guid userId, CancellationToken ct)
+    {
+        await using var db = Connection();
+        await db.OpenAsync(ct);
+        await using var tx = await db.BeginTransactionAsync(ct);
+        await using var membership = new MySqlCommand("""
+            UPDATE tenant_memberships SET is_active=0
+            WHERE tenant_id=@tid AND subject_id=@uid AND is_active=1
+            """, db, tx);
+        Add(membership, ("@tid", tenantId.ToString("D")), ("@uid", userId.ToString("D")));
+        var affected = await membership.ExecuteNonQueryAsync(ct);
+        if (affected > 0)
+        {
+            await using var revoke = new MySqlCommand("""
+                UPDATE identity_sessions SET revoked_utc=UTC_TIMESTAMP(6)
+                WHERE tenant_id=@tid AND user_id=@uid AND revoked_utc IS NULL
+                """, db, tx);
+            Add(revoke, ("@tid", tenantId.ToString("D")), ("@uid", userId.ToString("D")));
+            await revoke.ExecuteNonQueryAsync(ct);
+        }
+        await tx.CommitAsync(ct);
+        return affected > 0;
+    }
+
     public async Task<IReadOnlyList<AccountSummary>> ListUsersAsync(Guid tenantId, CancellationToken ct)
     {
         var users = new List<AccountSummary>();
