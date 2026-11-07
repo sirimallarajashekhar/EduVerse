@@ -153,9 +153,5 @@ CREATE TABLE hr_payroll_previews (
  CHECK(net_amount=gross_amount-deduction_amount)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-INSERT INTO subscription_plan_features(plan_code,feature_code)
-VALUES ('PILOT','hrms')
-ON DUPLICATE KEY UPDATE feature_code=VALUES(feature_code);
-
 INSERT INTO schema_migrations(version) VALUES ('010_hrms')
 ON DUPLICATE KEY UPDATE version=VALUES(version);
