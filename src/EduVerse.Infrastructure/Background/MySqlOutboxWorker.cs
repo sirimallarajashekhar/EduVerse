@@ -15,7 +15,7 @@ public sealed class MySqlOutboxWorker(
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        if (!configuration.GetValue<bool>("BackgroundJobs:OutboxEnabled"))
+        if (!(bool.TryParse(configuration["BackgroundJobs:OutboxEnabled"], out var enabled) && enabled))
         {
             logger.LogInformation("Outbox worker is disabled; configure BackgroundJobs:OutboxEnabled to enable.");
             return;
