@@ -59,4 +59,23 @@ if PATH="$work/bin:$PATH" API_URL=http://127.0.0.1:5201@evil.invalid \
   bash "$root/ops/deploy/smoke-test.sh" >/dev/null 2>&1; then
   echo 'Smoke probe accepted a forged loopback URL.' >&2; exit 1
 fi
-echo 'Operational shell syntax, backup integrity rejection and URL guards passed.'
+# Simulate the service and HTTP command responses to exercise backup-age gating.
+cat > "$work/bin/systemctl" <<'EOF'
+#!/usr/bin/env bash
+exit 0
+EOF
+cat > "$work/bin/curl" <<'EOF'
+#!/usr/bin/env bash
+printf '200'
+EOF
+chmod +x "$work/bin/systemctl" "$work/bin/curl"
+mkdir -p "$work/monitor"
+touch "$work/monitor/eduverse-test.sql.gz" "$work/monitor/eduverse-test.sql.gz.sha256"
+PATH="$work/bin:$PATH" BACKUP_DIR="$work/monitor" BACKUP_MAX_AGE_HOURS=30 \
+  bash "$root/ops/deploy/monitor.sh" >/dev/null
+touch -d '3 days ago' "$work/monitor/eduverse-test.sql.gz"
+if PATH="$work/bin:$PATH" BACKUP_DIR="$work/monitor" BACKUP_MAX_AGE_HOURS=30 \
+  bash "$root/ops/deploy/monitor.sh" >/dev/null 2>&1; then
+  echo 'Monitoring accepted an outdated backup.' >&2; exit 1
+fi
+echo 'Operational shell syntax, backup integrity, monitoring and deployment URL guard tests passed.'
