@@ -2,6 +2,7 @@ using System.Security.Claims;
 using System.Text.Json;
 using EduVerse.Api.Health;
 using EduVerse.Application.Academic;
+using EduVerse.Application.Students;
 using EduVerse.Application.Administration;
 using EduVerse.Api.Observability;
 using EduVerse.Application.Operations;
@@ -89,6 +90,10 @@ builder.Services.AddAuthorization();
 builder.Services.AddScoped<ITenantContext, HttpTenantContext>();
 builder.Services.AddScoped<InstitutionService>();
 builder.Services.AddScoped<AcademicService>();
+builder.Services.AddScoped<StudentService>();
+builder.Services.AddScoped<IStudentStore>(provider =>
+    new MySqlStudentStore(provider.GetRequiredService<IConfiguration>()
+      .GetConnectionString("EduVerse") ?? throw new InvalidOperationException("Database not configured.")));
 builder.Services.AddScoped<IAcademicStore>(provider => new MySqlAcademicStore(provider.GetRequiredService<IConfiguration>().GetConnectionString("EduVerse") ?? throw new InvalidOperationException("Database not configured.")));
 builder.Services.AddScoped<InstitutionAdminService>();
 builder.Services.AddScoped<IInstitutionAdminStore>(provider =>
@@ -147,6 +152,7 @@ app.MapIdentityEndpoints();
 app.MapInstitutionEndpoints();
 app.MapInstitutionAdminEndpoints();
 app.MapAcademicEndpoints();
+app.MapStudentEndpoints();
 app.Run();
 
 public partial class Program { }
