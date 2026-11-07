@@ -1,4 +1,11 @@
 using System.Security.Claims;
+using System.Text.Json;
+using EduVerse.Api.Health;
+using EduVerse.Api.Observability;
+using EduVerse.Application.Operations;
+using EduVerse.Infrastructure.Background;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Text;
 using System.Threading.RateLimiting;
 using EduVerse.Api.Endpoints;
@@ -12,8 +19,18 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddProblemDetails();
-builder.Services.AddHealthChecks();
+builder.Logging.AddJsonConsole(options => options.IncludeScopes = true);
+builder.Services.AddProblemDetails(options =>
+{
+    options.CustomizeProblemDetails = context =>
+    {
+        context.ProblemDetails.Extensions["traceId"] = context.HttpContext.TraceIdentifier;
+    };
+});
+builder.Services.AddExceptionHandler<ApiExceptionHandler>();
+builder.Services.AddHealthChecks().AddCheck<MySqlReadinessCheck>(
+    "mysql-schema", tags: ["ready"]);
+builder.Services.AddHostedService<MySqlOutboxWorker>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddRateLimiter(options =>
@@ -69,6 +86,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<ITenantContext, HttpTenantContext>();
 builder.Services.AddScoped<InstitutionService>();
+builder.Services.AddScoped<IIdempotentCampusWriter>(provider =>
+    new MySqlIdempotentCampusWriter(provider.GetRequiredService<IConfiguration>()
+        .GetConnectionString("EduVerse")
+        ?? throw new InvalidOperationException("ConnectionStrings:EduVerse is required.")));
 builder.Services.AddScoped<IdentityService>();
 builder.Services.AddSingleton<IPasswordService, PasswordService>();
 builder.Services.AddSingleton<IAccessTokenIssuer, JwtTokenIssuer>();
@@ -82,11 +103,28 @@ builder.Services.AddScoped<IInstitutionRepository>(provider =>
 
 var app = builder.Build();
 app.UseExceptionHandler();
+app.UseMiddleware<RequestTelemetryMiddleware>();
 app.UseHttpsRedirection();
 app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapHealthChecks("/health/live");
+app.MapHealthChecks("/health/live", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("live")
+});
+app.MapHealthChecks("/health/ready", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("ready"),
+    ResponseWriter = async (context, report) =>
+    {
+        context.Response.ContentType = "application/json";
+        await context.Response.WriteAsync(JsonSerializer.Serialize(new
+        {
+            status = report.Status.ToString(),
+            checks = report.Entries.ToDictionary(x => x.Key, x => x.Value.Status.ToString())
+        }));
+    }
+});
 
 var api = app.MapGroup("/api/v1");
 api.MapGet("/system/info", () => TypedResults.Ok(
@@ -94,6 +132,8 @@ api.MapGet("/system/info", () => TypedResults.Ok(
     .WithName("GetSystemInfo");
 api.MapGet("/platform/modules", () => TypedResults.Ok(ModuleRegistry.All))
     .WithName("ListPlatformModules");
+app.MapPlatformPagedEndpoints();
+app.MapIdempotentCampusEndpoints();
 app.MapIdentityEndpoints();
 app.MapInstitutionEndpoints();
 app.Run();

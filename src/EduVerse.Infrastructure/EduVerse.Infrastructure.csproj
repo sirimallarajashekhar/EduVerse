@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <PackageReference Include="MySqlConnector" Version="2.6.2" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
     <ProjectReference Include="../EduVerse.Application/EduVerse.Application.csproj" />
     <ProjectReference Include="../EduVerse.Domain/EduVerse.Domain.csproj" />
   </ItemGroup>

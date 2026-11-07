@@ -31,12 +31,7 @@ public sealed class InstitutionService(IInstitutionRepository repository, ITenan
         if (!await repository.IsTenantAdminAsync(membership.Identity, ct))
             throw new UnauthorizedAccessException("Campus write permission required.");
 
-        code = code.Trim().ToUpperInvariant();
-        name = name.Trim();
-        if (code.Length is < 2 or > 30 || !code.All(c => c is >= 'A' and <= 'Z' or >= '0' and <= '9' or '-'))
-            throw new ArgumentException("Campus code must be 2-30 characters (A-Z, 0-9, hyphen).", nameof(code));
-        if (name.Length is < 2 or > 160)
-            throw new ArgumentException("Campus name must be 2-160 characters.", nameof(name));
+        (code, name) = EduVerse.Application.Operations.CampusInput.Normalize(code, name);
 
         return await repository.CreateCampusAsync(membership.Identity.TenantId, code, name, ct);
     }
