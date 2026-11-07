@@ -4,6 +4,7 @@
     <Project Path="src/EduVerse.Domain/EduVerse.Domain.csproj" />
     <Project Path="src/EduVerse.Application/EduVerse.Application.csproj" />
     <Project Path="src/EduVerse.Infrastructure/EduVerse.Infrastructure.csproj" />
+    <Project Path="src/EduVerse.AuthWeb/EduVerse.AuthWeb.csproj" />
     <Project Path="src/EduVerse.Api/EduVerse.Api.csproj" />
     <Project Path="src/EduVerse.Web/EduVerse.Web.csproj" />
     <Project Path="src/EduVerse.DesignSystem/EduVerse.DesignSystem.csproj" />
@@ -17,5 +18,8 @@
     <Project Path="tests/EduVerse.Portal.Tests/EduVerse.Portal.Tests.csproj" />
     <Project Path="tests/EduVerse.Ams.Tests/EduVerse.Ams.Tests.csproj" />
     <Project Path="tests/EduVerse.Hrms.Tests/EduVerse.Hrms.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/EduVerse.BootstrapAdmin/EduVerse.BootstrapAdmin.csproj" />
   </Folder>
 </Solution>

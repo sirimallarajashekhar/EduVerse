@@ -11,13 +11,11 @@ public sealed class AmsSmokeTests : IClassFixture<WebApplicationFactory<Program>
         _client = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
 
     [Fact]
-    public async Task AmsRoot_RendersPreviewWithSharedShell()
+    public async Task AnonymousUser_MustSignInBeforeOpeningAms()
     {
         using var response = await _client.GetAsync("/ams");
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var html = await response.Content.ReadAsStringAsync();
-        Assert.Contains("Asset Management System", html);
-        Assert.Contains("ev-sidebar", html);
+        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+        Assert.Contains("/account/login", response.Headers.Location?.ToString());
     }
 
     [Fact]

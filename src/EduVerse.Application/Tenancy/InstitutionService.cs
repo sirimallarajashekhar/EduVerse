@@ -22,7 +22,7 @@ public sealed class InstitutionService(IInstitutionRepository repository, ITenan
     public async Task<IReadOnlyList<Campus>> CampusesAsync(CancellationToken ct)
     {
         var membership = await RequireMemberAsync(ct);
-        return await repository.ListCampusesAsync(membership.Identity.TenantId, ct);
+        return await repository.ListCampusesAsync(membership.Identity, ct);
     }
 
     public async Task<Campus> CreateCampusAsync(string code, string name, CancellationToken ct)

@@ -22,6 +22,9 @@ jobs:
           --health-interval=10s --health-timeout=5s --health-retries=15
     env:
       EDUVERSE_TEST_MYSQL: "Server=127.0.0.1;Port=3306;Database=eduverse_test;User ID=root;Password=ci_root_only;SslMode=None"
+      Authentication__Issuer: "EduVerse.CI"
+      Authentication__Audience: "EduVerse.API.CI"
+      Authentication__SigningKey: "ci-only-not-production--EduVerse--random-placeholder--key-2026!"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
@@ -30,8 +33,10 @@ jobs:
           cache: false
       - name: Install MySQL client
         run: sudo apt-get update && sudo apt-get install -y default-mysql-client
-      - name: Apply tenant migration
-        run: mysql -h 127.0.0.1 -u root -pci_root_only eduverse_test < database/migrations/001_tenant_foundation.sql
+      - name: Apply migrations 001 and 002
+        run: |
+          mysql -h 127.0.0.1 -u root -pci_root_only eduverse_test < database/migrations/001_tenant_foundation.sql
+          mysql -h 127.0.0.1 -u root -pci_root_only eduverse_test < database/migrations/002_identity_security.sql
       - name: Restore
         run: dotnet restore EduVerse.slnx
       - name: Build

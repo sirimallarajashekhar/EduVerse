@@ -3,5 +3,6 @@
     <PackageReference Include="Yarp.ReverseProxy" Version="2.3.0" />
     <ProjectReference Include="../EduVerse.Contracts/EduVerse.Contracts.csproj" />
     <ProjectReference Include="../EduVerse.DesignSystem/EduVerse.DesignSystem.csproj" />
+    <ProjectReference Include="../EduVerse.AuthWeb/EduVerse.AuthWeb.csproj" />
   </ItemGroup>
 </Project>

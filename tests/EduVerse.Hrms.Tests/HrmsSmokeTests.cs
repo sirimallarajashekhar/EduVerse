@@ -11,13 +11,11 @@ public sealed class HrmsSmokeTests : IClassFixture<WebApplicationFactory<Program
         _client = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
 
     [Fact]
-    public async Task HrmsRoot_RendersPreviewWithSharedShell()
+    public async Task AnonymousUser_MustSignInBeforeOpeningHrms()
     {
         using var response = await _client.GetAsync("/hrms");
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var html = await response.Content.ReadAsStringAsync();
-        Assert.Contains("Human Resource Management", html);
-        Assert.Contains("ev-sidebar", html);
+        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+        Assert.Contains("/account/login", response.Headers.Location?.ToString());
     }
 
     [Fact]

@@ -29,16 +29,24 @@ public sealed class MySqlInstitutionRepository(string connectionString) : IInsti
             reader.GetString(2), reader.GetString(3), reader.GetBoolean(4));
     }
 
-    public async Task<IReadOnlyList<Campus>> ListCampusesAsync(Guid tenantId, CancellationToken ct)
+    public async Task<IReadOnlyList<Campus>> ListCampusesAsync(TenantIdentity identity, CancellationToken ct)
     {
         var campuses = new List<Campus>();
         await using var connection = OpenConnection();
         await connection.OpenAsync(ct);
         await using var command = new MySqlCommand("""
             SELECT id, tenant_id, code, display_name, is_active
-            FROM campuses WHERE tenant_id = @tenantId ORDER BY code;
+            FROM campuses c
+            WHERE c.tenant_id=@tenantId
+              AND (
+                EXISTS(SELECT 1 FROM tenant_memberships m WHERE m.tenant_id=@tenantId
+                  AND m.subject_id=@subjectId AND m.role_code='ADMIN' AND m.is_active=1)
+                OR EXISTS(SELECT 1 FROM identity_campus_access ca WHERE ca.tenant_id=@tenantId
+                  AND ca.subject_id=@subjectId AND ca.campus_id=c.id)
+              ) ORDER BY code;
             """, connection);
-        command.Parameters.AddWithValue("@tenantId", tenantId.ToString("D"));
+        command.Parameters.AddWithValue("@tenantId", identity.TenantId.ToString("D"));
+        command.Parameters.AddWithValue("@subjectId", identity.SubjectId);
         await using var reader = await command.ExecuteReaderAsync(ct);
         while (await reader.ReadAsync(ct))
             campuses.Add(new Campus(reader.GetGuid(0), reader.GetGuid(1),
