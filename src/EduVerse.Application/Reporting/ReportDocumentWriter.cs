@@ -13,7 +13,7 @@ public static class ReportDocumentWriter
     {
         var data = new List<string[]>
         {
-            ["Year", "Month", "Enrollments", "Payments", "Collected INR"]
+            new[] { "Year", "Month", "Enrollments", "Payments", "Collected INR" }
         };
         data.AddRange(report.Months.Select(x => new[]
         {
