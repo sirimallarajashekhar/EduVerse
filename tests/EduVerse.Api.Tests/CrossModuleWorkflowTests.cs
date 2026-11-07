@@ -159,6 +159,45 @@ public sealed class CrossModuleWorkflowTests : IAsyncLifetime
         command.Parameters.AddWithValue("@t", Id(tenant));
         Assert.Equal(1, Convert.ToInt32(await command.ExecuteScalarAsync()));
     }
+    [Fact]
+    public async Task OffboardingBlocksOutstandingAssetsAndRevokesLinkedMembership()
+    {
+        if (host is null) return;
+        using var client = await AdminClient();
+        using var bind = await Post(client, "/api/v1/workflows/employees/bind-identity",
+            new EmployeeWorkflowRequest(campus, employee, member), "link-offboard");
+        Assert.Equal(HttpStatusCode.OK, bind.StatusCode);
+        using var activate = await client.PostAsJsonAsync(
+            $"/api/v1/hrms/employees/{employee:D}/lifecycle?campusId={campus:D}",
+            new HrLifecycle("ACTIVE", "Joined"));
+        Assert.Equal(HttpStatusCode.NoContent, activate.StatusCode);
+        using var blocked = await Post(client, "/api/v1/workflows/employees/offboard",
+            new EmployeeWorkflowRequest(campus, employee, null), "exit-1");
+        Assert.Equal(HttpStatusCode.Conflict, blocked.StatusCode);
+        await Exec("""
+            UPDATE ams_assets SET employee_id=NULL,status='AVAILABLE'
+            WHERE tenant_id=@t AND campus_id=@c AND id=@a
+            """, ("@t", Id(tenant)), ("@c", Id(campus)), ("@a", Id(asset)));
+        using var exit = await Post(client, "/api/v1/workflows/employees/offboard",
+            new EmployeeWorkflowRequest(campus, employee, null), "exit-1");
+        Assert.Equal(HttpStatusCode.OK, exit.StatusCode);
+        var receipt = await exit.Content.ReadFromJsonAsync<WorkflowReceipt>();
+        Assert.Equal("EXITED", receipt?.Status);
+        using var replay = await Post(client, "/api/v1/workflows/employees/offboard",
+            new EmployeeWorkflowRequest(campus, employee, null), "exit-1");
+        Assert.Equal(HttpStatusCode.OK, replay.StatusCode);
+        var replayReceipt = await replay.Content.ReadFromJsonAsync<WorkflowReceipt>();
+        Assert.Equal(receipt?.OperationId, replayReceipt?.OperationId);
+        await using var db = new MySqlConnection(connectionString);
+        await db.OpenAsync();
+        await using var cmd = new MySqlCommand("""
+            SELECT COUNT(*) FROM tenant_memberships
+            WHERE tenant_id=@t AND subject_id=@u AND is_active=0
+            """, db);
+        cmd.Parameters.AddWithValue("@t", Id(tenant));
+        cmd.Parameters.AddWithValue("@u", Id(member));
+        Assert.Equal(1, Convert.ToInt32(await cmd.ExecuteScalarAsync()));
+    }
     public async Task DisposeAsync()
     {
         if (host is not null) await host.DisposeAsync();
