@@ -9,7 +9,8 @@ set -Eeuo pipefail
 : "${AMS_URL:?Set AMS_URL}"
 probe() {
   local label="$1" base="$2" path="$3"
-  if [[ "$base" != https://* && "$base" != http://127.0.0.1:* ]]; then
+  if [[ ! "$base" =~ ^https://[a-zA-Z0-9.-]+(:[0-9]{1,5})?$ &&
+        ! "$base" =~ ^http://127[.]0[.]0[.]1:[0-9]{1,5}$ ]]; then
     echo "Non-TLS public URL rejected for $label." >&2
     exit 2
   fi
