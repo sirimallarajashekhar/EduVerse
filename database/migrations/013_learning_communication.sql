@@ -71,6 +71,8 @@ CREATE TABLE learning_announcements (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Student guardian contacts are private; parent-teacher threads are admin-mediated initially.
+ALTER TABLE student_guardians ADD UNIQUE KEY uq_learning_guardian_scope(tenant_id,campus_id,id);
+
 CREATE TABLE learning_parent_threads (
  id CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL PRIMARY KEY,
  tenant_id CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
