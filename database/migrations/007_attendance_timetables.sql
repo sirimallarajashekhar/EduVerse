@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS student_attendance (
  attendance_scope VARCHAR(8) NOT NULL,
  status VARCHAR(10) NOT NULL,
  remarks VARCHAR(250) NULL,
- marked_by CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+ marked_by VARCHAR(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
  marked_utc DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
  -- null-safe uniqueness for DAILY vs PERIOD, unlike MySQL nullable unique keys
  attendance_key VARCHAR(40) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS staff_attendance (
  attendance_date DATE NOT NULL,
  status VARCHAR(10) NOT NULL,
  remarks VARCHAR(250) NULL,
- marked_by CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+ marked_by VARCHAR(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
  marked_utc DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
  UNIQUE KEY uq_staff_attendance(tenant_id,campus_id,staff_subject_id,attendance_date),
  KEY ix_staff_attendance_date(tenant_id,campus_id,attendance_date),
