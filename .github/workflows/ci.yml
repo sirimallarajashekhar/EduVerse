@@ -33,7 +33,7 @@ jobs:
           cache: false
       - name: Install MySQL client
         run: sudo apt-get update && sudo apt-get install -y default-mysql-client
-      - name: Apply migrations 001 through 009
+      - name: Apply migrations 001 through 010
         run: |
           mysql -h 127.0.0.1 -u root -pci_root_only eduverse_test < database/migrations/001_tenant_foundation.sql
           mysql -h 127.0.0.1 -u root -pci_root_only eduverse_test < database/migrations/002_identity_security.sql
@@ -44,6 +44,7 @@ jobs:
           mysql -h 127.0.0.1 -u root -pci_root_only eduverse_test < database/migrations/007_attendance_timetables.sql
           mysql -h 127.0.0.1 -u root -pci_root_only eduverse_test < database/migrations/008_fees_finance.sql
           mysql -h 127.0.0.1 -u root -pci_root_only eduverse_test < database/migrations/009_exams_results.sql
+          mysql -h 127.0.0.1 -u root -pci_root_only eduverse_test < database/migrations/010_hrms.sql
       - name: Restore
         run: dotnet restore EduVerse.slnx
       - name: Build
