@@ -10,6 +10,12 @@ public static class StudentEndpoints
 {
     public static IEndpointRouteBuilder MapStudentEndpoints(this IEndpointRouteBuilder app)
     {
+        app.MapPost("/api/v1/admissions/apply",async (AdmissionSubmit request,StudentService service,CancellationToken ct)=>
+        {
+            try{return Results.Accepted(value:await service.SubmitPublicAsync(request,ct));}
+            catch(StudentScopeException){return Results.NotFound();}
+            catch(ArgumentException ex){return Invalid(ex.Message);}
+        }).RequireRateLimiting("auth");
         var group=app.MapGroup("/api/v1/students").RequireAuthorization();
         group.MapPost("/applications",async (AdmissionSubmit request,StudentService service,CancellationToken ct)=>
             await Write(()=>service.SubmitAsync(request,ct)));
