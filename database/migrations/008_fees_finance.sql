@@ -91,7 +91,7 @@ CREATE TABLE IF NOT EXISTS finance_payments (
 CREATE TABLE IF NOT EXISTS finance_refunds (
  id CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL PRIMARY KEY,
  tenant_id CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
- campus_id CHAR(36) CHARACTER ascii COLLATE ascii_bin NOT NULL,
+ campus_id CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
  payment_id CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
  amount DECIMAL(18,2) NOT NULL, reason VARCHAR(240) NOT NULL,
  refund_reference VARCHAR(100) NOT NULL,
