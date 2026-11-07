@@ -19,6 +19,10 @@ public sealed class IdentityProxyController(IHttpClientFactory factory) : Contro
     public Task<IActionResult> Invite([FromBody] System.Text.Json.JsonElement body, CancellationToken ct)
         => ForwardAsync(HttpMethod.Post, "users", body.GetRawText(), ct);
 
+    [HttpPost("users/{userId:guid}/deactivate"), ValidateAntiForgeryToken]
+    public Task<IActionResult> Deactivate(Guid userId, CancellationToken ct)
+        => ForwardAsync(HttpMethod.Post, $"users/{userId:D}/deactivate", null, ct);
+
     [HttpPost("permissions"), ValidateAntiForgeryToken]
     public Task<IActionResult> Permissions([FromBody] System.Text.Json.JsonElement body, CancellationToken ct)
         => ForwardAsync(HttpMethod.Post, "permissions", body.GetRawText(), ct);
