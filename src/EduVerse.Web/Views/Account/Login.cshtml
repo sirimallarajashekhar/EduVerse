@@ -1,0 +1,18 @@
+@model EduVerse.Web.Models.LoginForm
+@{ ViewData["Title"] = "Sign in"; }
+<section class="ev-card p-4 mx-auto" style="max-width:440px">
+  <h1 class="h3 mb-3">Sign in to EduVerse</h1>
+  <div asp-validation-summary="All" class="text-danger"></div>
+  <form method="post" asp-controller="Account" asp-action="Login">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="ReturnUrl" />
+    <label asp-for="TenantSlug" class="form-label">Institution code</label>
+    <input asp-for="TenantSlug" class="form-control mb-3" autocomplete="organization" required />
+    <label asp-for="Email" class="form-label">Email</label>
+    <input asp-for="Email" type="email" class="form-control mb-3" autocomplete="username" required />
+    <label asp-for="Password" class="form-label">Password</label>
+    <input asp-for="Password" type="password" class="form-control mb-3" autocomplete="current-password" required />
+    <button class="btn btn-primary w-100" type="submit">Sign in</button>
+  </form>
+  <a class="d-block mt-3" href="/account/password-reset">Forgot password?</a>
+</section>
