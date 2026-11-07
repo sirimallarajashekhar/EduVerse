@@ -18,6 +18,8 @@ CREATE TABLE ams_vendors (
  FOREIGN KEY(tenant_id,campus_id) REFERENCES campuses(tenant_id,id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+ALTER TABLE institution_buildings ADD UNIQUE KEY uq_ams_building_scope(tenant_id,campus_id,id);
+
 CREATE TABLE ams_assets (
  id CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL PRIMARY KEY,
  tenant_id CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
@@ -42,8 +44,6 @@ CREATE TABLE ams_assets (
  CHECK(status IN ('AVAILABLE','ALLOCATED','MAINTENANCE','RETIRED','DISPOSED')),
  CHECK(purchase_amount IS NULL OR purchase_amount>=0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-ALTER TABLE institution_buildings ADD UNIQUE KEY uq_ams_building_scope(tenant_id,campus_id,id);
 
 CREATE TABLE ams_asset_events (
  id CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL PRIMARY KEY,
