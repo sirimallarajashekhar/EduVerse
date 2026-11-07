@@ -10,7 +10,15 @@ public sealed partial class MySqlAttendanceStore
  {
   await using var db=Connect();await db.OpenAsync(ct);
   await using var tx=await db.BeginTransactionAsync(ct);
-  // Serializes all timetable writes for a campus. Prevents concurrent read-then-insert races.
+  // Tenant-wide lock serializes allocations of teachers shared across campuses.
+  // Always acquire tenant before campus to keep lock ordering deterministic.
+  await using(var tenantLock=new MySqlCommand("""
+   SELECT id FROM tenants WHERE id=@tenant AND is_active=1 FOR UPDATE
+   """,db,tx))
+  {
+   Add(tenantLock,("@tenant",Id(tenant)));
+   if(await tenantLock.ExecuteScalarAsync(ct) is null)return null;
+  }
   if(!await ActiveCampus(db,tx,tenant,req.CampusId,ct))return null;
   await LockCampus(db,tx,tenant,req.CampusId,ct);
   await using(var check=new MySqlCommand("""
@@ -40,10 +48,13 @@ public sealed partial class MySqlAttendanceStore
    SELECT EXISTS(SELECT 1 FROM academic_timetable_slots s
      JOIN academic_periods oldp ON oldp.id=s.period_id
      JOIN academic_periods newp ON newp.id=@period AND newp.tenant_id=@tenant AND newp.campus_id=@campus
-     WHERE s.tenant_id=@tenant AND s.campus_id=@campus AND s.academic_year_id=@year
-       AND s.day_of_week=@day AND s.is_active=1
+     JOIN academic_years oldy ON oldy.id=s.academic_year_id
+     JOIN academic_years newy ON newy.id=@year AND newy.tenant_id=@tenant AND newy.campus_id=@campus
+     WHERE s.tenant_id=@tenant AND s.day_of_week=@day AND s.is_active=1
+       AND oldy.starts_on<=newy.ends_on AND newy.starts_on<=oldy.ends_on
        AND oldp.starts_at<newp.ends_at AND newp.starts_at<oldp.ends_at
-       AND (s.teacher_subject_id=@teacher OR s.class_item_id=@class))
+       AND (s.teacher_subject_id=@teacher OR
+            (s.campus_id=@campus AND s.academic_year_id=@year AND s.class_item_id=@class)))
    """,db,tx))
   {
    Add(conflict,("@tenant",Id(tenant)),("@campus",Id(req.CampusId)),("@year",Id(req.AcademicYearId)),
