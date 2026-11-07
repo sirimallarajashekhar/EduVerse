@@ -58,15 +58,17 @@ jobs:
             project: src/EduVerse.Hrms.Web/EduVerse.Hrms.Web.csproj
           - module: ams
             project: src/EduVerse.Ams.Web/EduVerse.Ams.Web.csproj
-    if: inputs.module == 'all' || inputs.module == matrix.module
     steps:
       - uses: actions/checkout@v4
+        if: inputs.module == 'all' || inputs.module == matrix.module
         with:
           persist-credentials: false
       - uses: actions/setup-dotnet@v4
+        if: inputs.module == 'all' || inputs.module == matrix.module
         with:
           dotnet-version: 10.0.x
       - name: Publish independent module
+        if: inputs.module == 'all' || inputs.module == matrix.module
         run: |
           set -euo pipefail
           dotnet restore "${{ matrix.project }}"
@@ -77,6 +79,7 @@ jobs:
           tar -C "bundle/${{ matrix.module }}" -czf "${{ matrix.module }}-${GITHUB_SHA}.tar.gz" .
           sha256sum "${{ matrix.module }}-${GITHUB_SHA}.tar.gz" > "${{ matrix.module }}-${GITHUB_SHA}.sha256"
       - name: Upload immutable release bundle
+        if: inputs.module == 'all' || inputs.module == matrix.module
         uses: actions/upload-artifact@v4
         with:
           name: eduverse-${{ matrix.module }}-${{ github.sha }}
