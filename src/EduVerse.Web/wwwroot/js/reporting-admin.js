@@ -52,14 +52,24 @@
       }
       rows.append(tr);
     }
-    $('download').href = query('/bff/reporting/monthly.csv', fields);
-    $('download').classList.remove('disabled');
-    $('download').removeAttribute('aria-disabled');
+    for (const [id, extension] of [
+      ['download', 'csv'], ['download-xlsx', 'xlsx'], ['download-pdf', 'pdf']
+    ]) {
+      $(id).href = query('/bff/reporting/monthly.' + extension, fields);
+      $(id).classList.remove('disabled');
+      $(id).removeAttribute('aria-disabled');
+    }
     status('Report generated (UTC).');
   }
   $('report-filter').addEventListener('submit', event => {
     event.preventDefault();
-    load().catch(error => { $('download').classList.add('disabled'); status(error.message); });
+    load().catch(error => {
+      for (const id of ['download', 'download-xlsx', 'download-pdf']) {
+        $(id).classList.add('disabled');
+        $(id).setAttribute('aria-disabled', 'true');
+      }
+      status(error.message);
+    });
   });
   fetch('/bff/institution-admin/campuses').then(response => {
     if (!response.ok) throw Error('Campus list unavailable (' + response.status + ').');
