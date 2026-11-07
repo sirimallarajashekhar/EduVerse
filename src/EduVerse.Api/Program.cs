@@ -11,6 +11,7 @@ using EduVerse.Application.OperationsModules;
 using EduVerse.Application.Learning;
 using EduVerse.Application.College;
 using EduVerse.Application.Workflows;
+using EduVerse.Application.Reporting;
 using EduVerse.Application.Students;
 using EduVerse.Application.Administration;
 using EduVerse.Api.Observability;
@@ -108,6 +109,10 @@ builder.Services.AddScoped<OperationsService>();
 builder.Services.AddScoped<LearningService>();
 builder.Services.AddScoped<CollegeService>();
 builder.Services.AddScoped<CrossModuleService>();
+builder.Services.AddScoped<ReportingService>();
+builder.Services.AddScoped<IReportingStore>(p => new MySqlReportingStore(
+    p.GetRequiredService<IConfiguration>().GetConnectionString("EduVerse")
+    ?? throw new InvalidOperationException("Database not configured.")));
 builder.Services.AddScoped<ICrossModuleStore>(p => new MySqlCrossModuleStore(
     p.GetRequiredService<IConfiguration>().GetConnectionString("EduVerse")
     ?? throw new InvalidOperationException("Database not configured.")));
@@ -207,6 +212,7 @@ app.MapOperationsEndpoints();
 app.MapLearningEndpoints();
 app.MapCollegeEndpoints();
 app.MapCrossModuleEndpoints();
+app.MapReportingEndpoints();
 app.Run();
 
 public partial class Program { }
