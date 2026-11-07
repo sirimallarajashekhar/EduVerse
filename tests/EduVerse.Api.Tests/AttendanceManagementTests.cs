@@ -180,6 +180,51 @@ public sealed class AttendanceManagementTests:IAsyncLifetime
   Assert.Equal(HttpStatusCode.NotFound,crossCampus.StatusCode);
  }
  [Fact]
+ public async Task SharedTeacherCannotBeDoubleBookedAcrossCampuses()
+ {
+  if(host is null)return;
+  using var client=await ClientAsync();
+  var academic=await SetupAcademicAsync(client);
+  using var firstPeriod=await client.PostAsJsonAsync("/api/v1/attendance/periods",
+   new PeriodCreate(campus,"P10","Period Ten",new TimeOnly(9,0),new TimeOnly(10,0)));
+  Assert.Equal(HttpStatusCode.OK,firstPeriod.StatusCode);
+  var periodA=(await firstPeriod.Content.ReadFromJsonAsync<PeriodRecord>())!;
+  using var firstSlot=await client.PostAsJsonAsync("/api/v1/attendance/timetable",
+   new TimetableCreate(campus,academic.Year,academic.Class,academic.Subject,periodA.Id,admin,1));
+  Assert.Equal(HttpStatusCode.OK,firstSlot.StatusCode);
+
+  var secondCampus=Guid.NewGuid();
+  await Exec("""
+   INSERT INTO campuses(id,tenant_id,code,display_name)
+   VALUES(@id,@tenant,'SECOND','Second Campus')
+   """,("@id",secondCampus.ToString("D")),("@tenant",tenant.ToString("D")));
+  using var secondYear=await client.PostAsJsonAsync("/api/v1/academic/years",
+   new AcademicYearCreate(secondCampus,"2026-27","Second Academic Year",
+    new DateOnly(2026,6,1),new DateOnly(2027,5,31)));
+  Assert.Equal(HttpStatusCode.Created,secondYear.StatusCode);
+  var yearB=(await secondYear.Content.ReadFromJsonAsync<AcademicYear>())!;
+  async Task<AcademicItem> Item(string kind,string code,string name)
+  {
+   using var response=await client.PostAsJsonAsync("/api/v1/academic/catalog",
+    new AcademicItemCreate(secondCampus,kind,code,name,null,null,null,null,null));
+   Assert.Equal(HttpStatusCode.Created,response.StatusCode);
+   return (await response.Content.ReadFromJsonAsync<AcademicItem>())!;
+  }
+  var classB=await Item("CLASS","C09","Class Nine");
+  var subjectB=await Item("SUBJECT","SCI2","Science 2");
+  using var assigned=await client.PostAsJsonAsync("/api/v1/academic/faculty-assignments",
+   new FacultyAssignmentCreate(secondCampus,subjectB.Id,yearB.Id,admin));
+  Assert.Equal(HttpStatusCode.Created,assigned.StatusCode);
+  using var p=await client.PostAsJsonAsync("/api/v1/attendance/periods",
+   new PeriodCreate(secondCampus,"P20","Period Twenty",new TimeOnly(9,30),new TimeOnly(10,30)));
+  Assert.Equal(HttpStatusCode.OK,p.StatusCode);
+  var periodB=(await p.Content.ReadFromJsonAsync<PeriodRecord>())!;
+  using var conflict=await client.PostAsJsonAsync("/api/v1/attendance/timetable",
+   new TimetableCreate(secondCampus,yearB.Id,classB.Id,subjectB.Id,periodB.Id,admin,1));
+  Assert.Equal(HttpStatusCode.Conflict,conflict.StatusCode);
+ }
+
+ [Fact]
  public async Task AnonymousAndForeignTenantMemberCannotReadOrWriteAttendance()
  {
   if(host is null)return;
