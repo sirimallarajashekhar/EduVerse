@@ -1,0 +1,85 @@
+@{ViewData["Title"]="Exams & Results";}
+<div class="mb-4">
+ <p class="ev-eyebrow">EduVerse · School &amp; college assessment</p>
+ <h1 class="h3">Exams &amp; Results</h1>
+ <p class="text-secondary">Create exams, enter validated subject marks, approve and publish report cards.</p>
+</div>
+<section class="ev-card p-4 mb-3">
+ @Html.AntiForgeryToken()
+ <label for="campus" class="form-label">Active campus</label>
+ <select id="campus" class="form-select" style="max-width:440px"></select>
+ <p id="status" role="status" class="small mt-3 mb-0"></p>
+</section>
+<div class="row g-3 mb-3">
+ <div class="col-lg-5"><section class="ev-card p-4 h-100">
+  <h2 class="h5">Grading scheme</h2>
+  <p class="small text-secondary">Define contiguous grade ranges from 0.00 to 100.00. Points are on a 0–10 scale.</p>
+  <form id="scheme-form" class="row g-2">
+   <div class="col-sm-4"><label for="scheme-code" class="form-label">Code</label><input id="scheme-code" maxlength="30" class="form-control" required /></div>
+   <div class="col-sm-8"><label for="scheme-name" class="form-label">Scheme name</label><input id="scheme-name" maxlength="120" class="form-control" required /></div>
+   <div class="col-12"><label for="scheme-bands" class="form-label">Grades (one per line: grade,min,max,points)</label>
+    <textarea id="scheme-bands" class="form-control" rows="5" required>A,75.00,100.00,10
+B,50.00,74.99,7
+C,35.00,49.99,5
+F,0.00,34.99,0</textarea></div>
+   <div class="col-12"><button type="submit" class="btn btn-primary">Create scheme</button></div>
+  </form>
+ </section></div>
+ <div class="col-lg-7"><section class="ev-card p-4 h-100">
+  <h2 class="h5">New examination</h2>
+  <form id="exam-form" class="row g-2">
+   <div class="col-sm-6"><label for="year" class="form-label">Academic year</label><select id="year" class="form-select" required></select></div>
+   <div class="col-sm-6"><label for="scheme" class="form-label">Grading scheme</label><select id="scheme" class="form-select" required></select></div>
+   <div class="col-sm-4"><label for="exam-code" class="form-label">Code</label><input id="exam-code" class="form-control" maxlength="30" required /></div>
+   <div class="col-sm-8"><label for="exam-title" class="form-label">Title</label><input id="exam-title" class="form-control" maxlength="160" required /></div>
+   <div class="col-12"><label for="exam-type" class="form-label">Type</label><select id="exam-type" class="form-select"><option>UNIT</option><option>MIDTERM</option><option>FINAL</option><option>SEMESTER</option><option>PRACTICAL</option><option>OTHER</option></select></div>
+   <div class="col-12"><button type="submit" class="btn btn-primary">Create examination</button></div>
+  </form>
+  <hr/>
+  <label for="exam" class="form-label">Selected examination</label><select id="exam" class="form-select"></select>
+  <div class="d-flex flex-wrap gap-2 mt-2">
+   <button id="approve" type="button" class="btn btn-outline-primary">Approve results</button>
+   <button id="publish" type="button" class="btn btn-outline-danger">Publish results</button>
+  </div>
+  <p id="exam-state" class="small mt-2"></p>
+ </section></div>
+</div>
+<div class="row g-3 mb-3">
+ <div class="col-lg-6"><section class="ev-card p-4 h-100">
+  <h2 class="h5">Subject assessments &amp; schedule</h2>
+  <form id="assessment-form" class="row g-2">
+   <div class="col-sm-6"><label for="item" class="form-label">Class / section / course</label><select id="item" class="form-select" required></select></div>
+   <div class="col-sm-6"><label for="subject" class="form-label">Subject</label><select id="subject" class="form-select" required></select></div>
+   <div class="col-sm-6"><label for="exam-date" class="form-label">Exam date</label><input id="exam-date" type="date" class="form-control" required /></div>
+   <div class="col-sm-6"><label for="exam-start" class="form-label">Start time</label><input id="exam-start" type="time" class="form-control"/></div>
+   <div class="col-sm-4"><label for="max" class="form-label">Max marks</label><input id="max" type="number" min="0.01" step="0.01" class="form-control" required /></div>
+   <div class="col-sm-4"><label for="pass" class="form-label">Pass marks</label><input id="pass" type="number" min="0" step="0.01" class="form-control" required /></div>
+   <div class="col-sm-4"><label for="credits" class="form-label">Credits</label><input id="credits" type="number" min="0.01" max="50" step="0.01" value="1" class="form-control" required /></div>
+   <div class="col-12"><button type="submit" class="btn btn-outline-primary">Add assessment</button></div>
+  </form>
+  <ul id="assessments" class="small mt-3"></ul>
+ </section></div>
+ <div class="col-lg-6"><section class="ev-card p-4 h-100">
+  <h2 class="h5">Student marks entry</h2>
+  <form id="mark-form" class="row g-2">
+   <div class="col-12"><label for="assessment" class="form-label">Assessment</label><select id="assessment" class="form-select" required></select></div>
+   <div class="col-12"><label for="enrollment" class="form-label">Student enrollment</label><select id="enrollment" class="form-select" required></select></div>
+   <div class="col-sm-6"><label for="marks" class="form-label">Obtained marks</label><input id="marks" type="number" min="0" step="0.01" class="form-control"/></div>
+   <div class="col-sm-6 d-flex align-items-end"><label><input id="absent" type="checkbox"/> Absent (no numerical marks)</label></div>
+   <div class="col-12"><button type="submit" class="btn btn-outline-primary">Save draft marks</button></div>
+  </form>
+  <ul id="mark-list" class="small mt-3"></ul>
+ </section></div>
+</div>
+<section class="ev-card p-4">
+ <h2 class="h5">Published results &amp; performance</h2>
+ <p id="analytics" class="small"></p>
+ <label for="result-enrollment" class="form-label">Student enrollment</label><select id="result-enrollment" class="form-select mb-2"></select>
+ <div class="d-flex flex-wrap gap-2">
+  <button id="result-view" class="btn btn-outline-primary" type="button">View result</button>
+  <button id="result-download" class="btn btn-outline-secondary" type="button">Download report card</button>
+ </div>
+ <pre id="result-output" class="small mt-3" style="white-space:pre-wrap"></pre>
+ <p class="small text-secondary mb-0">Published results are immutable in this phase. GPA is credit-weighted within an exam; CGPA is a simple mean across published exam GPAs.</p>
+</section>
+@section Scripts {<script src="~/js/exam-admin.js" asp-append-version="true"></script>}
