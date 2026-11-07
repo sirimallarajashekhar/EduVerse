@@ -84,11 +84,30 @@ public sealed partial class MySqlExamStore
        total_marks,maximum_marks,percentage,gpa,passed)
      VALUES(@id,@t,@c,@exam,@enrollment,@total,@max,@percent,@gpa,@passed)
      """,db,tx);
-    Add(insert,("@id",Id(Guid.NewGuid())),("@t",Id(tenant)),("@c",Id(campus)),
+    var resultId=Guid.NewGuid();
+    Add(insert,("@id",Id(resultId)),("@t",Id(tenant)),("@c",Id(campus)),
      ("@exam",Id(exam)),("@enrollment",Id(group.Key)),("@total",totals.Total),
      ("@max",totals.Max),("@percent",totals.Percent),("@gpa",totals.Gpa),
      ("@passed",totals.Passed));
     await insert.ExecuteNonQueryAsync(ct);
+    foreach(var subject in group)
+    {
+     await using var detail=new MySqlCommand("""
+      INSERT INTO exam_result_subject_snapshots
+       (id,tenant_id,campus_id,result_id,subject_id,subject_name,grade,
+        marks,max_marks,percentage,grade_points,passed,absent)
+      VALUES(@id,@t,@c,@result,@subject,@name,@grade,@marks,@max,
+       @percentage,@points,@passed,@absent)
+      """,db,tx);
+     Add(detail,("@id",Id(Guid.NewGuid())),("@t",Id(tenant)),("@c",Id(campus)),
+      ("@result",Id(resultId)),("@subject",Id(subject.Subject)),
+      ("@name",subject.SubjectName),("@grade",subject.Grade),("@marks",subject.Marks),
+      ("@max",subject.Maximum),
+      ("@percentage",Math.Round((subject.Marks??0m)*100m/subject.Maximum,2,MidpointRounding.AwayFromZero)),
+      ("@points",subject.Points),("@passed",!subject.Absent&&subject.Marks>=subject.Pass),
+      ("@absent",subject.Absent));
+     await detail.ExecuteNonQueryAsync(ct);
+    }
    }
   }
   await using(var update=new MySqlCommand("""
@@ -129,11 +148,26 @@ public sealed partial class MySqlExamStore
    var gpa=r.GetDecimal(3);var passed=r.GetBoolean(4);
    var student=r.GetString(5);var number=r.GetString(6);var title=r.GetString(7);
    await r.DisposeAsync();
-   var scores=await Scores(db,null,tenant,campus,exam,ct);
-   var lines=scores.Where(s=>s.Enrollment==enrollment)
-    .Select(s=>new ResultLine(s.SubjectName,s.Grade,s.Marks,s.Maximum,
-      Math.Round((s.Marks??0m)*100m/s.Maximum,2,MidpointRounding.AwayFromZero),
-      s.Points,!s.Absent&&s.Marks>=s.Pass,s.Absent)).ToArray();
+   var lines=new List<ResultLine>();
+   await using(var details=new MySqlCommand("""
+    SELECT s.subject_name,s.grade,s.marks,s.max_marks,s.percentage,
+     s.grade_points,s.passed,s.absent
+    FROM exam_result_subject_snapshots s
+    JOIN exam_result_publications r ON r.id=s.result_id AND r.tenant_id=s.tenant_id
+      AND r.campus_id=s.campus_id
+    WHERE s.tenant_id=@t AND s.campus_id=@c AND r.exam_id=@exam
+      AND r.enrollment_id=@enrollment
+    ORDER BY s.subject_name
+    """,db))
+   {
+    Add(details,("@t",Id(tenant)),("@c",Id(campus)),
+     ("@exam",Id(exam)),("@enrollment",Id(enrollment)));
+    await using var reader=await details.ExecuteReaderAsync(ct);
+    while(await reader.ReadAsync(ct))
+     lines.Add(new ResultLine(reader.GetString(0),reader.GetString(1),
+      reader.IsDBNull(2)?null:reader.GetDecimal(2),reader.GetDecimal(3),
+      reader.GetDecimal(4),reader.GetDecimal(5),reader.GetBoolean(6),reader.GetBoolean(7)));
+   }
    return new ResultRecord(exam,enrollment,student,number,title,total,max,percentage,gpa,passed,lines);
   }
  }
