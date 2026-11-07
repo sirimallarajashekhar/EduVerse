@@ -9,7 +9,6 @@ umask 077
 [[ "$MYSQL_DEFAULTS_FILE" == /* && -f "$MYSQL_DEFAULTS_FILE" ]] || { echo "MYSQL_DEFAULTS_FILE must be an absolute existing path." >&2; exit 2; }
 [[ "$BACKUP_DIR" == /* ]] || { echo "BACKUP_DIR must be absolute." >&2; exit 2; }
 [[ "$DB_NAME" =~ ^[a-zA-Z][a-zA-Z0-9_]*$ ]] || { echo "Unsafe database name." >&2; exit 2; }
-[[ "$(stat -c '%a' "$MYSQL_DEFAULTS_FILE")" =~ ^[046][0-7][0-7]$ ]] || true
 # Disallow group/other permissions on credential files.
 perms="$(stat -c '%a' "$MYSQL_DEFAULTS_FILE")"
 if (( (8#$perms & 8#077) != 0 )); then
