@@ -101,6 +101,64 @@ public sealed class IdentityAuthenticationTests : IAsyncLifetime
         Assert.Equal(HttpStatusCode.Unauthorized, wrongTenant.StatusCode);
     }
 
+    [Fact]
+    public async Task DeactivatingTenantMember_RevokesExistingJwtAccess()
+    {
+        if (factory is null || string.IsNullOrWhiteSpace(connection)) return;
+        var memberId = Guid.NewGuid();
+        var memberEmail = Guid.NewGuid().ToString("N") + "@example.org";
+        await using (var db = new MySqlConnection(connection))
+        {
+            await db.OpenAsync();
+            await using (var addUser = new MySqlCommand("""
+                INSERT INTO identity_users(id,email,email_normalized,display_name,password_hash)
+                VALUES (@uid,@email,@normalized,'Revocation Test Member',@hash)
+                """, db))
+            {
+                addUser.Parameters.AddWithValue("@uid", memberId.ToString("D"));
+                addUser.Parameters.AddWithValue("@email", memberEmail);
+                addUser.Parameters.AddWithValue("@normalized", memberEmail.ToUpperInvariant());
+                addUser.Parameters.AddWithValue("@hash", new PasswordHasher<object>().HashPassword(new object(), Password));
+                await addUser.ExecuteNonQueryAsync();
+            }
+            await using (var addMembership = new MySqlCommand("""
+                INSERT INTO tenant_memberships(tenant_id,subject_id,role_code)
+                VALUES (@tid,@uid,'MEMBER')
+                """, db))
+            {
+                addMembership.Parameters.AddWithValue("@tid", tenantId.ToString("D"));
+                addMembership.Parameters.AddWithValue("@uid", memberId.ToString("D"));
+                await addMembership.ExecuteNonQueryAsync();
+            }
+        }
+
+        using var admin = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
+        using var adminLogin = await admin.PostAsJsonAsync("/api/v1/identity/login",
+            new LoginRequest(tenantSlug, email, Password));
+        Assert.Equal(HttpStatusCode.OK, adminLogin.StatusCode);
+        var adminTicket = await adminLogin.Content.ReadFromJsonAsync<LoginResponse>();
+        Assert.NotNull(adminTicket);
+        admin.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", adminTicket.AccessToken);
+
+        using var member = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
+        using var memberLogin = await member.PostAsJsonAsync("/api/v1/identity/login",
+            new LoginRequest(tenantSlug, memberEmail, Password));
+        Assert.Equal(HttpStatusCode.OK, memberLogin.StatusCode);
+        var memberTicket = await memberLogin.Content.ReadFromJsonAsync<LoginResponse>();
+        Assert.NotNull(memberTicket);
+        member.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", memberTicket.AccessToken);
+        using var before = await member.GetAsync("/api/v1/identity/session");
+        Assert.Equal(HttpStatusCode.NoContent, before.StatusCode);
+
+        using var deactivated = await admin.PostAsync(
+            "/api/v1/identity/users/" + memberId.ToString("D") + "/deactivate", content: null);
+        Assert.Equal(HttpStatusCode.NoContent, deactivated.StatusCode);
+        using var after = await member.GetAsync("/api/v1/identity/session");
+        Assert.Equal(HttpStatusCode.Unauthorized, after.StatusCode);
+    }
+
     public Task DisposeAsync()
     {
         factory?.Dispose();
