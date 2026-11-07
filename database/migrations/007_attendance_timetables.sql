@@ -39,6 +39,10 @@ CREATE TABLE IF NOT EXISTS academic_timetable_slots (
  CONSTRAINT chk_slot_day CHECK(day_of_week BETWEEN 1 AND 7)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- Tie attendance enrollment to the same tenant and campus at the DB layer.
+ALTER TABLE student_enrollments
+ ADD UNIQUE KEY uq_attendance_enrollment_scope(tenant_id,campus_id,id);
+
 CREATE TABLE IF NOT EXISTS student_attendance (
  id CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL PRIMARY KEY,
  tenant_id CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
@@ -57,7 +61,7 @@ CREATE TABLE IF NOT EXISTS student_attendance (
  UNIQUE KEY uq_student_attendance(tenant_id,campus_id,student_id,attendance_date,attendance_key),
  KEY ix_attendance_summary(tenant_id,campus_id,enrollment_id,attendance_date),
  CONSTRAINT fk_attendance_student FOREIGN KEY (tenant_id,campus_id,student_id) REFERENCES students(tenant_id,campus_id,id),
- CONSTRAINT fk_attendance_enrollment FOREIGN KEY (enrollment_id) REFERENCES student_enrollments(id),
+ CONSTRAINT fk_attendance_enrollment FOREIGN KEY (tenant_id,campus_id,enrollment_id) REFERENCES student_enrollments(tenant_id,campus_id,id),
  CONSTRAINT fk_attendance_period FOREIGN KEY (tenant_id,campus_id,period_id) REFERENCES academic_periods(tenant_id,campus_id,id),
  CONSTRAINT fk_attendance_actor FOREIGN KEY (tenant_id,marked_by) REFERENCES tenant_memberships(tenant_id,subject_id),
  CONSTRAINT chk_attendance_scope CHECK(attendance_scope IN ('DAILY','PERIOD')),
