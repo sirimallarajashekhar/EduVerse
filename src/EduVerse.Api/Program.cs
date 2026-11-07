@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using System.Text.Json;
 using EduVerse.Api.Health;
+using EduVerse.Application.Administration;
 using EduVerse.Api.Observability;
 using EduVerse.Application.Operations;
 using EduVerse.Infrastructure.Background;
@@ -86,6 +87,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<ITenantContext, HttpTenantContext>();
 builder.Services.AddScoped<InstitutionService>();
+builder.Services.AddScoped<InstitutionAdminService>();
+builder.Services.AddScoped<IInstitutionAdminStore>(provider =>
+    new MySqlInstitutionAdminStore(provider.GetRequiredService<IConfiguration>()
+        .GetConnectionString("EduVerse")
+        ?? throw new InvalidOperationException("ConnectionStrings:EduVerse must be configured.")));
 builder.Services.AddScoped<IIdempotentCampusWriter>(provider =>
     new MySqlIdempotentCampusWriter(provider.GetRequiredService<IConfiguration>()
         .GetConnectionString("EduVerse")
@@ -136,6 +142,7 @@ app.MapPlatformPagedEndpoints();
 app.MapIdempotentCampusEndpoints();
 app.MapIdentityEndpoints();
 app.MapInstitutionEndpoints();
+app.MapInstitutionAdminEndpoints();
 app.Run();
 
 public partial class Program { }
