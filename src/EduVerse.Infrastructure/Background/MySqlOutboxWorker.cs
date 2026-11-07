@@ -60,7 +60,23 @@ public sealed class MySqlOutboxWorker(
 
             // This is an internal proof-of-concept handler, NOT a promise of external delivery.
             // Add an explicit handler per integration before emitting that type in production.
-            var supported = eventType == "campus.created";
+            var workflowEvent = eventType is "workflow.hr.identity_bound" or "workflow.hr.exited"
+                or "workflow.procurement.finance_requested";
+            var supported = eventType == "campus.created" || workflowEvent;
+            if (workflowEvent)
+            {
+                // Idempotently record the internal receipt in the same transaction.
+                // This is not an acknowledgement from any external provider.
+                await using var receipt = new MySqlCommand("""
+                    INSERT INTO workflow_event_receipts(event_id,tenant_id,event_type)
+                    VALUES(@id,@tenant,@type)
+                    ON DUPLICATE KEY UPDATE event_id=VALUES(event_id)
+                    """, db, tx);
+                receipt.Parameters.AddWithValue("@id", eventId.ToString("D"));
+                receipt.Parameters.AddWithValue("@tenant", tenantId.ToString("D"));
+                receipt.Parameters.AddWithValue("@type", eventType);
+                await receipt.ExecuteNonQueryAsync(ct);
+            }
             await using var update = new MySqlCommand(supported
                 ? """
                   UPDATE integration_outbox SET processed_utc=UTC_TIMESTAMP(6),attempts=attempts+1
