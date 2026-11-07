@@ -92,6 +92,17 @@ public sealed class MySqlIdempotentCampusWriter(string connectionString) : IIdem
             complete.Parameters.AddWithValue("@key", idempotencyKey);
             await complete.ExecuteNonQueryAsync(cancellationToken);
         }
+        await using (var outbox = new MySqlCommand("""
+            INSERT INTO integration_outbox(id,tenant_id,type,payload_json)
+            VALUES (@id,@tid,'campus.created',@payload)
+            """, connection, transaction))
+        {
+            outbox.Parameters.AddWithValue("@id", Guid.NewGuid().ToString("D"));
+            outbox.Parameters.AddWithValue("@tid", identity.TenantId.ToString("D"));
+            outbox.Parameters.AddWithValue("@payload",
+                System.Text.Json.JsonSerializer.Serialize(new { campusId = newId, code }));
+            await outbox.ExecuteNonQueryAsync(cancellationToken);
+        }
         await transaction.CommitAsync(cancellationToken);
         return new Campus(newId, identity.TenantId, code, name, true);
     }
