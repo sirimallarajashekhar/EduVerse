@@ -86,11 +86,14 @@ CREATE TABLE IF NOT EXISTS student_lifecycle_events (
  reason VARCHAR(400) NULL,
  old_item_id CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NULL,
  new_item_id CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NULL,
+ target_campus_id CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NULL,
  occurred_utc DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
  actor_id CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
  KEY ix_student_events (tenant_id,campus_id,student_id,occurred_utc),
  CONSTRAINT fk_event_student FOREIGN KEY (tenant_id,campus_id,student_id)
     REFERENCES students(tenant_id,campus_id,id),
+ CONSTRAINT fk_event_target_campus FOREIGN KEY (tenant_id,target_campus_id)
+    REFERENCES campuses(tenant_id,id),
  CONSTRAINT chk_lifecycle_code CHECK (event_code IN ('PROMOTED','TRANSFERRED','WITHDRAWN'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
