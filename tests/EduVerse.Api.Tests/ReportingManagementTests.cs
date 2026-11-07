@@ -1,4 +1,5 @@
 using System.Net;
+using System.IO.Compression;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using EduVerse.Application.Reporting;
@@ -137,6 +138,20 @@ public sealed class ReportingManagementTests : IAsyncLifetime
         Assert.StartsWith("year,month,enrollments,payments,collected_inr", csv);
         Assert.DoesNotContain("Synthetic", csv);
         Assert.DoesNotContain("REPORT-", csv);
+        using var excel = await client.GetAsync("/api/v1/reporting/monthly.xlsx?" + Range(campus));
+        Assert.Equal(HttpStatusCode.OK, excel.StatusCode);
+        var excelBytes = await excel.Content.ReadAsByteArrayAsync();
+        Assert.Equal((byte)'P', excelBytes[0]);
+        Assert.Equal((byte)'K', excelBytes[1]);
+        using (var zip = new ZipArchive(new MemoryStream(excelBytes), ZipArchiveMode.Read))
+        {
+            Assert.NotNull(zip.GetEntry("xl/workbook.xml"));
+            Assert.NotNull(zip.GetEntry("xl/worksheets/sheet1.xml"));
+        }
+        using var pdf = await client.GetAsync("/api/v1/reporting/monthly.pdf?" + Range(campus));
+        Assert.Equal(HttpStatusCode.OK, pdf.StatusCode);
+        var pdfBytes = await pdf.Content.ReadAsByteArrayAsync();
+        Assert.StartsWith("%PDF-1.4", System.Text.Encoding.ASCII.GetString(pdfBytes));
         using var invalid = await client.GetAsync(
             $"/api/v1/reporting/dashboard?campusId={campus:D}&from=2025-01-01&to=2026-11-01");
         Assert.Equal(HttpStatusCode.BadRequest, invalid.StatusCode);
