@@ -1,9 +1,13 @@
-<div class="row"><div class="col-lg-8">
-  <h1 class="display-5 fw-semibold">EduVerse ERP</h1>
-  <p class="lead">School &amp; College Management — API-first architecture.</p>
-  <div class="card shadow-sm"><div class="card-body">
-    <h2 class="h5">Backend API connectivity</h2>
-    <p id="api-status" class="mb-0" role="status" aria-live="polite">Checking API…</p>
-  </div></div>
-  <p class="text-secondary small mt-3">This is the Phase 1 shell, not an operational ERP module.</p>
-</div></div>
+@{
+    ViewData["Title"] = "Dashboard";
+}
+<div class="mb-4">
+  <p class="ev-eyebrow mb-2">EduVerse platform</p>
+  <h1 class="display-6 fw-semibold">Institution command center</h1>
+  <p class="text-secondary">One portal, independently deployable modules and API-owned business logic.</p>
+</div>
+<div class="row g-3">
+  <div class="col-md-6"><section class="ev-card p-4 h-100"><div class="ev-eyebrow mb-2">Asset management</div><h2 class="h4">AMS</h2><p>Asset registry, allocation and maintenance module placeholder.</p><a href="/ams" class="btn btn-primary">Open AMS</a></section></div>
+  <div class="col-md-6"><section class="ev-card p-4 h-100"><div class="ev-eyebrow mb-2">Human resources</div><h2 class="h4">HRMS</h2><p>Employees, leave and payroll module placeholder.</p><a href="/hrms" class="btn btn-outline-primary">Open HRMS</a></section></div>
+  <div class="col-12"><section class="ev-card p-4"><h2 class="h5">Core API status</h2><p id="api-status" role="status" aria-live="polite" class="mb-0">Checking REST API…</p></section></div>
+</div>
