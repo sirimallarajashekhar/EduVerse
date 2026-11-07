@@ -182,6 +182,25 @@ public sealed class CollegeManagementTests:IAsyncLifetime
   Assert.Equal(HttpStatusCode.OK,transcriptResponse.StatusCode);
   var transcript=(await transcriptResponse.Content.ReadFromJsonAsync<CollegeTranscript>())!;
   Assert.Equal(10m,transcript.Cgpa);Assert.Single(transcript.Semesters);
+  // An elective in semester 2 is gated both by finalized progression and the passed prerequisite.
+  var semesterCatalog=await Create<AcademicItem>(c,"/api/v1/academic/catalog",
+   new AcademicItemCreate(campus,"SEMESTER","SEM02","Semester Two",null,setup.Year.Id,null,null,null),
+   HttpStatusCode.Created);
+  var secondSemester=await Create<CollegeSemester>(c,Root+"/semesters",
+   new CollegeSemesterCreate(campus,setup.Program.Id,setup.Year.Id,semesterCatalog.Id,2));
+  var laterSubject=await Create<AcademicItem>(c,"/api/v1/academic/catalog",
+   new AcademicItemCreate(campus,"SUBJECT","PHY100","Physics",null,null,null,null,null),
+   HttpStatusCode.Created);
+  var elective=await Create<CollegeCourse>(c,Root+"/courses",
+   new CollegeCourseCreate(campus,setup.Program.Id,secondSemester.Id,laterSubject.Id,
+    "PHY100","Applied Physics","ELECTIVE",3m,10,setup.Course.Id));
+  var otherStudent=await Enroll(c,setup.Year,setup.CatalogCourse,"Elina");
+  using var missingPrerequisite=await c.PostAsJsonAsync(Root+"/registrations",
+   new CollegeRegistrationCreate(campus,otherStudent.Enrollment.Id,elective.Id));
+  Assert.Equal(HttpStatusCode.Conflict,missingPrerequisite.StatusCode);
+  var nextRegistration=await Create<CollegeRegistration>(c,Root+"/registrations",
+   new CollegeRegistrationCreate(campus,person.Enrollment.Id,elective.Id));
+  Assert.Equal("ENROLLED",nextRegistration.Status);
   using var repeat=await c.PostAsJsonAsync(Root+"/semesters/finalize",
    new CollegeFinalize(campus,person.Enrollment.Id,setup.Semester.Id));
   Assert.Equal(HttpStatusCode.Conflict,repeat.StatusCode);
