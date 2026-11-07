@@ -16,6 +16,7 @@ public interface IIdentityStore
     Task<Guid?> ConsumeResetTokenAsync(byte[] sha256, CancellationToken ct);
     Task SetPasswordAsync(Guid userId, string hash, CancellationToken ct);
     Task<bool> IsAdminAsync(TenantIdentity identity, CancellationToken ct);
+    Task<bool> DeactivateMembershipAsync(Guid tenantId, Guid userId, CancellationToken ct);
     Task<IReadOnlyList<AccountSummary>> ListUsersAsync(Guid tenantId, CancellationToken ct);
     Task CreateUserMembershipAsync(Guid tenantId, string email, string displayName, string passwordHash, string role, CancellationToken ct);
     Task AddRolePermissionAsync(Guid tenantId, string permission, CancellationToken ct);
