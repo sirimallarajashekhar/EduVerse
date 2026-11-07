@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <ProjectReference Include="../EduVerse.Domain/EduVerse.Domain.csproj" />
+    <ProjectReference Include="../EduVerse.Contracts/EduVerse.Contracts.csproj" />
   </ItemGroup>
 </Project>
