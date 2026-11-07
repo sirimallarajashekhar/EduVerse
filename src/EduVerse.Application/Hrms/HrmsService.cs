@@ -47,7 +47,7 @@ public sealed class HrmsService(IHrmsStore store,ITenantContext context)
  public async Task Lifecycle(Guid campus,Guid employee,HrLifecycle input,CancellationToken ct)
  {
   var a=await Admin(ct);Id(campus);Id(employee);
-  if(input.Status is not ("ACTIVE" or "ON_LEAVE" or "EXITED")||input.Note?.Length>400)
+  if(input.Status is not ("ACTIVE" or "ON_LEAVE")||input.Note?.Length>400)
    throw new ArgumentException("Invalid employment transition.");
   if(!await store.Lifecycle(a.TenantId,a.SubjectId,campus,employee,input,ct))throw new HrScopeException();
  }
