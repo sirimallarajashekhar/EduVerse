@@ -161,6 +161,11 @@ public sealed class MySqlCrossModuleStore(string connectionString) : ICrossModul
                 if (state is not ("ACTIVE" or "ON_LEAVE"))
                     throw new WorkflowConflictException("Employee must be active or on leave.");
                 if (subject == actor) throw new WorkflowConflictException("Administrator cannot offboard own account.");
+                if (subject is not null && Convert.ToInt32(await Scalar(db, tx, """
+                    SELECT EXISTS(SELECT 1 FROM tenant_memberships WHERE tenant_id=@t
+                      AND subject_id=@u AND is_active=1 AND role_code='MEMBER')
+                    """, token, ("@t", Id(tenant)), ("@u", subject))) != 1)
+                    throw new WorkflowConflictException("Linked identity must be an active MEMBER.");
                 var assets = Convert.ToInt32(await Scalar(db, tx, """
                     SELECT COUNT(*) FROM ams_assets
                     WHERE tenant_id=@t AND campus_id=@c AND employee_id=@e
