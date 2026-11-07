@@ -47,7 +47,7 @@ public sealed class WorkflowProxyController(IHttpClientFactory clients) : Contro
         try
         {
             using var result = await clients.CreateClient("EduVerseIdentityApi").SendAsync(outgoing, ct);
-            Response.Headers.CacheControl = "no-store";
+            Response.Headers["Cache-Control"] = "no-store";
             return new ContentResult
             {
                 StatusCode = (int)result.StatusCode,
