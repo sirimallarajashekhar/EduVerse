@@ -142,6 +142,16 @@ public sealed class FinanceManagementTests:IAsyncLifetime
   var details=await receipt.Content.ReadFromJsonAsync<ReceiptRecord>();
   Assert.Equal(recorded.ReceiptNumber,details?.ReceiptNumber);
   Assert.Equal(250.50m,details?.Amount);
+  using var attachment=await client.GetAsync(
+   $"/api/v1/finance/payments/{recorded.Id:D}/receipt/download?campusId={campus:D}");
+  Assert.Equal(HttpStatusCode.OK,attachment.StatusCode);
+  Assert.Equal("attachment",attachment.Content.Headers.ContentDisposition?.DispositionType);
+  var receiptText=await attachment.Content.ReadAsStringAsync();
+  Assert.Contains(recorded.ReceiptNumber,receiptText);
+  Assert.Contains("INR 250.50",receiptText);
+  using var foreignDownload=await client.GetAsync(
+   $"/api/v1/finance/payments/{recorded.Id:D}/receipt/download?campusId={foreignCampus:D}");
+  Assert.Equal(HttpStatusCode.NotFound,foreignDownload.StatusCode);
   using var listing=await client.GetAsync($"/api/v1/finance/payments?campusId={campus:D}");
   var results=(await listing.Content.ReadFromJsonAsync<PaymentRecord[]>())!;
   Assert.Single(results);
