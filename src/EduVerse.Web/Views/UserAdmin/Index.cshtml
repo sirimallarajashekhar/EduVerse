@@ -1,0 +1,30 @@
+@{ ViewData["Title"] = "User Management"; }
+<div class="mb-4">
+  <p class="ev-eyebrow">Identity administration</p>
+  <h1 class="h3">Institution users</h1>
+  <p class="text-secondary">Invitations and permission decisions are processed by the Identity API.</p>
+</div>
+<div class="ev-card p-4 mb-4">
+  <h2 class="h5">Invite user</h2>
+  <form id="invite-form" class="row g-3">
+    @Html.AntiForgeryToken()
+    <div class="col-md-4"><label class="form-label" for="email">Email</label>
+      <input id="email" name="email" type="email" class="form-control" required /></div>
+    <div class="col-md-4"><label class="form-label" for="displayName">Name</label>
+      <input id="displayName" name="displayName" class="form-control" required /></div>
+    <div class="col-md-2"><label class="form-label" for="roleCode">Role</label>
+      <select id="roleCode" class="form-select"><option value="MEMBER">Member</option><option value="ADMIN">Admin</option></select></div>
+    <div class="col-md-2 d-flex align-items-end"><button type="submit" class="btn btn-primary w-100">Invite</button></div>
+  </form>
+  <p id="invite-message" role="status" class="small mt-3 mb-0"></p>
+</div>
+<div class="ev-card p-4">
+  <h2 class="h5">Active users</h2>
+  <div class="table-responsive">
+    <table class="table table-striped align-middle">
+      <thead><tr><th>Name</th><th>Email</th><th>Role</th></tr></thead>
+      <tbody id="user-rows"><tr><td colspan="3">Loading…</td></tr></tbody>
+    </table>
+  </div>
+</div>
+@section Scripts { <script src="~/js/user-admin.js" asp-append-version="true"></script> }
