@@ -1,0 +1,77 @@
+@{ViewData["Title"]="Fees & Finance";}
+<div class="mb-4"><p class="ev-eyebrow">EduVerse · Finance</p><h1 class="h3">Fees &amp; Finance</h1>
+<p class="text-secondary">Manual/offline finance recording with API-owned calculations and tenant authorization.</p></div>
+<section class="ev-card p-4 mb-3">
+ @Html.AntiForgeryToken()
+ <label class="form-label" for="campus">Active campus</label>
+ <select id="campus" class="form-select" style="max-width:450px"></select>
+ <p id="status" role="status" class="small mt-3 mb-0"></p>
+</section>
+<div class="row g-3 mb-3">
+ <div class="col-lg-4"><section class="ev-card p-4 h-100">
+  <h2 class="h5">Fee structure</h2>
+  <form id="fee-form" class="row g-2">
+   <div class="col-12"><label for="year" class="form-label">Academic year</label><select id="year" class="form-select" required></select></div>
+   <div class="col-sm-4"><label for="fee-code" class="form-label">Code</label><input id="fee-code" class="form-control" maxlength="30" required/></div>
+   <div class="col-sm-8"><label for="fee-title" class="form-label">Fee name</label><input id="fee-title" class="form-control" maxlength="160" required/></div>
+   <div class="col-12"><label for="fee-amount" class="form-label">Amount (INR)</label><input id="fee-amount" class="form-control" type="number" min="0.01" step="0.01" required/></div>
+   <div class="col-12"><button class="btn btn-primary" type="submit">Create fee</button></div>
+  </form>
+  <ul id="fee-list" class="small mt-3"></ul>
+ </section></div>
+ <div class="col-lg-4"><section class="ev-card p-4 h-100">
+  <h2 class="h5">Student fee assignment</h2>
+  <form id="charge-form" class="row g-2">
+   <div class="col-12"><label for="enrollment" class="form-label">Active student enrollment</label><select id="enrollment" class="form-select" required></select></div>
+   <div class="col-12"><label for="fee" class="form-label">Fee structure</label><select id="fee" class="form-select" required></select></div>
+   <div class="col-sm-6"><label for="installment-count" class="form-label">Installments</label><select id="installment-count" class="form-select"><option value="1">One</option><option value="2">Two</option><option value="3">Three</option></select></div>
+   <div class="col-sm-6"><label for="due" class="form-label">First due date</label><input id="due" type="date" class="form-control" required /></div>
+   <div class="col-12"><button class="btn btn-primary" type="submit">Assign fee</button></div>
+  </form>
+ </section></div>
+ <div class="col-lg-4"><section class="ev-card p-4 h-100">
+  <h2 class="h5">Scholarship / concession / discount</h2>
+  <form id="concession-form" class="row g-2">
+   <div class="col-12"><label for="concession-charge" class="form-label">Fee assignment</label><select id="concession-charge" class="form-select" required></select></div>
+   <div class="col-sm-6"><label for="concession-category" class="form-label">Category</label><select id="concession-category" class="form-select"><option>SCHOLARSHIP</option><option>CONCESSION</option><option>DISCOUNT</option></select></div>
+   <div class="col-sm-6"><label for="concession-amount" class="form-label">INR</label><input id="concession-amount" type="number" min="0.01" step="0.01" class="form-control" required /></div>
+   <div class="col-12"><label for="concession-reason" class="form-label">Reason</label><input id="concession-reason" maxlength="240" class="form-control" required /></div>
+   <div class="col-12"><button class="btn btn-outline-primary" type="submit">Apply concession</button></div>
+  </form>
+ </section></div>
+</div>
+<div class="row g-3 mb-3">
+ <div class="col-lg-6"><section class="ev-card p-4 h-100">
+  <h2 class="h5">Record manual collection</h2>
+  <form id="payment-form" class="row g-2">
+   <div class="col-12"><label for="payment-charge" class="form-label">Fee assignment</label><select id="payment-charge" class="form-select" required></select></div>
+   <div class="col-12"><label for="installment" class="form-label">Installment</label><select id="installment" class="form-select" required></select></div>
+   <div class="col-sm-6"><label for="payment-amount" class="form-label">Amount (INR)</label><input id="payment-amount" type="number" min="0.01" step="0.01" class="form-control" required /></div>
+   <div class="col-sm-6"><label for="payment-method" class="form-label">Method</label><select id="payment-method" class="form-select"><option>CASH</option><option>BANK_TRANSFER</option><option>CARD_MANUAL</option><option>UPI_MANUAL</option></select></div>
+   <div class="col-12"><label for="payment-ref" class="form-label">Bank / offline reference (optional)</label><input id="payment-ref" maxlength="100" class="form-control" /></div>
+   <div class="col-12"><button type="submit" class="btn btn-primary">Record payment</button></div>
+  </form>
+ </section></div>
+ <div class="col-lg-6"><section class="ev-card p-4 h-100">
+  <h2 class="h5">Refund &amp; reconciliation</h2>
+  <form id="refund-form" class="row g-2 mb-3">
+   <div class="col-12"><label for="refund-payment" class="form-label">Recorded payment</label><select id="refund-payment" class="form-select" required></select></div>
+   <div class="col-sm-4"><label for="refund-amount" class="form-label">Refund (INR)</label><input id="refund-amount" class="form-control" type="number" step="0.01" min="0.01" required /></div>
+   <div class="col-sm-8"><label for="refund-ref" class="form-label">Offline refund reference</label><input id="refund-ref" maxlength="100" class="form-control" required /></div>
+   <div class="col-12"><label for="refund-reason" class="form-label">Reason</label><input id="refund-reason" maxlength="240" class="form-control" required /></div>
+   <div class="col-12"><button class="btn btn-outline-danger" type="submit">Record refund</button></div>
+  </form>
+  <form id="reconcile-form" class="row g-2">
+   <div class="col-sm-6"><label for="reconcile-payment" class="form-label">Payment</label><select id="reconcile-payment" class="form-select" required></select></div>
+   <div class="col-sm-6"><label for="reconcile-status" class="form-label">Reconcile</label><select id="reconcile-status" class="form-select"><option>MATCHED</option><option>DISPUTED</option></select></div>
+   <div class="col-12"><button class="btn btn-outline-primary" type="submit">Update reconciliation</button></div>
+  </form>
+ </section></div>
+</div>
+<section class="ev-card p-4">
+ <h2 class="h5">Finance dashboard</h2><p id="dashboard" class="small"></p>
+ <h3 class="h6">Recent payments and receipts</h3>
+ <div class="table-responsive"><table class="table table-sm"><thead><tr><th>Receipt</th><th>Amount</th><th>Reconciliation</th><th>Action</th></tr></thead><tbody id="payments"></tbody></table></div>
+ <p class="small text-secondary">Receipts show manually recorded transactions; they are not confirmation from a payment gateway.</p>
+</section>
+@section Scripts {<script src="~/js/finance-admin.js" asp-append-version="true"></script>}

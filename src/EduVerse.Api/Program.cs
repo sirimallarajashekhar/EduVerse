@@ -3,6 +3,7 @@ using System.Text.Json;
 using EduVerse.Api.Health;
 using EduVerse.Application.Academic;
 using EduVerse.Application.Attendance;
+using EduVerse.Application.Finance;
 using EduVerse.Application.Students;
 using EduVerse.Application.Administration;
 using EduVerse.Api.Observability;
@@ -92,6 +93,10 @@ builder.Services.AddScoped<ITenantContext, HttpTenantContext>();
 builder.Services.AddScoped<InstitutionService>();
 builder.Services.AddScoped<AcademicService>();
 builder.Services.AddScoped<AttendanceService>();
+builder.Services.AddScoped<FinanceService>();
+builder.Services.AddScoped<IFinanceStore>(provider =>
+    new MySqlFinanceStore(provider.GetRequiredService<IConfiguration>()
+      .GetConnectionString("EduVerse") ?? throw new InvalidOperationException("Database not configured.")));
 builder.Services.AddScoped<IAttendanceStore>(provider =>
     new MySqlAttendanceStore(provider.GetRequiredService<IConfiguration>()
       .GetConnectionString("EduVerse") ?? throw new InvalidOperationException("Database not configured.")));
@@ -159,6 +164,7 @@ app.MapInstitutionAdminEndpoints();
 app.MapAcademicEndpoints();
 app.MapStudentEndpoints();
 app.MapAttendanceEndpoints();
+app.MapFinanceEndpoints();
 app.Run();
 
 public partial class Program { }
