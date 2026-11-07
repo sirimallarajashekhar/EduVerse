@@ -68,6 +68,18 @@ public sealed class IdentityService(IIdentityStore store, IPasswordService passw
         return true;
     }
 
+    public async Task<bool> DeactivateMemberAsync(TenantIdentity admin, Guid userId, CancellationToken ct)
+    {
+        await RequireAdminAsync(admin, ct);
+        // Prevent an administrator from removing their own last active management session.
+        if (userId == Guid.Empty || admin.SubjectId == userId.ToString("D"))
+            return false;
+        var updated = await store.DeactivateMembershipAsync(admin.TenantId, userId, ct);
+        if (updated)
+            await store.AuditAsync(admin.TenantId, Guid.Parse(admin.SubjectId), "IDENTITY_MEMBER_DEACTIVATED", ct);
+        return updated;
+    }
+
     public async Task<IReadOnlyList<AccountSummary>> UsersAsync(TenantIdentity admin, CancellationToken ct)
     {
         await RequireAdminAsync(admin, ct);
