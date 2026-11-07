@@ -28,6 +28,32 @@ public static class FinanceEndpoints
    await Read(()=>s.Payments(campusId,ct)));
   g.MapGet("/payments/{id:guid}/receipt",async (Guid id,Guid campusId,FinanceService s,CancellationToken ct)=>
    await Read(()=>s.Receipt(campusId,id,ct)));
+  g.MapGet("/payments/{id:guid}/receipt/download",
+   async (Guid id,Guid campusId,FinanceService s,CancellationToken ct)=>
+   {
+    try
+    {
+     var receipt=await s.Receipt(campusId,id,ct);
+     var contents=string.Join("\\n",new[]{
+      "EduVerse | Fee Receipt",
+      "Receipt: "+receipt.ReceiptNumber,
+      "Institution: "+receipt.Institution,
+      "Student: "+receipt.Student,
+      "Admission Number: "+receipt.AdmissionNumber,
+      "Fee: "+receipt.Fee,
+      "Amount: "+receipt.Currency+" "+receipt.Amount.ToString("F2",System.Globalization.CultureInfo.InvariantCulture),
+      "Collected (UTC): "+receipt.CollectedUtc.ToString("O"),
+      "Method: "+receipt.Method,
+      "Reference: "+(receipt.Reference??"Not specified"),
+      "Note: This receipt reflects a manually recorded offline transaction."
+     });
+     var bytes=System.Text.Encoding.UTF8.GetBytes(contents);
+     return Results.File(bytes,"text/plain; charset=utf-8",
+      fileDownloadName:"eduverse-receipt-"+receipt.ReceiptNumber+".txt");
+    }
+    catch(UnauthorizedAccessException){return Results.Forbid();}
+    catch(FinanceScopeException){return Results.NotFound();}
+   });
   g.MapPost("/refunds",async (RefundCreate r,HttpContext http,FinanceService s,CancellationToken ct)=>
    await Write(()=>s.Refund(r,http.Request.Headers["Idempotency-Key"].ToString(),ct)));
   g.MapPost("/reconciliation",async (ReconcileRequest r,FinanceService s,CancellationToken ct)=>
