@@ -20,7 +20,7 @@ public sealed class InstitutionAdminProxyController(IHttpClientFactory clients):
     };
     private static readonly HashSet<string> AllowedChange = new(StringComparer.Ordinal)
     {
-        "profile","settings","onboarding/ready",
+        "profile","settings","onboarding/ready","campuses",
         "resources/departments","resources/buildings"
     };
 
