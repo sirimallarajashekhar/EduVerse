@@ -48,7 +48,7 @@ public sealed class CrossModuleService(ICrossModuleStore store, ITenantContext c
     public async Task<WorkflowReceipt> Bind(EmployeeWorkflowRequest request, string? key, CancellationToken ct)
     {
         var actor = await Admin(ct); Validate(request.CampusId, request.EmployeeId);
-        if (request.UserId is null or { } user || user == Guid.Empty)
+        if (request.UserId is not Guid user || user == Guid.Empty)
             throw new ArgumentException("Existing identity user is required.");
         var digest = Hash($"bind:{request.CampusId:D}:{request.EmployeeId:D}:{user:D}");
         return await store.BindIdentity(actor.TenantId, actor.SubjectId, request, Key(key), digest, ct);
