@@ -15,7 +15,7 @@ public sealed class InstitutionAdminProxyController(IHttpClientFactory clients):
 {
     private static readonly HashSet<string> AllowedGet = new(StringComparer.Ordinal)
     {
-        "dashboard","profile","settings","plans","subscription",
+        "dashboard","profile","settings","plans","subscription","campuses",
         "resources/departments","resources/buildings"
     };
     private static readonly HashSet<string> AllowedChange = new(StringComparer.Ordinal)
@@ -45,12 +45,14 @@ public sealed class InstitutionAdminProxyController(IHttpClientFactory clients):
         path=path?.Trim('/') ?? "";
         if(method==HttpMethod.Get && !AllowedGet.Contains(path) ||
             method!=HttpMethod.Get && !AllowedChange.Contains(path) ||
-            method==HttpMethod.Post && path!="onboarding/ready")
+            method==HttpMethod.Post && path!="onboarding/ready" && path!="resources/departments" && path!="resources/buildings")
             return NotFound();
 
         var token=await HttpContext.GetTokenAsync(EduVerseCookieAuth.Scheme,"access_token");
         if(string.IsNullOrWhiteSpace(token))return Unauthorized();
-        using var request=new HttpRequestMessage(method,"api/v1/institution-admin/"+path);
+        var target=path=="campuses" ? "api/v1/institutions/campuses"
+            : "api/v1/institution-admin/"+path;
+        using var request=new HttpRequestMessage(method,target);
         request.Headers.Authorization=new AuthenticationHeaderValue("Bearer",token);
         if(json is not null)
             request.Content=new StringContent(json,System.Text.Encoding.UTF8,"application/json");
