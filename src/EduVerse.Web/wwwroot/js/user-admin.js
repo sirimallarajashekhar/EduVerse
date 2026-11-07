@@ -16,13 +16,32 @@
           td.textContent = String(value ?? '');
           tr.appendChild(td);
         }
+        const action = document.createElement('td');
+        const deactivate = document.createElement('button');
+        deactivate.type = 'button';
+        deactivate.className = 'btn btn-sm btn-outline-danger';
+        deactivate.textContent = 'Deactivate';
+        deactivate.addEventListener('click', async () => {
+          if (!window.confirm('Deactivate this user in the current institution?')) return;
+          const csrf = form.querySelector('[name="__RequestVerificationToken"]').value;
+          try {
+            const response = await fetch('/bff/identity/users/' + encodeURIComponent(user.id) + '/deactivate',
+              {method: 'POST', headers: {RequestVerificationToken: csrf}});
+            if (!response.ok) throw new Error('Request failed');
+            await load();
+          } catch {
+            document.getElementById('invite-message').textContent = 'Unable to deactivate this user.';
+          }
+        });
+        action.appendChild(deactivate);
+        tr.appendChild(action);
         rows.appendChild(tr);
       }
     } catch {
       rows.replaceChildren();
       const tr = document.createElement('tr');
       const td = document.createElement('td');
-      td.colSpan = 3;
+      td.colSpan = 4;
       td.textContent = 'Users cannot be loaded.';
       tr.appendChild(td);
       rows.appendChild(tr);
