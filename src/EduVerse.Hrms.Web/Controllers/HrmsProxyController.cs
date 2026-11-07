@@ -16,6 +16,15 @@ public sealed class HrmsProxyController(IHttpClientFactory clients):ControllerBa
    {"designations","employees","leave-types","leaves","attendance","dashboard"};
  private static readonly HashSet<string> PostRoutes=new(StringComparer.Ordinal)
    {"designations","employees","leave-types","leaves","salaries","payroll/preview"};
+ [HttpGet("campuses")]
+ public async Task<IActionResult> Campuses(CancellationToken ct)
+ {
+  var token=await HttpContext.GetTokenAsync(EduVerseCookieAuth.Scheme,"access_token");
+  if(string.IsNullOrWhiteSpace(token))return Unauthorized();
+  using var req=new HttpRequestMessage(HttpMethod.Get,"api/v1/institutions/campuses");
+  req.Headers.Authorization=new AuthenticationHeaderValue("Bearer",token);
+  return await Send(req,ct);
+ }
  [HttpGet("{path}")]
  public Task<IActionResult> Get(string path,Guid campusId,DateOnly? date,CancellationToken ct)=>
    Forward(HttpMethod.Get,path,campusId,date,null,ct);
