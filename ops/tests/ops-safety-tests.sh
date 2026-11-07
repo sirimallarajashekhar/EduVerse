@@ -52,4 +52,11 @@ if PATH="$work/bin:$PATH" API_URL=http://127.0.0.1:5201 \
   bash "$root/ops/deploy/smoke-test.sh" >/dev/null 2>&1; then
   echo 'Smoke probe incorrectly accepted HTTP 302 as healthy.' >&2; exit 1
 fi
+# A forged loopback authority must be rejected before an HTTP request is sent.
+if PATH="$work/bin:$PATH" API_URL=http://127.0.0.1:5201@evil.invalid \
+  PORTAL_URL=http://127.0.0.1:5200 HRMS_URL=http://127.0.0.1:5203 \
+  AMS_URL=http://127.0.0.1:5202 \
+  bash "$root/ops/deploy/smoke-test.sh" >/dev/null 2>&1; then
+  echo 'Smoke probe accepted a forged loopback URL.' >&2; exit 1
+fi
 echo 'Operational shell syntax, backup integrity rejection and URL guards passed.'
