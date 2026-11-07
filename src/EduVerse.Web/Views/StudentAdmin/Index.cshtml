@@ -1,0 +1,110 @@
+@{ViewData["Title"]="Admissions & Students";}
+<div class="mb-4">
+  <p class="ev-eyebrow">EduVerse · Student lifecycle</p>
+  <h1 class="h3">Admissions &amp; Student Management</h1>
+  <p class="text-secondary">Sensitive student information is managed by tenant-secured REST APIs.</p>
+</div>
+<section class="ev-card p-4 mb-3">
+  @Html.AntiForgeryToken()
+  <label class="form-label" for="campus">Active campus</label>
+  <select id="campus" class="form-select" style="max-width:450px"></select>
+  <p id="status" role="status" class="small mt-2 mb-0"></p>
+</section>
+<div class="row g-3 mb-3">
+  <div class="col-xl-5">
+    <section class="ev-card p-4 h-100">
+      <h2 class="h5">New admission application</h2>
+      <form id="application-form" class="row g-2">
+        <div class="col-sm-6"><label class="form-label" for="given">Given name</label><input id="given" class="form-control" maxlength="100" required /></div>
+        <div class="col-sm-6"><label class="form-label" for="family">Family name</label><input id="family" class="form-control" maxlength="100" /></div>
+        <div class="col-sm-6"><label class="form-label" for="dob">Date of birth</label><input id="dob" type="date" class="form-control" required /></div>
+        <div class="col-sm-6"><label class="form-label" for="phone">Contact phone</label><input id="phone" class="form-control" maxlength="24" /></div>
+        <div class="col-12"><label class="form-label" for="email">Contact email</label><input id="email" type="email" class="form-control" maxlength="254" /></div>
+        <div class="col-12"><button type="submit" class="btn btn-primary">Submit application</button></div>
+      </form>
+    </section>
+  </div>
+  <div class="col-xl-7">
+    <section class="ev-card p-4 h-100">
+      <h2 class="h5">Application review</h2>
+      <div class="table-responsive">
+        <table class="table table-sm align-middle">
+          <thead><tr><th>Application</th><th>Applicant</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="applications"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div>
+<div class="row g-3 mb-3">
+  <div class="col-lg-6">
+    <section class="ev-card p-4">
+      <h2 class="h5">Register approved student</h2>
+      <form id="student-form" class="row g-2">
+        <div class="col-12"><label for="approved" class="form-label">Approved admission</label><select id="approved" class="form-select" required></select></div>
+        <div class="col-12"><button class="btn btn-primary" type="submit">Register student</button></div>
+      </form>
+      <h3 class="h6 mt-4">Students</h3>
+      <label for="student" class="form-label">Selected student</label>
+      <select id="student" class="form-select"></select>
+      <div id="student-detail" class="small text-secondary mt-2"></div>
+    </section>
+  </div>
+  <div class="col-lg-6">
+    <section class="ev-card p-4">
+      <h2 class="h5">Parent / guardian</h2>
+      <form id="guardian-form" class="row g-2">
+        <div class="col-sm-6"><label for="guardian-name" class="form-label">Name</label><input id="guardian-name" class="form-control" maxlength="160" required /></div>
+        <div class="col-sm-6"><label for="guardian-relation" class="form-label">Relationship</label>
+          <select id="guardian-relation" class="form-select"><option>MOTHER</option><option>FATHER</option><option>GUARDIAN</option><option>OTHER</option></select></div>
+        <div class="col-sm-6"><label for="guardian-phone" class="form-label">Phone</label><input id="guardian-phone" class="form-control" maxlength="24" /></div>
+        <div class="col-sm-6"><label for="guardian-email" class="form-label">Email</label><input id="guardian-email" type="email" class="form-control" maxlength="254" /></div>
+        <div class="col-12"><label><input id="guardian-primary" type="checkbox" /> Primary guardian</label></div>
+        <div class="col-12"><button class="btn btn-outline-primary" type="submit">Save guardian</button></div>
+      </form>
+      <ul id="guardians" class="small mt-3"></ul>
+    </section>
+  </div>
+</div>
+<div class="row g-3">
+  <div class="col-lg-6">
+    <section class="ev-card p-4 h-100">
+      <h2 class="h5">Academic enrollment</h2>
+      <form id="enroll-form" class="row g-2">
+        <div class="col-sm-6"><label for="enroll-year" class="form-label">Academic year</label><select id="enroll-year" class="form-select" required></select></div>
+        <div class="col-sm-6"><label for="enroll-item" class="form-label">Class / section / course / batch</label><select id="enroll-item" class="form-select" required></select></div>
+        <div class="col-12"><button class="btn btn-outline-primary" type="submit">Enroll student</button></div>
+      </form>
+      <ul id="enrollments" class="small mt-3"></ul>
+      <hr />
+      <h2 class="h5">Student lifecycle</h2>
+      <form id="lifecycle-form" class="row g-2">
+        <div class="col-sm-6"><label for="lifecycle-action" class="form-label">Action</label>
+          <select id="lifecycle-action" class="form-select"><option value="PROMOTE">Promote</option><option value="TRANSFER">Transfer</option><option value="WITHDRAW">Withdraw</option></select></div>
+        <div class="col-sm-6"><label for="target-campus" class="form-label">Transfer destination</label><select id="target-campus" class="form-select"></select></div>
+        <div class="col-12"><label for="lifecycle-reason" class="form-label">Reason</label><input id="lifecycle-reason" maxlength="400" class="form-control" /></div>
+        <div class="col-12"><button class="btn btn-outline-danger" type="submit">Apply lifecycle action</button></div>
+      </form>
+    </section>
+  </div>
+  <div class="col-lg-6">
+    <section class="ev-card p-4 h-100">
+      <h2 class="h5">Documents &amp; verification</h2>
+      <p class="small text-secondary">Private PDF, PNG or JPEG. Maximum 1 MiB. Only authorized staff can download.</p>
+      <form id="document-form" class="row g-2" enctype="multipart/form-data">
+        <div class="col-sm-6"><label for="document-category" class="form-label">Category</label>
+          <select id="document-category" class="form-select"><option>IDENTITY</option><option>BIRTH_CERTIFICATE</option><option>TRANSFER_CERTIFICATE</option><option>OTHER</option></select></div>
+        <div class="col-sm-6"><label for="document-file" class="form-label">File</label>
+          <input id="document-file" type="file" class="form-control" accept=".pdf,.png,.jpg,.jpeg" required /></div>
+        <div class="col-12"><button type="submit" class="btn btn-outline-primary">Upload document</button></div>
+      </form>
+      <div class="table-responsive mt-3">
+        <table class="table table-sm">
+          <thead><tr><th>Document</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="documents"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div>
+@section Scripts {<script src="~/js/student-admin.js" asp-append-version="true"></script>}
