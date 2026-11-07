@@ -46,9 +46,10 @@ public sealed class HrmsManagementTests:IAsyncLifetime
   foreach(var (id,t) in new[]{(campus,tenant),(campusB,tenantB)})
    await Exec("INSERT INTO campuses(id,tenant_id,code,display_name) VALUES(@id,@t,'MAIN','Main Campus')",
     ("@id",id.ToString("D")),("@t",t.ToString("D")));
-  foreach(var t in new[]{tenant,tenantB})
-   await Exec("INSERT INTO institution_subscriptions(tenant_id,plan_code) VALUES(@t,'PILOT')",
-    ("@t",t.ToString("D")));
+  await Exec("INSERT INTO institution_subscriptions(tenant_id,plan_code) VALUES(@t,'STANDARD')",
+   ("@t",tenant.ToString("D")));
+  await Exec("INSERT INTO institution_subscriptions(tenant_id,plan_code) VALUES(@t,'PILOT')",
+   ("@t",tenantB.ToString("D")));
   host=new WebApplicationFactory<Program>().WithWebHostBuilder(web=>
    web.ConfigureAppConfiguration((_,cfg)=>cfg.AddInMemoryCollection(
     new Dictionary<string,string?>{{"ConnectionStrings:EduVerse",cs}})));
