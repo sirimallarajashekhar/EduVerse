@@ -34,7 +34,7 @@ public sealed class IdentityService(IIdentityStore store, IPasswordService passw
         await store.CreateSessionAsync(sessionId, membership.TenantId, account.Id, expires.UtcDateTime, ct);
         await store.AuditAsync(membership.TenantId, account.Id, "AUTH_LOGIN", ct);
         var token = issuer.Issue(account.Id, membership.TenantId, sessionId, membership.RoleCode, expires);
-        return new LoginTicket(token, expires, account.Email, account.DisplayName);
+        return new LoginTicket(token, expires, account.Email, account.DisplayName, account.Id, membership.TenantId, membership.RoleCode);
     }
 
     public async Task LogoutAsync(Guid sessionId, Guid userId, Guid tenantId, CancellationToken ct)
