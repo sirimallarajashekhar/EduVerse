@@ -21,5 +21,6 @@
   </Folder>
   <Folder Name="/tools/">
     <Project Path="tools/EduVerse.BootstrapAdmin/EduVerse.BootstrapAdmin.csproj" />
+    <Project Path="tools/EduVerse.AssignPlan/EduVerse.AssignPlan.csproj" />
   </Folder>
 </Solution>
