@@ -17,6 +17,21 @@ public static class ReportingEndpoints
                 return Results.File(ReportingService.Csv(data), "text/csv; charset=utf-8",
                     $"eduverse-report-{campusId:N}-{from:yyyyMMdd}-{to:yyyyMMdd}.csv");
             }));
+        api.MapGet("/monthly.xlsx", async (Guid campusId, DateOnly from, DateOnly to,
+            ReportingService service, CancellationToken ct) => await Read(async () =>
+            {
+                var report = await service.Dashboard(campusId, from, to, ct);
+                return Results.File(ReportDocumentWriter.Xlsx(report),
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    $"eduverse-report-{campusId:N}.xlsx");
+            }));
+        api.MapGet("/monthly.pdf", async (Guid campusId, DateOnly from, DateOnly to,
+            ReportingService service, CancellationToken ct) => await Read(async () =>
+            {
+                var report = await service.Dashboard(campusId, from, to, ct);
+                return Results.File(ReportDocumentWriter.Pdf(report), "application/pdf",
+                    $"eduverse-report-{campusId:N}.pdf");
+            }));
         return app;
     }
     private static async Task<IResult> Read(Func<Task<IResult>> operation)
