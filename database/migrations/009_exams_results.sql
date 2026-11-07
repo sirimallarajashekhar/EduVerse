@@ -92,8 +92,29 @@ CREATE TABLE exam_result_publications (
  gpa DECIMAL(5,2) NOT NULL, passed BOOLEAN NOT NULL,
  published_utc DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
  UNIQUE KEY uq_result(tenant_id,campus_id,exam_id,enrollment_id),
+ UNIQUE KEY uq_published_result_scope(tenant_id,campus_id,id),
  FOREIGN KEY(tenant_id,campus_id,exam_id) REFERENCES examinations(tenant_id,campus_id,id),
  FOREIGN KEY(tenant_id,campus_id,enrollment_id) REFERENCES student_enrollments(tenant_id,campus_id,id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Freeze complete subject-level report cards at publication, independently of later enrollments.
+CREATE TABLE exam_result_subject_snapshots (
+ id CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL PRIMARY KEY,
+ tenant_id CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+ campus_id CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+ result_id CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+ subject_id CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+ subject_name VARCHAR(160) NOT NULL,
+ grade VARCHAR(10) NOT NULL,
+ marks DECIMAL(8,2) NULL,
+ max_marks DECIMAL(8,2) NOT NULL,
+ percentage DECIMAL(6,2) NOT NULL,
+ grade_points DECIMAL(5,2) NOT NULL,
+ passed BOOLEAN NOT NULL,
+ absent BOOLEAN NOT NULL,
+ UNIQUE KEY uq_result_subject_snapshot(result_id,subject_id),
+ FOREIGN KEY(tenant_id,campus_id,result_id) REFERENCES exam_result_publications(tenant_id,campus_id,id),
+ FOREIGN KEY(tenant_id,campus_id,subject_id) REFERENCES academic_catalog(tenant_id,campus_id,id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 INSERT INTO schema_migrations(version) VALUES ('009_exams_results')
