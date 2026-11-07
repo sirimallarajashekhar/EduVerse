@@ -9,20 +9,38 @@ permissions:
 jobs:
   build-test:
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: ci_root_only
+          MYSQL_DATABASE: eduverse_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -pci_root_only"
+          --health-interval=10s --health-timeout=5s --health-retries=15
+    env:
+      EDUVERSE_TEST_MYSQL: "Server=127.0.0.1;Port=3306;Database=eduverse_test;User ID=root;Password=ci_root_only;SslMode=None"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
           cache: false
-      - name: Restore all projects
+      - name: Install MySQL client
+        run: sudo apt-get update && sudo apt-get install -y default-mysql-client
+      - name: Apply tenant migration
+        run: mysql -h 127.0.0.1 -u root -pci_root_only eduverse_test < database/migrations/001_tenant_foundation.sql
+      - name: Restore
         run: dotnet restore EduVerse.slnx
-      - name: Build all projects
+      - name: Build
         run: dotnet build EduVerse.slnx --no-restore --configuration Release
-      - name: Test API, portal, AMS and HRMS
+      - name: Test all projects against MySQL
         run: dotnet test EduVerse.slnx --no-build --configuration Release --verbosity normal
       - name: Verify publishable deployments
         run: |
+          dotnet publish src/EduVerse.Api/EduVerse.Api.csproj -c Release --no-restore -o /tmp/eduverse-api
           dotnet publish src/EduVerse.Web/EduVerse.Web.csproj -c Release --no-restore -o /tmp/eduverse-portal
           dotnet publish src/EduVerse.Ams.Web/EduVerse.Ams.Web.csproj -c Release --no-restore -o /tmp/eduverse-ams
           dotnet publish src/EduVerse.Hrms.Web/EduVerse.Hrms.Web.csproj -c Release --no-restore -o /tmp/eduverse-hrms

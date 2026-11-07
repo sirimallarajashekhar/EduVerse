@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="../EduVerse.Domain/EduVerse.Domain.csproj" />
+  </ItemGroup>
+</Project>

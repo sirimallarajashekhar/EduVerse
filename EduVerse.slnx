@@ -1,6 +1,9 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/EduVerse.Contracts/EduVerse.Contracts.csproj" />
+    <Project Path="src/EduVerse.Domain/EduVerse.Domain.csproj" />
+    <Project Path="src/EduVerse.Application/EduVerse.Application.csproj" />
+    <Project Path="src/EduVerse.Infrastructure/EduVerse.Infrastructure.csproj" />
     <Project Path="src/EduVerse.Api/EduVerse.Api.csproj" />
     <Project Path="src/EduVerse.Web/EduVerse.Web.csproj" />
     <Project Path="src/EduVerse.DesignSystem/EduVerse.DesignSystem.csproj" />
@@ -9,6 +12,7 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/EduVerse.Contracts.Tests/EduVerse.Contracts.Tests.csproj" />
+    <Project Path="tests/EduVerse.Application.Tests/EduVerse.Application.Tests.csproj" />
     <Project Path="tests/EduVerse.Api.Tests/EduVerse.Api.Tests.csproj" />
     <Project Path="tests/EduVerse.Portal.Tests/EduVerse.Portal.Tests.csproj" />
     <Project Path="tests/EduVerse.Ams.Tests/EduVerse.Ams.Tests.csproj" />
