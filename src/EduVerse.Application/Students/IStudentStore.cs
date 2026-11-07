@@ -6,6 +6,7 @@ namespace EduVerse.Application.Students;
 public interface IStudentStore
 {
     Task<bool> IsAdminAsync(TenantIdentity actor,CancellationToken ct);
+    Task<AdmissionRecord?> SubmitPublicAsync(AdmissionSubmit request,CancellationToken ct);
     Task<AdmissionRecord?> SubmitAsync(Guid tenant,AdmissionSubmit request,CancellationToken ct);
     Task<IReadOnlyList<AdmissionRecord>> ApplicationsAsync(Guid tenant,Guid campus,CancellationToken ct);
     Task<bool> DecideAsync(Guid tenant,Guid campus,Guid id,string decision,Guid actor,CancellationToken ct);
