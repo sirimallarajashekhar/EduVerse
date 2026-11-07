@@ -69,6 +69,36 @@ try
         cmd.Parameters.AddWithValue("@subject", userId.ToString("D"));
         await cmd.ExecuteNonQueryAsync();
     }
+    // Institution profile, pilot subscription and matching pending request are part of
+    // the same transaction as initial tenant and ADMIN identity provisioning.
+    await using (var profile = new MySqlCommand("""
+        INSERT INTO institution_profiles(tenant_id,legal_name,contact_email,onboarding_status)
+        VALUES (@tid,@name,@email,'DRAFT')
+        """,db,transaction))
+    {
+        profile.Parameters.AddWithValue("@tid",tenantId.ToString("D"));
+        profile.Parameters.AddWithValue("@name",institution);
+        profile.Parameters.AddWithValue("@email",email);
+        await profile.ExecuteNonQueryAsync();
+    }
+    await using (var subscription = new MySqlCommand("""
+        INSERT INTO institution_subscriptions(tenant_id,plan_code,status)
+        VALUES (@tid,'PILOT','ACTIVE')
+        """,db,transaction))
+    {
+        subscription.Parameters.AddWithValue("@tid",tenantId.ToString("D"));
+        await subscription.ExecuteNonQueryAsync();
+    }
+    await using (var approval = new MySqlCommand("""
+        UPDATE institution_registration_requests
+        SET status='APPROVED',reviewed_utc=UTC_TIMESTAMP(6)
+        WHERE requested_slug=@slug AND contact_email=@email AND status='PENDING'
+        """,db,transaction))
+    {
+        approval.Parameters.AddWithValue("@slug",slug);
+        approval.Parameters.AddWithValue("@email",email);
+        await approval.ExecuteNonQueryAsync();
+    }
     await transaction.CommitAsync();
     Console.WriteLine($"Created institution {slug} ({tenantId:D}) and initial admin {email}.");
     return 0;
