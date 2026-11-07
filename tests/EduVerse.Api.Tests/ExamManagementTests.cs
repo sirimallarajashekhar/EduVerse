@@ -165,6 +165,18 @@ public sealed class ExamManagementTests:IAsyncLifetime
   using var cgpa=await c.GetAsync($"/api/v1/exams/students/{setup.Student.Id:D}/cgpa?campusId={campus:D}");
   var cumulative=await cgpa.Content.ReadFromJsonAsync<CgpaRecord>();
   Assert.Equal(10m,cumulative?.Cgpa);
+  // Historical subject detail must remain readable after student lifecycle changes.
+  using var withdraw=await c.PostAsJsonAsync(
+   $"/api/v1/students/{setup.Student.Id:D}/lifecycle?campusId={campus:D}",
+   new LifecycleCommand("WITHDRAW",null,null,null,"School transfer"));
+  Assert.Equal(HttpStatusCode.NoContent,withdraw.StatusCode);
+  using var historical=await c.GetAsync(
+   $"/api/v1/exams/{setup.Exam.Id:D}/results/{setup.Enroll.Id:D}?campusId={campus:D}");
+  Assert.Equal(HttpStatusCode.OK,historical.StatusCode);
+  var archived=await historical.Content.ReadFromJsonAsync<ResultRecord>();
+  Assert.NotNull(archived);
+  Assert.Single(archived.Subjects);
+  Assert.Equal(85.50m,archived.Subjects[0].Marks);
   using var file=await c.GetAsync(
    $"/api/v1/exams/{setup.Exam.Id:D}/results/{setup.Enroll.Id:D}/download?campusId={campus:D}");
   Assert.Equal(HttpStatusCode.OK,file.StatusCode);
