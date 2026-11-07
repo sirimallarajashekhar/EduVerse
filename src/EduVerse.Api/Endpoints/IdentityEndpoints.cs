@@ -81,6 +81,19 @@ public static class IdentityEndpoints
             catch (MySqlException ex) when (ex.Number == 1062)
             { return Results.Conflict(new { message = "User already belongs to this institution." }); }
         });
+        protectedGroup.MapPost("/users/{userId:guid}/deactivate",
+            async (Guid userId, ITenantContext context, IdentityService service, CancellationToken ct) =>
+            {
+                if (!context.TryGet(out var tenant) || tenant is null) return Results.Forbid();
+                try
+                {
+                    return await service.DeactivateMemberAsync(tenant, userId, ct)
+                        ? Results.NoContent()
+                        : Results.NotFound();
+                }
+                catch (UnauthorizedAccessException) { return Results.Forbid(); }
+            });
+
         protectedGroup.MapPost("/permissions", async (ITenantContext context, PermissionGrantRequest request,
             IdentityService service, CancellationToken ct) =>
         {
