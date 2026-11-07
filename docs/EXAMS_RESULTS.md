@@ -11,6 +11,7 @@ Run `database/migrations/009_exams_results.sql` **after 001–008** using a priv
 - `exam_assessments`: subject-specific exams for school classes/sections/grades or college courses/batches, scheduled date, maximum and pass marks, credits.
 - `exam_student_marks`: draft-only entries with unique enrollment+assessment keys, bounded marks and absent semantics.
 - `exam_result_publications`: locked publication transaction produces persistent score, percentage, GPA and pass/fail summaries. Published totals do not change with later mark editing; editing is disallowed after approval.
+- `exam_result_subject_snapshots`: immutable subject marks, grades, percentages and pass/fail entries per published report, retained across later student promotion and withdrawal.
 
 ## REST API
 | Method | Endpoint | Description |
@@ -34,7 +35,7 @@ Run `database/migrations/009_exams_results.sql` **after 001–008** using a priv
 - CGPA in this first version is **a simple average of published exam GPAs**, not a full credit-weighted semester transcript CGPA. Universities should configure institution-specific rules before relying on it.
 - An exam cannot be approved without marks for **every active enrolled student** in each assessed class; approval blocks further mark edits and assessment changes. Publication writes result summaries inside one transaction.
 - Result read/download and analytics require PUBLISHED state. These endpoints are currently **administrator-only**, not anonymous/public student results.
-- Subject lines for report cards are calculated from locked marks. Later withdrawals/promotions can affect legacy joins; freezing full subject-level publication snapshots is recommended before production use.
+- Subject lines on report cards are read from published subject-level snapshots, rather than recomputed from mutable enrollment state. Student identity fields are still read from the student record.
 - No class rankings are calculated in this phase. Analytics provides averages, pass rates, highest and lowest.
 
 ## Limitations / hardening
