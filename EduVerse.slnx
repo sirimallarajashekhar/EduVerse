@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/EduVerse.Contracts/EduVerse.Contracts.csproj" />
+    <Project Path="src/EduVerse.Api/EduVerse.Api.csproj" />
+    <Project Path="src/EduVerse.Web/EduVerse.Web.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/EduVerse.Contracts.Tests/EduVerse.Contracts.Tests.csproj" />
+    <Project Path="tests/EduVerse.Api.Tests/EduVerse.Api.Tests.csproj" />
+  </Folder>
+</Solution>
