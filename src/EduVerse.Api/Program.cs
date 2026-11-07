@@ -1,3 +1,4 @@
+using EduVerse.Api.Modules;
 using EduVerse.Contracts;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,8 +14,9 @@ var api = app.MapGroup("/api/v1");
 api.MapGet("/system/info", () => TypedResults.Ok(
     new SystemInfoResponse("EduVerse", "v1", DateTimeOffset.UtcNow)))
     .WithName("GetSystemInfo");
+api.MapGet("/platform/modules", () => TypedResults.Ok(ModuleRegistry.All))
+    .WithName("ListPlatformModules");
 
 app.Run();
 
-// Allows integration tests to host the application without starting a real listener.
 public partial class Program { }
