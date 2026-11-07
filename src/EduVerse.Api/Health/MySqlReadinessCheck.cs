@@ -17,7 +17,7 @@ public sealed class MySqlReadinessCheck(IConfiguration configuration) : IHealthC
             await using var connection = new MySqlConnection(connectionString);
             await connection.OpenAsync(cancellationToken);
             await using var command = new MySqlCommand(
-                "SELECT COUNT(*) FROM schema_migrations WHERE version='007_attendance_timetables';", connection);
+                "SELECT COUNT(*) FROM schema_migrations WHERE version='008_fees_finance';", connection);
             return Convert.ToInt32(await command.ExecuteScalarAsync(cancellationToken)) == 1
                 ? HealthCheckResult.Healthy("Database accessible and schema ready.")
                 : HealthCheckResult.Unhealthy("Required database schema is not applied.");
