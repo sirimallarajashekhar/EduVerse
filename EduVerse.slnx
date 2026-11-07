@@ -11,5 +11,7 @@
     <Project Path="tests/EduVerse.Contracts.Tests/EduVerse.Contracts.Tests.csproj" />
     <Project Path="tests/EduVerse.Api.Tests/EduVerse.Api.Tests.csproj" />
     <Project Path="tests/EduVerse.Portal.Tests/EduVerse.Portal.Tests.csproj" />
+    <Project Path="tests/EduVerse.Ams.Tests/EduVerse.Ams.Tests.csproj" />
+    <Project Path="tests/EduVerse.Hrms.Tests/EduVerse.Hrms.Tests.csproj" />
   </Folder>
 </Solution>
