@@ -14,9 +14,15 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
-      - name: Restore
+          cache: false
+      - name: Restore all projects
         run: dotnet restore EduVerse.slnx
-      - name: Build
+      - name: Build all projects
         run: dotnet build EduVerse.slnx --no-restore --configuration Release
-      - name: Test
+      - name: Test API, portal, AMS and HRMS
         run: dotnet test EduVerse.slnx --no-build --configuration Release --verbosity normal
+      - name: Verify publishable deployments
+        run: |
+          dotnet publish src/EduVerse.Web/EduVerse.Web.csproj -c Release --no-restore -o /tmp/eduverse-portal
+          dotnet publish src/EduVerse.Ams.Web/EduVerse.Ams.Web.csproj -c Release --no-restore -o /tmp/eduverse-ams
+          dotnet publish src/EduVerse.Hrms.Web/EduVerse.Hrms.Web.csproj -c Release --no-restore -o /tmp/eduverse-hrms

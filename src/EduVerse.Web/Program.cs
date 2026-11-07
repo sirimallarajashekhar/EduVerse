@@ -7,6 +7,8 @@ builder.Services.AddHttpClient("EduVerseApi", client =>
     client.BaseAddress = new Uri(baseUrl, UriKind.Absolute);
     client.Timeout = TimeSpan.FromSeconds(10);
 });
+// Route destinations are allowlisted and configured by operators, never supplied by callers.
+builder.Services.AddReverseProxy().LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
 var app = builder.Build();
 if (!app.Environment.IsDevelopment())
@@ -17,5 +19,9 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+app.MapControllers();
 app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
+app.MapReverseProxy();
 app.Run();
+
+public partial class Program { }

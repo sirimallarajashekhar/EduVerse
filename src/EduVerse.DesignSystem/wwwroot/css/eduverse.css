@@ -1,0 +1,14 @@
+:root { --ev-navy:#14233d; --ev-blue:#2563eb; --ev-bg:#f4f7fb; }
+body { background:var(--ev-bg); color:#263247; font-family:system-ui,-apple-system,'Segoe UI',sans-serif; }
+.ev-sidebar { width:246px; min-width:246px; background:var(--ev-navy); color:white; position:relative; }
+.ev-brand { color:white; text-decoration:none; font-size:1.35rem; font-weight:750; letter-spacing:-.025em; }
+.ev-brand span { color:#9bc0ff; }
+.ev-nav-label { font-size:.67rem; letter-spacing:.11em; color:#9caecc; }
+.ev-nav-item { display:block; color:#d4deef; border-radius:.5rem; padding:.7rem .85rem; text-decoration:none; margin-bottom:.3rem; }
+.ev-nav-item:hover,.ev-nav-item[aria-current='page'] { background:#253b60; color:white; }
+.ev-sidebar-footer { color:#91a6c5; font-size:.8rem; margin-top:3rem; }
+.ev-page { min-width:0; }
+.ev-topbar { background:white; border-bottom:1px solid #e5ebf3; }
+.ev-card { border:1px solid #e5ebf3; border-radius:.85rem; background:white; }
+.ev-eyebrow { text-transform:uppercase; letter-spacing:.07em; font-size:.75rem; color:#64748b; font-weight:650; }
+@media(max-width:800px) { .d-flex.min-vh-100 { flex-direction:column; }.ev-sidebar { width:100%; min-width:0; } .ev-sidebar-footer { display:none; } }
