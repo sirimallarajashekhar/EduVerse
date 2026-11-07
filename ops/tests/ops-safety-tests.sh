@@ -40,4 +40,16 @@ if API_URL=http://example.invalid PORTAL_URL=https://example.invalid \
   bash "$root/ops/deploy/smoke-test.sh" >/dev/null 2>&1; then
   echo 'Smoke probe accepted an insecure public API URL.' >&2; exit 1
 fi
+# Mocked 302 redirect must be treated as an unhealthy endpoint, not success.
+cat > "$work/bin/curl" <<'EOF'
+#!/usr/bin/env bash
+printf '302'
+EOF
+chmod +x "$work/bin/curl"
+if PATH="$work/bin:$PATH" API_URL=http://127.0.0.1:5201 \
+  PORTAL_URL=http://127.0.0.1:5200 \
+  HRMS_URL=http://127.0.0.1:5203 AMS_URL=http://127.0.0.1:5202 \
+  bash "$root/ops/deploy/smoke-test.sh" >/dev/null 2>&1; then
+  echo 'Smoke probe incorrectly accepted HTTP 302 as healthy.' >&2; exit 1
+fi
 echo 'Operational shell syntax, backup integrity rejection and URL guards passed.'
