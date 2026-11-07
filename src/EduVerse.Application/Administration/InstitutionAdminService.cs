@@ -120,6 +120,16 @@ public sealed class InstitutionAdminService(
         return await store.SubscriptionAsync(identity.TenantId, ct);
     }
 
+    /// <summary>Feature policy is evaluated by the API, never inferred from browser navigation.</summary>
+    public async Task<bool> FeatureEnabledAsync(string featureCode,CancellationToken ct)
+    {
+        var identity=await MemberAsync(ct);
+        if (string.IsNullOrWhiteSpace(featureCode) || featureCode.Length>60)
+            throw new ArgumentException("Invalid feature code.");
+        var subscription=await store.SubscriptionAsync(identity.TenantId,ct);
+        return subscription.Features.Contains(featureCode,StringComparer.Ordinal);
+    }
+
     public async Task<InstitutionDashboard> DashboardAsync(CancellationToken ct)
     {
         var identity = await AdminAsync(ct);
