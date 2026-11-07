@@ -1,0 +1,48 @@
+@{ ViewData["Title"] = "Cross-Module Workflows"; }
+<p class="ev-eyebrow">EduVerse · Administration</p>
+<h1 class="h3">Cross-Module Workflows</h1>
+<p class="text-secondary">Link employee identities, verify exit asset clearance, and submit ordered purchases for finance review. Actions are validated by the tenant-secured API.</p>
+<section class="ev-card p-4 mb-3">
+    @Html.AntiForgeryToken()
+    <label class="form-label" for="campus">Campus ID</label>
+    <input class="form-control" id="campus" type="text" placeholder="Campus UUID" autocomplete="off" required />
+    <p class="small mt-2" id="workflow-status" role="status" aria-live="polite"></p>
+</section>
+<div class="row g-3">
+    <div class="col-lg-6">
+        <section class="ev-card p-4 h-100">
+            <h2 class="h5">Employee onboarding</h2>
+            <form id="binding-form">
+                <label class="form-label" for="binding-employee">Employee ID</label>
+                <input class="form-control mb-2" id="binding-employee" required />
+                <label class="form-label" for="binding-user">Existing Identity User ID</label>
+                <input class="form-control mb-3" id="binding-user" required />
+                <button class="btn btn-primary" type="submit">Link identity and campus access</button>
+            </form>
+        </section>
+    </div>
+    <div class="col-lg-6">
+        <section class="ev-card p-4 h-100">
+            <h2 class="h5">Employee offboarding</h2>
+            <form id="clearance-form">
+                <label class="form-label" for="exit-employee">Employee ID</label>
+                <input class="form-control mb-2" id="exit-employee" required />
+                <button class="btn btn-outline-primary mb-3" type="submit">Check asset clearance</button>
+            </form>
+            <p class="small" id="clearance-result" role="status"></p>
+            <button id="exit-button" class="btn btn-danger" type="button" disabled>Confirm offboarding</button>
+        </section>
+    </div>
+    <div class="col-12">
+        <section class="ev-card p-4">
+            <h2 class="h5">Procurement → Finance</h2>
+            <p class="small text-secondary">Records a pending finance handoff; does not post the general ledger.</p>
+            <form id="purchase-form">
+                <label for="purchase-id" class="form-label">Ordered purchase ID</label>
+                <input id="purchase-id" class="form-control mb-3" required />
+                <button type="submit" class="btn btn-primary">Submit to finance review</button>
+            </form>
+        </section>
+    </div>
+</div>
+@section Scripts { <script src="~/js/workflow-admin.js" asp-append-version="true"></script> }
