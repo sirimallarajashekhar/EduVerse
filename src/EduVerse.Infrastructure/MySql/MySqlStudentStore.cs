@@ -47,6 +47,22 @@ public sealed partial class MySqlStudentStore(string connectionString):IStudentS
         return Convert.ToInt32(await cmd.ExecuteScalarAsync(ct))==1;
     }
 
+    public async Task<AdmissionRecord?> SubmitPublicAsync(AdmissionSubmit request,CancellationToken ct)
+    {
+        await using var db=Connect();await db.OpenAsync(ct);
+        await using var cmd=new MySqlCommand("""
+            SELECT c.tenant_id FROM campuses c JOIN tenants t ON t.id=c.tenant_id AND t.is_active=1
+            WHERE c.id=@campus AND c.is_active=1
+              AND EXISTS(SELECT 1 FROM institution_subscriptions s WHERE s.tenant_id=c.tenant_id
+                AND s.status='ACTIVE' AND (s.expires_utc IS NULL OR s.expires_utc>UTC_TIMESTAMP(6)))
+            """,db);
+        Add(cmd,("@campus",Id(request.CampusId)));
+        var raw=await cmd.ExecuteScalarAsync(ct);
+        if(raw is null)return null;
+        var tenant=raw is Guid g?g:Guid.Parse(Convert.ToString(raw)!);
+        return await SubmitAsync(tenant,request,ct);
+    }
+
     public async Task<AdmissionRecord?> SubmitAsync(Guid tenant,AdmissionSubmit request,CancellationToken ct)
     {
         await using var db=Connect();await db.OpenAsync(ct);
