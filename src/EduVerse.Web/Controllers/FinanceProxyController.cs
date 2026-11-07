@@ -30,6 +30,25 @@ public sealed class FinanceProxyController(IHttpClientFactory clients):Controlle
  public Task<IActionResult> Receipt(Guid id,Guid campusId,CancellationToken ct)=>
   Forward(HttpMethod.Get,$"payments/{id:D}/receipt",campusId,null,null,ct);
 
+ [HttpGet("payments/{id:guid}/receipt/download")]
+ public async Task<IActionResult> Download(Guid id,Guid campusId,CancellationToken ct)
+ {
+  var token=await HttpContext.GetTokenAsync(EduVerseCookieAuth.Scheme,"access_token");
+  if(string.IsNullOrWhiteSpace(token))return Unauthorized();
+  using var request=new HttpRequestMessage(HttpMethod.Get,
+   $"api/v1/finance/payments/{id:D}/receipt/download?campusId={campusId:D}");
+  request.Headers.Authorization=new AuthenticationHeaderValue("Bearer",token);
+  try
+  {
+   using var response=await clients.CreateClient("EduVerseIdentityApi").SendAsync(request,ct);
+   if(!response.IsSuccessStatusCode)return StatusCode((int)response.StatusCode);
+   var bytes=await response.Content.ReadAsByteArrayAsync(ct);
+   Response.Headers["X-Content-Type-Options"]="nosniff";
+   Response.Headers["Cache-Control"]="no-store";
+   return File(bytes,"text/plain; charset=utf-8","eduverse-receipt-"+id.ToString("N")+".txt");
+  }
+  catch(HttpRequestException){return StatusCode(502);}
+ }
  [HttpPost("{route}")]
  public Task<IActionResult> Post(string route,[FromBody]System.Text.Json.JsonElement payload,
   [FromHeader(Name="Idempotency-Key")]string? key,CancellationToken ct)=>
