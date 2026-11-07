@@ -22,6 +22,17 @@ public sealed class AmsProxyController(IHttpClientFactory clients):ControllerBas
  [HttpGet("campuses")]
  public Task<IActionResult> Campuses(CancellationToken ct)=>Forward(HttpMethod.Get,
   "api/v1/institutions/campuses",null,null,ct);
+ [HttpGet("locations/{type}")]
+ public Task<IActionResult> Locations(string type,Guid campusId,CancellationToken ct)
+ {
+  if(type is not ("buildings" or "departments"))
+   return Task.FromResult<IActionResult>(NotFound());
+  return Forward(HttpMethod.Get,
+   $"api/v1/institution-admin/resources/{type}?campusId={campusId:D}",null,null,ct);
+ }
+ [HttpGet("employees")]
+ public Task<IActionResult> Employees(Guid campusId,CancellationToken ct)=>
+  Forward(HttpMethod.Get,$"api/v1/hrms/employees?campusId={campusId:D}",null,null,ct);
  [HttpGet("{path}")]
  public Task<IActionResult> Get(string path,Guid campusId,CancellationToken ct)
  {
