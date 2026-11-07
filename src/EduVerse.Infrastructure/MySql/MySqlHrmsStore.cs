@@ -153,8 +153,7 @@ public sealed partial class MySqlHrmsStore(string connectionString):IHrmsStore
   if(current is null)return false;
   var valid=(current,input.Status) switch{
    ("ONBOARDING","ACTIVE")=>true,("ACTIVE","ON_LEAVE")=>true,
-   ("ON_LEAVE","ACTIVE")=>true,("ACTIVE","EXITED")=>true,
-   ("ON_LEAVE","EXITED")=>true,_=>false};
+   ("ON_LEAVE","ACTIVE")=>true,_=>false};
   if(!valid)throw new HrConflictException("Employment transition is not permitted.");
   await using(var cmd=new MySqlCommand("""
    UPDATE hr_employees SET status=@status,
