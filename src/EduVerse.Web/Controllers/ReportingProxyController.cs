@@ -21,6 +21,14 @@ public sealed class ReportingProxyController(IHttpClientFactory clients) : Contr
     public Task<IActionResult> Csv(Guid campusId, DateOnly from, DateOnly to, CancellationToken ct) =>
         Forward("monthly.csv", campusId, from, to, true, ct);
 
+    [HttpGet("monthly.xlsx")]
+    public Task<IActionResult> Xlsx(Guid campusId, DateOnly from, DateOnly to, CancellationToken ct) =>
+        Forward("monthly.xlsx", campusId, from, to, true, ct);
+
+    [HttpGet("monthly.pdf")]
+    public Task<IActionResult> Pdf(Guid campusId, DateOnly from, DateOnly to, CancellationToken ct) =>
+        Forward("monthly.pdf", campusId, from, to, true, ct);
+
     private async Task<IActionResult> Forward(string route, Guid campus, DateOnly from, DateOnly to,
         bool download, CancellationToken ct)
     {
@@ -37,7 +45,12 @@ public sealed class ReportingProxyController(IHttpClientFactory clients) : Contr
             Response.Headers["X-Content-Type-Options"] = "nosniff";
             if (download && result.IsSuccessStatusCode)
                 return File(await result.Content.ReadAsByteArrayAsync(ct),
-                    "text/csv; charset=utf-8", $"eduverse-report-{campus:N}.csv");
+                    route switch
+                    {
+                        "monthly.xlsx" => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        "monthly.pdf" => "application/pdf",
+                        _ => "text/csv; charset=utf-8"
+                    }, $"eduverse-report-{campus:N}." + route.Split('.')[1]);
             return new ContentResult
             {
                 StatusCode = (int)result.StatusCode,
