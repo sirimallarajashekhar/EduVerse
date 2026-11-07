@@ -22,7 +22,7 @@ public sealed class HrmsProxyController(IHttpClientFactory clients):ControllerBa
   var token=await HttpContext.GetTokenAsync(EduVerseCookieAuth.Scheme,"access_token");
   if(string.IsNullOrWhiteSpace(token))return Unauthorized();
   using var req=new HttpRequestMessage(HttpMethod.Get,
-   $"api/v1/institution-admin/resources/department?campusId={campusId:D}");
+   $"api/v1/institution-admin/resources/departments?campusId={campusId:D}");
   req.Headers.Authorization=new AuthenticationHeaderValue("Bearer",token);
   return await Send(req,ct);
  }
