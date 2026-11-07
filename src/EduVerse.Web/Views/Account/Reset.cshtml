@@ -1,0 +1,14 @@
+@model EduVerse.Web.Models.ResetConfirmForm
+@{ ViewData["Title"] = "Choose password"; }
+<section class="ev-card p-4 mx-auto" style="max-width:440px">
+  <h1 class="h3">Choose a new password</h1>
+  <p>Use 12+ characters with uppercase, lowercase, a number and a symbol.</p>
+  <div asp-validation-summary="All" class="text-danger"></div>
+  <form method="post" asp-action="Reset">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Token" />
+    <label asp-for="Password" class="form-label">New password</label>
+    <input asp-for="Password" type="password" class="form-control mb-3" autocomplete="new-password" required />
+    <button class="btn btn-primary" type="submit">Save password</button>
+  </form>
+</section>
