@@ -186,6 +186,98 @@ public sealed class StudentManagementTests:IAsyncLifetime
     }
 
     [Fact]
+    public async Task PromotionCreatesNewYearEnrollmentAndPreservesPriorHistory()
+    {
+        if(host is null)return;
+        using var client=await ClientAsync();
+        using var registered=await client.PostAsJsonAsync("/api/v1/students",
+            new StudentCreate(campusA,null,"Nisha","Rao",new DateOnly(2014,4,2)));
+        var student=await registered.Content.ReadFromJsonAsync<StudentRecord>();
+        Assert.NotNull(student);
+        async Task<AcademicYear> Year(string code,int first)
+        {
+            using var response=await client.PostAsJsonAsync("/api/v1/academic/years",
+                new AcademicYearCreate(campusA,code,"Academic "+code,
+                    new DateOnly(first,6,1),new DateOnly(first+1,5,31)));
+            Assert.Equal(HttpStatusCode.Created,response.StatusCode);
+            return (await response.Content.ReadFromJsonAsync<AcademicYear>())!;
+        }
+        var current=await Year("2028-29",2028);
+        var next=await Year("2029-30",2029);
+        using var oldClass=await client.PostAsJsonAsync("/api/v1/academic/catalog",
+            new AcademicItemCreate(campusA,"GRADE","G07","Grade Seven",null,null,null,null,null));
+        var grade7=await oldClass.Content.ReadFromJsonAsync<AcademicItem>();
+        Assert.NotNull(grade7);
+        using var newClass=await client.PostAsJsonAsync("/api/v1/academic/catalog",
+            new AcademicItemCreate(campusA,"GRADE","G08","Grade Eight",null,null,null,null,null));
+        var grade8=await newClass.Content.ReadFromJsonAsync<AcademicItem>();
+        Assert.NotNull(grade8);
+        using var first=await client.PostAsJsonAsync(
+            $"/api/v1/students/{student.Id:D}/enrollments?campusId={campusA:D}",
+            new EnrollmentCreate(current.Id,grade7.Id));
+        Assert.Equal(HttpStatusCode.Created,first.StatusCode);
+        using var promoted=await client.PostAsJsonAsync(
+            $"/api/v1/students/{student.Id:D}/lifecycle?campusId={campusA:D}",
+            new LifecycleCommand("PROMOTE",null,next.Id,grade8.Id,"Moved to next grade"));
+        Assert.Equal(HttpStatusCode.NoContent,promoted.StatusCode);
+        using var history=await client.GetAsync(
+            $"/api/v1/students/{student.Id:D}/enrollments?campusId={campusA:D}");
+        var enrollments=await history.Content.ReadFromJsonAsync<EnrollmentRecord[]>();
+        Assert.NotNull(enrollments);
+        Assert.Equal(2,enrollments.Length);
+        Assert.Contains(enrollments,x=>x.AcademicYearId==current.Id&&x.Status=="PROMOTED");
+        Assert.Contains(enrollments,x=>x.AcademicYearId==next.Id&&x.Status=="ACTIVE");
+        using var duplicate=await client.PostAsJsonAsync(
+            $"/api/v1/students/{student.Id:D}/lifecycle?campusId={campusA:D}",
+            new LifecycleCommand("PROMOTE",null,next.Id,grade8.Id,null));
+        Assert.Equal(HttpStatusCode.Conflict,duplicate.StatusCode);
+    }
+
+    [Fact]
+    public async Task TransferCannotTargetForeignTenantCampus()
+    {
+        if(host is null)return;
+        using var client=await ClientAsync();
+        using var registered=await client.PostAsJsonAsync("/api/v1/students",
+            new StudentCreate(campusA,null,"Arun","Kumar",new DateOnly(2015,6,6)));
+        var student=await registered.Content.ReadFromJsonAsync<StudentRecord>();
+        Assert.NotNull(student);
+        using var forbidden=await client.PostAsJsonAsync(
+            $"/api/v1/students/{student.Id:D}/lifecycle?campusId={campusA:D}",
+            new LifecycleCommand("TRANSFER",campusB,null,null,"Family relocation"));
+        Assert.Equal(HttpStatusCode.NotFound,forbidden.StatusCode);
+        using var record=await client.GetAsync(
+            $"/api/v1/students/{student.Id:D}?campusId={campusA:D}");
+        var stillActive=await record.Content.ReadFromJsonAsync<StudentRecord>();
+        Assert.Equal("ACTIVE",stillActive?.Status);
+
+        var destination=Guid.NewGuid();
+        await using(var db=new MySqlConnection(cs))
+        {
+            await db.OpenAsync();
+            await using var command=new MySqlCommand("""
+                INSERT INTO campuses(id,tenant_id,code,display_name)
+                VALUES(@id,@tenant,'TRANSFER-DEST','Destination Campus')
+                """,db);
+            command.Parameters.AddWithValue("@id",destination.ToString("D"));
+            command.Parameters.AddWithValue("@tenant",tenantA.ToString("D"));
+            await command.ExecuteNonQueryAsync();
+        }
+        using var transferred=await client.PostAsJsonAsync(
+            $"/api/v1/students/{student.Id:D}/lifecycle?campusId={campusA:D}",
+            new LifecycleCommand("TRANSFER",destination,null,null,"Approved move"));
+        Assert.Equal(HttpStatusCode.NoContent,transferred.StatusCode);
+        using var after=await client.GetAsync(
+            $"/api/v1/students/{student.Id:D}?campusId={campusA:D}");
+        var completed=await after.Content.ReadFromJsonAsync<StudentRecord>();
+        Assert.Equal("TRANSFERRED",completed?.Status);
+        using var cannotTransferAgain=await client.PostAsJsonAsync(
+            $"/api/v1/students/{student.Id:D}/lifecycle?campusId={campusA:D}",
+            new LifecycleCommand("TRANSFER",destination,null,null,null));
+        Assert.Equal(HttpStatusCode.NotFound,cannotTransferAgain.StatusCode);
+    }
+
+    [Fact]
     public async Task AnonymousAccessToPrivateStudentListIsRejected()
     {
         if(host is null)return;
