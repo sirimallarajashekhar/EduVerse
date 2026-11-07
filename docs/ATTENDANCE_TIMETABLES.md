@@ -26,7 +26,7 @@ GET endpoints accept `campusId`; timetable additionally requires `academicYearId
 
 ## Important business rules
 - A timetable allocation requires an active teacher with a valid academic faculty assignment for the **same subject and year**, and active academic year, course/section/class and period in the same campus.
-- Conflict checks compare actual time intervals, not just identical period identifiers. A campus row is locked to serialize concurrent timetable writes. A teacher or class cannot be assigned overlapping periods within that academic year and campus.
+- Conflict checks compare actual time intervals, not just identical period identifiers. A tenant row is locked before the campus row to serialize concurrent timetable writes across campuses. A teacher cannot be assigned overlapping times across campuses when academic year date ranges overlap, and a class cannot be assigned overlapping periods in its campus/year.
 - Daily attendance must reference an active student enrollment whose academic year includes the date.
 - Period-wise attendance additionally requires a timetable slot matching that enrollment's class, academic year, requested period and date's weekday.
 - School/college HOLIDAY calendar events block student and staff attendance; no bypass through the client.
@@ -38,7 +38,7 @@ GET endpoints accept `campusId`; timetable additionally requires `academicYearId
 ## Current restrictions
 - Master-data CRUD is create/list. Rescheduling, cancellation, substitutes, annual rotation and complex recurring holidays remain future functionality.
 - Only tenant ADMIN can currently mark attendance. Teacher-specific permission scoping and attendance delegation should be added as granular permissions later.
-- Concurrency locks are campus-scoped. A teacher shared **across different campuses** in the same institution could still be double-booked. Multi-campus scheduling must use tenant-wide teacher locking and conflict validation before production use in shared-faculty institutions.
+- Scheduling locks are tenant-wide to prevent a shared teacher being double-booked across campuses; this can reduce write concurrency for large institutions. School holiday checks remain campus-scoped. Assess multi-campus time zones, travel times and rescheduling policies before production use.
 - Enrollment joins are scoped to campus but remain dependent on the current Phase 8 enrollment data integrity. Batch attendance entry, bulk imports, offline sync, timezone-specific cutoff rules and biometric hardware ingestion are not covered.
 - Access to records is restricted; for real student data, use appropriate consent, retention, encrypted backups, audit and data governance policies.
 
