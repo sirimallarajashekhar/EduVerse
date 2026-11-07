@@ -3,7 +3,7 @@
 ## Architecture
 The HRMS application at `/hrms` is independently deployable, hosted by `EduVerse.Hrms.Web` and mounted through the portal's YARP routing. The module is a **thin Razor/MVC UI** backed by an authenticated same-origin BFF `/hrms/bff/*`. The HRMS UI contains **no database access or domain logic**.
 
-All HRMS business logic and authorization run in `EduVerse.Api` at `/api/v1/hrms/*`, backed by Application-layer `HrmsService` and tenant/campus-constrained MySQL repositories. The JWT supplies tenant identity; client-provided tenant IDs are never accepted. Every request requires an **active tenant ADMIN**, active session, active institution, and an HRMS feature subscription. Migration 010 enables `hrms` for PILOT in addition to STANDARD to support tests/pilot adoption.
+All HRMS business logic and authorization run in `EduVerse.Api` at `/api/v1/hrms/*`, backed by Application-layer `HrmsService` and tenant/campus-constrained MySQL repositories. The JWT supplies tenant identity; client-provided tenant IDs are never accepted. Every request requires an **active tenant ADMIN**, active session, active institution, and an HRMS feature subscription. HRMS is available to tenants with the existing STANDARD subscription entitlement; PILOT remains unchanged and does not grant HRMS.
 
 ## Migration
 Apply `database/migrations/010_hrms.sql` after migrations 001–009 using a **migration-only database account**. Tables are:
