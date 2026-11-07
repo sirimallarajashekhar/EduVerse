@@ -25,9 +25,9 @@ if bash "$root/ops/mysql/verify-backup.sh" "$work/backup.sql.gz" >/dev/null 2>&1
   echo 'Corrupt backup was accepted.' >&2; exit 1
 fi
 # Make a fresh uncorrupted sample so the test reaches the schema-name guard.
-printf '%s\\n' '-- MySQL dump 10.13' 'CREATE TABLE test (id INT);' | gzip > "$work/backup.sql.gz"
+printf '%s\n' '-- MySQL dump 10.13' 'CREATE TABLE test (id INT);' | gzip > "$work/backup.sql.gz"
 ( cd "$work" && sha256sum backup.sql.gz > backup.sql.gz.sha256 )
-printf '%s\\n' '[client]' 'host=127.0.0.1' > "$work/client.cnf"
+printf '%s\n' '[client]' 'host=127.0.0.1' > "$work/client.cnf"
 chmod 600 "$work/client.cnf"
 # Restore must refuse all names that could map to live databases.
 if PATH="$work/bin:$PATH" MYSQL_DEFAULTS_FILE="$work/client.cnf" \
