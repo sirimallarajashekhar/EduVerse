@@ -18,6 +18,7 @@
         @if (User.IsInRole("ADMIN"))
         {
           <a class="ev-nav-item" href="/admin/users">User Management</a>
+          <a class="ev-nav-item" href="/admin/institution">Institution Management</a>
         }
         <div id="module-navigation" role="group" aria-label="Installed modules">
           <span class="text-white-50 small">Loading modules…</span>
@@ -40,7 +41,7 @@
         }
         else
         {
-          <a href="/account/login" class="btn btn-sm btn-primary">Sign in</a>
+          <div class="d-flex gap-2"><a href="/register-institution" class="btn btn-sm btn-outline-primary">Register school</a><a href="/account/login" class="btn btn-sm btn-primary">Sign in</a></div>
         }
       </header>
       <main class="container-fluid px-4 py-4">@RenderBody()</main>

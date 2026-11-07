@@ -1,0 +1,30 @@
+@model EduVerse.Web.Controllers.RegistrationForm
+@{ViewData["Title"]="Register institution";}
+<section class="ev-card p-4 mx-auto" style="max-width:600px">
+  <p class="ev-eyebrow">School &amp; college onboarding</p>
+  <h1 class="h3">Request institution registration</h1>
+  <p class="text-secondary">Your request will be reviewed by the EduVerse onboarding team. Accounts are not automatically activated.</p>
+  @if(ViewData["Submitted"] is true)
+  {
+    <div class="alert alert-success" role="status">Registration request submitted for review.</div>
+  }
+  else
+  {
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <form method="post" asp-controller="Registration" asp-action="Index">
+      @Html.AntiForgeryToken()
+      <label asp-for="Name" class="form-label">Institution name</label>
+      <input asp-for="Name" class="form-control mb-3" maxlength="160" required />
+      <label asp-for="Slug" class="form-label">Institution code</label>
+      <input asp-for="Slug" class="form-control mb-3" maxlength="80" pattern="[a-z0-9-]{3,80}" required />
+      <label asp-for="Kind" class="form-label">Institution type</label>
+      <select asp-for="Kind" class="form-select mb-3">
+        <option value="School">School</option><option value="College">College</option>
+        <option value="Mixed">School &amp; College</option>
+      </select>
+      <label asp-for="Email" class="form-label">Contact email</label>
+      <input asp-for="Email" type="email" class="form-control mb-3" maxlength="254" required />
+      <button class="btn btn-primary" type="submit">Submit request</button>
+    </form>
+  }
+</section>

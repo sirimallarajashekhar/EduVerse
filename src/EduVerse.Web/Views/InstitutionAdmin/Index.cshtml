@@ -1,0 +1,81 @@
+@{ViewData["Title"]="Institution administration";}
+<div class="mb-4">
+  <p class="ev-eyebrow">Institution administration</p>
+  <h1 class="h3">School &amp; college management</h1>
+  <p class="text-secondary">Tenant-scoped information is retrieved from EduVerse REST APIs.</p>
+</div>
+<div class="row g-3 mb-4" id="institution-metrics" aria-live="polite">
+  <div class="col-md-3"><div class="ev-card p-3"><div class="ev-eyebrow">Campuses</div><h2 id="campus-count">—</h2></div></div>
+  <div class="col-md-3"><div class="ev-card p-3"><div class="ev-eyebrow">Departments</div><h2 id="department-count">—</h2></div></div>
+  <div class="col-md-3"><div class="ev-card p-3"><div class="ev-eyebrow">Buildings</div><h2 id="building-count">—</h2></div></div>
+  <div class="col-md-3"><div class="ev-card p-3"><div class="ev-eyebrow">Active members</div><h2 id="member-count">—</h2></div></div>
+</div>
+<div class="row g-3">
+  <div class="col-lg-7">
+    <section class="ev-card p-4">
+      <h2 class="h5">Institution profile</h2>
+      <form id="profile-form">
+        @Html.AntiForgeryToken()
+        <div class="row g-2">
+          <div class="col-sm-6"><label for="legalName" class="form-label">Legal name</label><input id="legalName" class="form-control" required maxlength="160" /></div>
+          <div class="col-sm-6"><label for="contactEmail" class="form-label">Contact email</label><input id="contactEmail" type="email" class="form-control" required maxlength="254" /></div>
+          <div class="col-sm-6"><label for="city" class="form-label">City</label><input id="city" class="form-control" maxlength="100" /></div>
+          <div class="col-sm-6"><label for="stateRegion" class="form-label">State / region</label><input id="stateRegion" class="form-control" maxlength="100" /></div>
+          <div class="col-sm-6"><label for="contactPhone" class="form-label">Phone</label><input id="contactPhone" class="form-control" maxlength="24" /></div>
+          <div class="col-sm-6"><label for="postalCode" class="form-label">Postal code</label><input id="postalCode" class="form-control" maxlength="20" /></div>
+          <div class="col-12"><label for="addressLine" class="form-label">Address</label><input id="addressLine" class="form-control" maxlength="240" /></div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">Save profile</button>
+      </form>
+      <div class="d-flex gap-3 align-items-center mt-3">
+        <span>Onboarding: <strong id="onboarding-status">—</strong></span>
+        <button type="button" class="btn btn-sm btn-outline-success" id="mark-ready">Mark ready</button>
+      </div>
+    </section>
+  </div>
+  <div class="col-lg-5">
+    <section class="ev-card p-4 mb-3">
+      <h2 class="h5">Subscription &amp; module access</h2>
+      <p id="subscription-status" class="mb-2" aria-live="polite">Loading…</p>
+      <div id="module-features" class="small text-secondary"></div>
+      <h3 class="h6 mt-3">Available plans</h3><ul id="plans-list" class="small text-secondary mb-0"></ul>
+      <p class="text-secondary small mt-3">Plan assignments require authorized operator provisioning.</p>
+    </section>
+    <section class="ev-card p-4">
+      <h2 class="h5">Institution settings</h2>
+      <form id="setting-form">
+        <label for="setting-key" class="form-label">Setting</label>
+        <select id="setting-key" class="form-select mb-2">
+          <option value="timezone">Timezone</option><option value="locale">Locale</option>
+          <option value="date_format">Date format</option>
+          <option value="academic_year_label">Academic year label</option>
+          <option value="support_email">Support email</option>
+        </select>
+        <label for="setting-value" class="form-label">Value</label>
+        <input id="setting-value" maxlength="240" class="form-control mb-2" required />
+        <button type="submit" class="btn btn-outline-primary">Save setting</button>
+      </form>
+      <ul id="settings-list" class="mt-3 mb-0 small"></ul>
+    </section>
+  </div>
+  <div class="col-12">
+    <section class="ev-card p-4">
+      <h2 class="h5">Departments &amp; buildings</h2>
+      <p class="text-secondary small">Resources are tied to a campus inside this institution.</p>
+      <form id="resource-form" class="row g-2 align-items-end">
+        <div class="col-sm-3"><label for="resource-type" class="form-label">Resource</label>
+          <select id="resource-type" class="form-select"><option value="departments">Department</option><option value="buildings">Building</option></select></div>
+        <div class="col-sm-3"><label for="resource-campus" class="form-label">Campus</label><select id="resource-campus" class="form-select" required></select></div>
+        <div class="col-sm-2"><label for="resource-code" class="form-label">Code</label><input id="resource-code" class="form-control" maxlength="30" required /></div>
+        <div class="col-sm-3"><label for="resource-name" class="form-label">Name</label><input id="resource-name" class="form-control" maxlength="160" required /></div>
+        <div class="col-sm-1"><button class="btn btn-primary" type="submit">Add</button></div>
+      </form>
+      <p id="institution-message" role="status" class="mt-3"></p>
+      <div class="row mt-2 g-3">
+        <div class="col-md-6"><h3 class="h6">Departments</h3><ul id="departments-list"></ul></div>
+        <div class="col-md-6"><h3 class="h6">Buildings</h3><ul id="buildings-list"></ul></div>
+      </div>
+    </section>
+  </div>
+</div>
+@section Scripts {<script src="~/js/institution-admin.js" asp-append-version="true"></script>}
