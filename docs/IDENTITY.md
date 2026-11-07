@@ -52,11 +52,14 @@ Use your own real admin email, institution and protected credentials in producti
 - GET `/api/v1/identity/session`: live session validation
 - GET `/api/v1/identity/me`: subject and tenant context
 - GET/POST `/api/v1/identity/users`: tenant ADMIN user directory/invites
+- POST `/api/v1/identity/users/{id}/deactivate`: deactivate membership and revoke that tenant's sessions
 - POST `/api/v1/identity/permissions`: ADMIN-controlled MEMBER role grants from a whitelist
 - POST `/api/v1/identity/campus-access`: ADMIN-controlled campus assignment
 - GET `/api/v1/identity/permissions/check`: module backend permission consultation
 - POST `/api/v1/identity/password-reset/request`: generic 202; 15-min token sent only through SMTP
 - POST `/api/v1/identity/password-reset/confirm`: atomic one-time token consumption and revoke sessions
+
+Administrator portal: `/admin/users` (API-only user invitation and deactivation).
 
 Portal routes: GET/POST `/account/login`, POST `/account/logout` with CSRF token, GET/POST `/account/password-reset`, GET/POST `/account/reset`.
 
