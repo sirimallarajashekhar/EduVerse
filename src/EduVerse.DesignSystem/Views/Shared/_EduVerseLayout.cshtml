@@ -19,12 +19,25 @@
           <span class="text-white-50 small">Loading modules…</span>
         </div>
       </nav>
-      <div class="ev-sidebar-footer">School &amp; College Platform<br /><small>Phase 2 preview · No login yet</small></div>
+      <div class="ev-sidebar-footer">School &amp; College Platform</div>
     </aside>
     <div class="flex-grow-1 ev-page">
       <header class="ev-topbar d-flex align-items-center justify-content-between px-4 py-3">
         <span class="fw-semibold">@ViewData["Title"]</span>
-        <span class="badge text-bg-light">Demo shell</span>
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+          <div class="d-flex align-items-center gap-3">
+            <span class="small text-secondary">@User.Identity.Name</span>
+            <form method="post" action="/account/logout" class="mb-0">
+              @Html.AntiForgeryToken()
+              <button class="btn btn-sm btn-outline-secondary" type="submit">Sign out</button>
+            </form>
+          </div>
+        }
+        else
+        {
+          <a href="/account/login" class="btn btn-sm btn-primary">Sign in</a>
+        }
       </header>
       <main class="container-fluid px-4 py-4">@RenderBody()</main>
     </div>
