@@ -69,7 +69,13 @@
      'Admission: '+receipt.admissionNumber,receipt.fee,money(receipt.amount),
      'Method: '+receipt.method,'Collected: '+receipt.collectedUtc].join('\n'));
    }));
-   cell.append(view);row.append(cell);body.append(row);
+   const download=document.createElement('button');
+   download.type='button';download.className='btn btn-sm btn-outline-secondary ms-2';
+   download.textContent='Download';
+   download.addEventListener('click',()=>{
+    window.location.assign(url('/bff/finance/payments/'+item.id+'/receipt/download',{campusId:campus()}));
+   });
+   cell.append(view,download);row.append(cell);body.append(row);
   }
  }
  async function refreshReferences(){
