@@ -122,6 +122,12 @@ public sealed class MySqlCrossModuleStore(string connectionString) : ICrossModul
             {
                 var user = Id(r.UserId!.Value);
                 if (Convert.ToInt32(await Scalar(db, tx, """
+                    SELECT EXISTS(SELECT 1 FROM hr_employees
+                    WHERE tenant_id=@t AND campus_id=@c AND id=@e)
+                    """, token, ("@t", Id(tenant)), ("@c", Id(r.CampusId)),
+                    ("@e", Id(r.EmployeeId)))) != 1)
+                    throw new WorkflowScopeException();
+                if (Convert.ToInt32(await Scalar(db, tx, """
                     SELECT EXISTS(SELECT 1 FROM tenant_memberships m JOIN identity_users u
                     ON u.id=m.subject_id AND u.is_active=1
                     WHERE m.tenant_id=@t AND m.subject_id=@u AND m.is_active=1)
