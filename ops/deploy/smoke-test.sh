@@ -13,7 +13,7 @@ probe() {
     echo "Non-TLS public URL rejected for $label." >&2
     exit 2
   fi
-  curl --silent --show-error --fail --location --max-time 15 \
+  curl --silent --show-error --fail --max-redirs 0 --max-time 15 \
     --retry 3 --retry-delay 2 "${base%/}$path" >/dev/null
   printf 'OK %s %s\n' "$label" "$path"
 }
