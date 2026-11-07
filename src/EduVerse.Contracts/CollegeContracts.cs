@@ -1,0 +1,16 @@
+namespace EduVerse.Contracts;
+public sealed record CollegeRegulationCreate(Guid CampusId,string Code,string Name,decimal PassingPoints,decimal MinCreditsForProgression,bool AllowBacklogs,int MaxSemesters);
+public sealed record CollegeRegulation(Guid Id,Guid CampusId,string Code,string Name,decimal PassingPoints,decimal MinCreditsForProgression,bool AllowBacklogs,int MaxSemesters);
+public sealed record CollegeProgramCreate(Guid CampusId,Guid CatalogProgramId,Guid RegulationId,string Code,string Name);
+public sealed record CollegeProgram(Guid Id,Guid CampusId,Guid CatalogProgramId,Guid RegulationId,string Code,string Name);
+public sealed record CollegeSemesterCreate(Guid CampusId,Guid ProgramId,Guid AcademicYearId,Guid CatalogSemesterId,int Number);
+public sealed record CollegeSemester(Guid Id,Guid ProgramId,Guid AcademicYearId,Guid CatalogSemesterId,int Number,string Status);
+public sealed record CollegeCourseCreate(Guid CampusId,Guid ProgramId,Guid SemesterId,Guid SubjectId,string Code,string Title,string Type,decimal Credits,int Capacity,Guid? PrerequisiteCourseId);
+public sealed record CollegeCourse(Guid Id,Guid ProgramId,Guid SemesterId,Guid SubjectId,string Code,string Title,string Type,decimal Credits,int Capacity,Guid? PrerequisiteCourseId);
+public sealed record CollegeRegistrationCreate(Guid CampusId,Guid EnrollmentId,Guid CourseId);
+public sealed record CollegeRegistration(Guid Id,Guid EnrollmentId,Guid CourseId,Guid SemesterId,string Status,decimal? GradePoints,string? GradeLabel,bool? Passed);
+public sealed record CollegeGradeFromExam(Guid CampusId,Guid RegistrationId,Guid ExamId);
+public sealed record CollegeFinalize(Guid CampusId,Guid EnrollmentId,Guid SemesterId);
+public sealed record CollegeSemesterResult(Guid EnrollmentId,Guid SemesterId,decimal AttemptedCredits,decimal EarnedCredits,decimal WeightedPoints,decimal Sgpa,int Backlogs,bool ProgressionEligible);
+public sealed record CollegeTranscript(Guid EnrollmentId,decimal Cgpa,decimal AttemptedCredits,decimal EarnedCredits,int Backlogs,IReadOnlyList<CollegeSemesterResult> Semesters);
+public sealed record CollegeReport(int Programs,int Semesters,int Courses,int Electives,int Registered,int Backlogs,int FinalizedSemesters,decimal MeanSgpa);
