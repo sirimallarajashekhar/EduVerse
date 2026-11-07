@@ -14,4 +14,5 @@ public sealed record HrLeaveBalance(Guid EmployeeId,Guid LeaveTypeId,int Year,de
 public sealed record HrSalaryCreate(Guid CampusId,Guid EmployeeId,DateOnly EffectiveOn,decimal BaseAmount,decimal Allowances,decimal Deductions);
 public sealed record HrSalary(Guid Id,Guid EmployeeId,DateOnly EffectiveOn,decimal BaseAmount,decimal Allowances,decimal Deductions);
 public sealed record HrPayrollPreview(Guid EmployeeId,DateOnly Month,decimal Gross,decimal Deductions,decimal Net);
+public sealed record HrStaffAttendance(Guid EmployeeId,DateOnly Date,string Status);
 public sealed record HrDashboard(int Employees,int ActiveEmployees,int PendingLeaves,int ApprovedLeaves,decimal MonthlyPayrollPreview);
