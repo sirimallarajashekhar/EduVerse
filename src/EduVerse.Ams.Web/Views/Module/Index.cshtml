@@ -1,9 +1,110 @@
-@{ ViewData["Title"] = "Asset Management"; }
-<p class="ev-eyebrow mb-2">Standalone micro frontend · AMS</p>
-<h1 class="display-6 fw-semibold">Asset Management System</h1>
-<p class="text-secondary">Institution-wide assets and inventory. Functional workflows will be added in Phase 13.</p>
-<div class="ev-card p-4 mt-4">
-  <h2 class="h5">Module deployment is independent</h2>
-  <p class="mb-1">Mounted by the EduVerse portal at <code>/ams</code> through YARP.</p>
-  <p class="small text-secondary mb-0">All future AMS operations will call only the AMS REST API. No business logic will run in Razor views.</p>
+@{ViewData["Title"]="Assets & Inventory";}
+<p class="ev-eyebrow">Independent micro frontend · AMS</p>
+<h1 class="h3">Asset &amp; Inventory Management</h1>
+<p class="text-secondary">Campus equipment, allocations, maintenance, inventory movements and purchasing.</p>
+<section class="ev-card p-4 mb-3">
+ @Html.AntiForgeryToken()
+ <label for="campus" class="form-label">Active campus</label>
+ <select id="campus" class="form-select" style="max-width:430px"></select>
+ <p id="status" role="status" class="small mt-2"></p>
+ <p id="metrics" class="small text-secondary mb-0"></p>
+</section>
+<div class="row g-3 mb-3">
+ <div class="col-lg-4"><section class="ev-card p-4 h-100">
+  <h2 class="h5">Asset categories</h2>
+  <form id="category-form" class="row g-2">
+   <div class="col-sm-5"><label for="category-code" class="form-label">Code</label><input id="category-code" class="form-control" maxlength="30" required/></div>
+   <div class="col-sm-7"><label for="category-name" class="form-label">Category</label><input id="category-name" class="form-control" maxlength="120" required/></div>
+   <div class="col-12"><button class="btn btn-outline-primary" type="submit">Add category</button></div>
+  </form>
+  <ul id="category-list" class="small mt-2"></ul>
+ </section></div>
+ <div class="col-lg-8"><section class="ev-card p-4 h-100">
+  <h2 class="h5">Register an asset</h2>
+  <form id="asset-form" class="row g-2">
+   <div class="col-sm-6"><label for="asset-category" class="form-label">Category</label><select id="asset-category" class="form-select" required></select></div>
+   <div class="col-sm-6"><label for="asset-name" class="form-label">Asset name</label><input id="asset-name" maxlength="160" class="form-control" required/></div>
+   <div class="col-sm-4"><label for="serial" class="form-label">Serial number</label><input id="serial" maxlength="100" class="form-control"/></div>
+   <div class="col-sm-4"><label for="acquired" class="form-label">Acquired on</label><input id="acquired" type="date" class="form-control"/></div>
+   <div class="col-sm-4"><label for="asset-cost" class="form-label">Purchase price (INR)</label><input id="asset-cost" type="number" min="0" step=".01" class="form-control"/></div>
+   <div class="col-12"><button class="btn btn-primary" type="submit">Register asset</button></div>
+  </form>
+ </section></div>
 </div>
+<div class="row g-3 mb-3">
+ <div class="col-lg-7"><section class="ev-card p-4 h-100">
+  <h2 class="h5">Allocate, transfer or return assets</h2>
+  <label for="asset" class="form-label">Asset</label><select id="asset" class="form-select mb-2"></select>
+  <form id="allocate-form" class="row g-2">
+   <div class="col-sm-4"><label for="building" class="form-label">Building</label><select id="building" class="form-select"></select></div>
+   <div class="col-sm-4"><label for="department" class="form-label">Department</label><select id="department" class="form-select"></select></div>
+   <div class="col-sm-4"><label for="employee" class="form-label">Employee</label><select id="employee" class="form-select"></select></div>
+   <div class="col-12"><label for="allocation-note" class="form-label">Allocation note</label><input id="allocation-note" maxlength="300" class="form-control"/></div>
+   <div class="col-12"><button class="btn btn-outline-primary" type="submit">Allocate / transfer</button></div>
+  </form>
+  <div class="d-flex flex-wrap gap-2 mt-3">
+   <button type="button" data-action="RETURN" class="btn btn-sm btn-outline-secondary asset-action">Return</button>
+   <button type="button" data-action="MAINTENANCE" class="btn btn-sm btn-outline-secondary asset-action">Maintenance</button>
+   <button type="button" data-action="REPAIR" class="btn btn-sm btn-outline-secondary asset-action">Repair complete</button>
+   <button type="button" data-action="RETIRE" class="btn btn-sm btn-outline-danger asset-action">Retire</button>
+   <button type="button" data-action="DISPOSE" class="btn btn-sm btn-outline-danger asset-action">Dispose</button>
+  </div>
+  <h3 class="h6 mt-3">Asset history</h3><ul id="asset-events" class="small"></ul>
+ </section></div>
+ <div class="col-lg-5"><section class="ev-card p-4 h-100">
+  <h2 class="h5">Maintenance schedules and work orders</h2>
+  <form id="maintenance-form" class="row g-2">
+   <div class="col-12"><label for="work-title" class="form-label">Work order title</label><input id="work-title" maxlength="160" class="form-control" required/></div>
+   <div class="col-12"><label for="work-due" class="form-label">Due date</label><input id="work-due" type="date" class="form-control" required/></div>
+   <div class="col-12"><button class="btn btn-outline-primary" type="submit">Create work order</button></div>
+  </form>
+  <ul id="work-orders" class="small mt-3"></ul>
+ </section></div>
+</div>
+<div class="row g-3 mb-3">
+ <div class="col-lg-5"><section class="ev-card p-4 h-100">
+  <h2 class="h5">Inventory items</h2>
+  <form id="stock-form" class="row g-2">
+   <div class="col-sm-4"><label for="sku" class="form-label">SKU</label><input id="sku" maxlength="40" class="form-control" required/></div>
+   <div class="col-sm-8"><label for="stock-name" class="form-label">Item</label><input id="stock-name" maxlength="160" class="form-control" required/></div>
+   <div class="col-sm-5"><label for="stock-unit" class="form-label">Unit</label><input id="stock-unit" maxlength="16" class="form-control" value="pcs" required/></div>
+   <div class="col-sm-7"><label for="reorder" class="form-label">Reorder level</label><input id="reorder" type="number" min="0" step=".01" class="form-control" value="5" required/></div>
+   <div class="col-12"><button class="btn btn-outline-primary" type="submit">Create stock item</button></div>
+  </form>
+  <ul id="stock-items" class="small mt-3"></ul>
+ </section></div>
+ <div class="col-lg-7"><section class="ev-card p-4 h-100">
+  <h2 class="h5">Stock movements</h2>
+  <form id="movement-form" class="row g-2">
+   <div class="col-12"><label for="movement-stock" class="form-label">Stock item</label><select id="movement-stock" class="form-select" required></select></div>
+   <div class="col-sm-5"><label for="movement-type" class="form-label">Movement</label><select id="movement-type" class="form-select"><option value="IN">Receive</option><option value="OUT">Issue</option><option value="ADJUST">Positive adjustment</option></select></div>
+   <div class="col-sm-7"><label for="movement-qty" class="form-label">Quantity</label><input id="movement-qty" type="number" min=".01" step=".01" class="form-control" required/></div>
+   <div class="col-12"><label for="movement-reference" class="form-label">Reference (optional)</label><input id="movement-reference" maxlength="100" class="form-control"/></div>
+   <div class="col-12"><button class="btn btn-primary" type="submit">Record stock movement</button></div>
+  </form>
+  <p class="small text-secondary mt-2 mb-0">Stock issues cannot make inventory negative; repeated requests with the same key are recorded once.</p>
+ </section></div>
+</div>
+<div class="row g-3">
+ <div class="col-lg-5"><section class="ev-card p-4 h-100">
+  <h2 class="h5">Vendors</h2>
+  <form id="vendor-form" class="row g-2">
+   <div class="col-12"><label for="vendor-name" class="form-label">Vendor</label><input id="vendor-name" maxlength="160" class="form-control" required/></div>
+   <div class="col-12"><label for="vendor-email" class="form-label">Contact email</label><input id="vendor-email" type="email" maxlength="254" class="form-control"/></div>
+   <div class="col-12"><button class="btn btn-outline-primary" type="submit">Register vendor</button></div>
+  </form>
+  <ul id="vendor-list" class="small mt-3"></ul>
+ </section></div>
+ <div class="col-lg-7"><section class="ev-card p-4 h-100">
+  <h2 class="h5">Purchase order foundation</h2>
+  <form id="purchase-form" class="row g-2">
+   <div class="col-sm-6"><label for="purchase-vendor" class="form-label">Vendor</label><select id="purchase-vendor" class="form-select" required></select></div>
+   <div class="col-sm-6"><label for="purchase-stock" class="form-label">Item</label><select id="purchase-stock" class="form-select" required></select></div>
+   <div class="col-sm-6"><label for="purchase-quantity" class="form-label">Quantity</label><input id="purchase-quantity" type="number" min=".01" step=".01" class="form-control" required/></div>
+   <div class="col-sm-6"><label for="purchase-price" class="form-label">Unit price (INR)</label><input id="purchase-price" type="number" min="0" step=".01" class="form-control" required/></div>
+   <div class="col-12"><button class="btn btn-outline-primary" type="submit">Save draft purchase</button></div>
+  </form>
+  <ul id="purchases" class="small mt-3"></ul>
+ </section></div>
+</div>
+@section Scripts {<script src="/ams/js/ams-admin.js" asp-append-version="true"></script>}
