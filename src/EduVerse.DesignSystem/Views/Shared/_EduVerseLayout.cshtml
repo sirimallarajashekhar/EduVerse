@@ -15,6 +15,10 @@
       <div class="ev-nav-label mb-2">PLATFORM</div>
       <nav aria-label="Modules">
         <a class="ev-nav-item" href="/">Dashboard</a>
+        @if (User.IsInRole("ADMIN"))
+        {
+          <a class="ev-nav-item" href="/admin/users">User Management</a>
+        }
         <div id="module-navigation" role="group" aria-label="Installed modules">
           <span class="text-white-50 small">Loading modules…</span>
         </div>
