@@ -43,6 +43,9 @@ CREATE TABLE IF NOT EXISTS identity_role_permissions (
   CONSTRAINT fk_role_permission_tenant FOREIGN KEY (tenant_id) REFERENCES tenants(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- Enforce that an assigned campus belongs to the same tenant at the database level.
+ALTER TABLE campuses ADD UNIQUE KEY uq_campuses_tenant_id (tenant_id, id);
+
 CREATE TABLE IF NOT EXISTS identity_campus_access (
   tenant_id CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
   subject_id VARCHAR(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
@@ -50,7 +53,7 @@ CREATE TABLE IF NOT EXISTS identity_campus_access (
   PRIMARY KEY (tenant_id, subject_id, campus_id),
   CONSTRAINT fk_campus_scope_membership FOREIGN KEY (tenant_id, subject_id)
     REFERENCES tenant_memberships(tenant_id, subject_id),
-  CONSTRAINT fk_campus_scope_campus FOREIGN KEY (campus_id) REFERENCES campuses(id),
+  CONSTRAINT fk_campus_scope_campus FOREIGN KEY (tenant_id, campus_id) REFERENCES campuses(tenant_id, id),
   KEY ix_scope_campus (tenant_id, campus_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
