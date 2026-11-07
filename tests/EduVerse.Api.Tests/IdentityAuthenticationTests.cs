@@ -4,6 +4,8 @@ using System.Net.Http.Json;
 using EduVerse.Contracts;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using MySqlConnector;
 using Xunit;
 
@@ -54,7 +56,12 @@ public sealed class IdentityAuthenticationTests : IAsyncLifetime
             m.Parameters.AddWithValue("@uid", userId.ToString("D"));
             await m.ExecuteNonQueryAsync();
         }
-        factory = new WebApplicationFactory<Program>();
+        factory = new WebApplicationFactory<Program>().WithWebHostBuilder(web =>
+            web.ConfigureAppConfiguration((_, configuration) =>
+                configuration.AddInMemoryCollection(new Dictionary<string, string?>
+                {
+                    ["ConnectionStrings:EduVerse"] = connection
+                })));
     }
 
     [Fact]
