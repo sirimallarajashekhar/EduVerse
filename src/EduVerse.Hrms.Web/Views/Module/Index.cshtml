@@ -1,9 +1,104 @@
-@{ ViewData["Title"] = "Human Resources"; }
-<p class="ev-eyebrow mb-2">Standalone micro frontend · HRMS</p>
-<h1 class="display-6 fw-semibold">Human Resource Management</h1>
-<p class="text-secondary">Employee, leave, attendance and payroll workflows arrive in Phase 12.</p>
-<div class="ev-card p-4 mt-4">
-  <h2 class="h5">Module deployment is independent</h2>
-  <p class="mb-1">Mounted by the EduVerse portal at <code>/hrms</code> through YARP.</p>
-  <p class="small text-secondary mb-0">All future HRMS operations will call only the HRMS REST API. No business logic will run in Razor views.</p>
+@{ViewData["Title"]="Human Resources";}
+<p class="ev-eyebrow">Independent micro frontend · HRMS</p>
+<h1 class="h3">Human Resource Management</h1>
+<p class="text-secondary">Employee onboarding, leave and payroll administration. All rules and records are protected by EduVerse REST APIs.</p>
+<section class="ev-card p-4 mb-3">
+ @Html.AntiForgeryToken()
+ <label class="form-label" for="campus">Campus</label>
+ <select id="campus" class="form-select" style="max-width:430px"></select>
+ <p id="status" class="small mt-2" role="status"></p>
+ <p id="summary" class="small text-secondary"></p>
+</section>
+<div class="row g-3 mb-3">
+ <div class="col-lg-5"><section class="ev-card p-4 h-100">
+  <h2 class="h5">Departments &amp; designations</h2>
+  <p class="small text-secondary">Departments are managed in the Institution Administration module. Choose one when onboarding employees.</p>
+  <form id="designation-form" class="row g-2">
+   <div class="col-sm-4"><label for="des-code" class="form-label">Code</label><input id="des-code" class="form-control" maxlength="30" required/></div>
+   <div class="col-sm-8"><label for="des-title" class="form-label">Title</label><input id="des-title" class="form-control" maxlength="120" required/></div>
+   <div class="col-12"><button class="btn btn-outline-primary" type="submit">Create designation</button></div>
+  </form>
+  <ul id="designations" class="small mt-3"></ul>
+ </section></div>
+ <div class="col-lg-7"><section class="ev-card p-4 h-100">
+  <h2 class="h5">Employee / faculty onboarding</h2>
+  <form id="employee-form" class="row g-2">
+   <div class="col-sm-6"><label for="first" class="form-label">Given name</label><input id="first" maxlength="100" class="form-control" required/></div>
+   <div class="col-sm-6"><label for="last" class="form-label">Family name</label><input id="last" maxlength="100" class="form-control" required/></div>
+   <div class="col-sm-6"><label for="type" class="form-label">Employee type</label><select id="type" class="form-select"><option>FACULTY</option><option>STAFF</option><option>CONTRACT</option></select></div>
+   <div class="col-sm-6"><label for="joined" class="form-label">Joined on</label><input id="joined" type="date" class="form-control" required/></div>
+   <div class="col-sm-6"><label for="designation" class="form-label">Designation</label><select id="designation" class="form-select"></select></div>
+   <div class="col-sm-6"><label for="department" class="form-label">Department</label><select id="department" class="form-select"></select></div>
+   <div class="col-sm-6"><label for="account-user" class="form-label">EduVerse account UUID (optional)</label><input id="account-user" class="form-control" placeholder="User UUID for attendance integration"/></div>
+   <div class="col-sm-6"><label for="work-email" class="form-label">Work email</label><input id="work-email" type="email" maxlength="254" class="form-control"/></div>
+   <div class="col-12"><button class="btn btn-primary" type="submit">Register employee</button></div>
+  </form>
+  <hr/>
+  <label for="employee" class="form-label">Selected employee</label><select id="employee" class="form-select"></select>
+  <form id="lifecycle-form" class="row g-2 mt-1">
+   <div class="col-sm-6"><label for="lifecycle" class="form-label">Employment action</label>
+    <select id="lifecycle" class="form-select"><option value="ACTIVE">Activate / return</option><option value="ON_LEAVE">Mark on leave</option><option value="EXITED">Exit employment</option></select></div>
+   <div class="col-sm-6"><label for="lifecycle-note" class="form-label">Note</label><input id="lifecycle-note" maxlength="400" class="form-control"/></div>
+   <div class="col-12"><button class="btn btn-outline-primary" type="submit">Apply lifecycle transition</button></div>
+  </form>
+ </section></div>
 </div>
+<div class="row g-3 mb-3">
+ <div class="col-lg-5"><section class="ev-card p-4 h-100">
+  <h2 class="h5">Private employee documents</h2>
+  <p class="small text-secondary">PDF, PNG or JPEG, maximum 1 MiB. Only HR administrators can retrieve documents.</p>
+  <form id="document-form" class="row g-2" enctype="multipart/form-data">
+   <div class="col-sm-6"><label for="document-type" class="form-label">Document type</label>
+    <select id="document-type" class="form-select"><option>CONTRACT</option><option>QUALIFICATION</option><option>IDENTITY</option><option>OTHER</option></select></div>
+   <div class="col-sm-6"><label for="document-file" class="form-label">Document</label><input id="document-file" type="file" accept=".pdf,.png,.jpg,.jpeg" class="form-control" required/></div>
+   <div class="col-12"><button class="btn btn-outline-primary" type="submit">Upload securely</button></div>
+  </form>
+  <ul id="documents" class="small mt-3"></ul>
+ </section></div>
+ <div class="col-lg-7"><section class="ev-card p-4 h-100">
+  <h2 class="h5">Leave types &amp; balances</h2>
+  <form id="leave-type-form" class="row g-2">
+   <div class="col-sm-4"><label for="leave-code" class="form-label">Code</label><input id="leave-code" maxlength="30" class="form-control" required/></div>
+   <div class="col-sm-5"><label for="leave-title" class="form-label">Leave title</label><input id="leave-title" maxlength="120" class="form-control" required/></div>
+   <div class="col-sm-3"><label for="leave-days" class="form-label">Annual days</label><input id="leave-days" type="number" min="0" max="366" step=".01" class="form-control" required/></div>
+   <div class="col-12"><button class="btn btn-outline-primary" type="submit">Create leave type</button></div>
+  </form>
+  <hr/>
+  <form id="leave-form" class="row g-2">
+   <div class="col-sm-6"><label for="leave-type" class="form-label">Leave category</label><select id="leave-type" class="form-select" required></select></div>
+   <div class="col-sm-6"><label for="leave-reason" class="form-label">Reason</label><input id="leave-reason" maxlength="300" class="form-control" required/></div>
+   <div class="col-sm-6"><label for="leave-start" class="form-label">From</label><input id="leave-start" type="date" class="form-control" required/></div>
+   <div class="col-sm-6"><label for="leave-end" class="form-label">To</label><input id="leave-end" type="date" class="form-control" required/></div>
+   <div class="col-12"><button class="btn btn-outline-primary" type="submit">Submit leave request</button></div>
+  </form>
+  <p id="leave-balance" class="small mt-2"></p>
+  <h3 class="h6 mt-3">Leave approvals</h3><ul id="leaves" class="small"></ul>
+ </section></div>
+</div>
+<div class="row g-3 mb-3">
+ <div class="col-lg-6"><section class="ev-card p-4 h-100">
+  <h2 class="h5">Salary structure (INR)</h2>
+  <form id="salary-form" class="row g-2">
+   <div class="col-sm-6"><label for="salary-date" class="form-label">Effective date</label><input id="salary-date" type="date" class="form-control" required/></div>
+   <div class="col-sm-6"><label for="base" class="form-label">Monthly base</label><input id="base" type="number" min="0" step=".01" class="form-control" required/></div>
+   <div class="col-sm-6"><label for="allowance" class="form-label">Monthly allowances</label><input id="allowance" type="number" min="0" step=".01" class="form-control" value="0" required/></div>
+   <div class="col-sm-6"><label for="deduction" class="form-label">Monthly deductions</label><input id="deduction" type="number" min="0" step=".01" class="form-control" value="0" required/></div>
+   <div class="col-12"><button class="btn btn-outline-primary" type="submit">Save salary structure</button></div>
+  </form>
+  <hr/><h3 class="h6">Payroll preview only</h3>
+  <form id="payroll-form" class="row g-2">
+   <div class="col-sm-7"><label for="pay-month" class="form-label">Payroll month</label><input id="pay-month" type="month" class="form-control" required/></div>
+   <div class="col-sm-5 d-flex align-items-end"><button class="btn btn-outline-primary" type="submit">Calculate preview</button></div>
+  </form>
+  <p id="payroll-result" class="small mt-2"></p>
+ </section></div>
+ <div class="col-lg-6"><section class="ev-card p-4 h-100">
+  <h2 class="h5">Staff attendance integration</h2>
+  <p class="text-secondary small">Reads existing attendance for employees associated with EduVerse accounts. Attendance entry remains in the Attendance module.</p>
+  <label for="attendance-date" class="form-label">Attendance date</label>
+  <input id="attendance-date" type="date" class="form-control mb-2"/>
+  <button type="button" id="load-attendance" class="btn btn-outline-primary">Load attendance</button>
+  <ul id="attendance" class="small mt-3"></ul>
+ </section></div>
+</div>
+@section Scripts {<script src="/hrms/js/hrms.js" asp-append-version="true"></script>}

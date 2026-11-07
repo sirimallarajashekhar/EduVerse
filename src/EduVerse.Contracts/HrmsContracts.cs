@@ -1,0 +1,18 @@
+namespace EduVerse.Contracts;
+public sealed record HrDesignationCreate(Guid CampusId,string Code,string Title);
+public sealed record HrDesignation(Guid Id,Guid CampusId,string Code,string Title);
+public sealed record HrEmployeeCreate(Guid CampusId,string GivenName,string FamilyName,string Type,DateOnly JoinedOn,Guid? UserId,Guid? DepartmentId,Guid? DesignationId,string? WorkEmail);
+public sealed record HrEmployee(Guid Id,Guid CampusId,string EmployeeNumber,string GivenName,string FamilyName,string Type,string Status,Guid? UserId,DateOnly JoinedOn,Guid? DepartmentId,Guid? DesignationId);
+public sealed record HrLifecycle(string Status,string? Note);
+public sealed record HrDocument(Guid Id,Guid EmployeeId,string Type,string FileName,int Length);
+public sealed record HrLeaveTypeCreate(Guid CampusId,string Code,string Title,decimal AnnualDays);
+public sealed record HrLeaveType(Guid Id,Guid CampusId,string Code,string Title,decimal AnnualDays);
+public sealed record HrLeaveCreate(Guid CampusId,Guid EmployeeId,Guid LeaveTypeId,DateOnly From,DateOnly To,string Reason);
+public sealed record HrLeave(Guid Id,Guid EmployeeId,Guid LeaveTypeId,DateOnly From,DateOnly To,decimal Days,string Status);
+public sealed record HrLeaveDecision(string Decision);
+public sealed record HrLeaveBalance(Guid EmployeeId,Guid LeaveTypeId,int Year,decimal Allowance,decimal Used,decimal Remaining);
+public sealed record HrSalaryCreate(Guid CampusId,Guid EmployeeId,DateOnly EffectiveOn,decimal BaseAmount,decimal Allowances,decimal Deductions);
+public sealed record HrSalary(Guid Id,Guid EmployeeId,DateOnly EffectiveOn,decimal BaseAmount,decimal Allowances,decimal Deductions);
+public sealed record HrPayrollPreview(Guid EmployeeId,DateOnly Month,decimal Gross,decimal Deductions,decimal Net);
+public sealed record HrStaffAttendance(Guid EmployeeId,DateOnly Date,string Status);
+public sealed record HrDashboard(int Employees,int ActiveEmployees,int PendingLeaves,int ApprovedLeaves,decimal MonthlyPayrollPreview);
