@@ -3,7 +3,7 @@
  const $=id=>document.getElementById(id),v=id=>$(id).value,campus=()=>v('campus');
  const csrf=document.querySelector('input[name="__RequestVerificationToken"]').value;
  const notice=message=>{$('status').textContent=message;};
- let employees=[],designations=[],leaveTypes=[],leaves=[];
+ let employees=[],designations=[],departments=[],leaveTypes=[],leaves=[];
  const link=(path,params={})=>{
   const u=new URL('/hrms/bff/'+path,location.origin);
   for(const [key,value] of Object.entries(params))
@@ -55,13 +55,15 @@
  }
  async function refresh(){
   if(!campus())return;
-  [employees,designations,leaveTypes,leaves]=await Promise.all([
+  [employees,designations,departments,leaveTypes,leaves]=await Promise.all([
    request('employees','GET',null,{campusId:campus()}),
    request('designations','GET',null,{campusId:campus()}),
+   request('departments','GET',null,{campusId:campus()}),
    request('leave-types','GET',null,{campusId:campus()}),
    request('leaves','GET',null,{campusId:campus()})
   ]);
   select('designation',designations,x=>x.title,'No designation / choose optional');
+  select('department',departments,x=>x.name,'No department / choose optional');
   select('employee',employees,x=>x.givenName+' '+x.familyName+' · '+x.status,'Select an employee');
   select('leave-type',leaveTypes,x=>x.title+' ('+x.annualDays+' days)','Select leave type');
   list('designations',designations,x=>x.code+' · '+x.title);
@@ -95,7 +97,7 @@
    {campusId:campus(),code:v('des-code'),title:v('des-title')}));
  form('employee-form',()=>request('employees','POST',{
   campusId:campus(),givenName:v('first'),familyName:v('last'),
-  type:v('type'),joinedOn:v('joined'),userId:null,departmentId:null,
+  type:v('type'),joinedOn:v('joined'),userId:v('account-user')||null,departmentId:v('department')||null,
   designationId:v('designation')||null,workEmail:v('work-email')||null
  }));
  form('lifecycle-form',async()=>{
