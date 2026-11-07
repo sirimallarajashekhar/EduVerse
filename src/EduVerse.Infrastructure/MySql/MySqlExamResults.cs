@@ -36,7 +36,7 @@ public sealed partial class MySqlExamStore
   await using var r=await cmd.ExecuteReaderAsync(ct);
   while(await r.ReadAsync(ct))
   {
-   if(r.IsDBNull(4)&&!r.GetBoolean(5) || r.IsDBNull(9))
+   if(r.IsDBNull(5) || r.IsDBNull(9))
      throw new ExamConflictException("Missing marks, grading band or incomplete assessment coverage.");
    list.Add(new Score(r.GetGuid(0),r.GetGuid(1),r.GetGuid(2),r.GetString(3),
      r.IsDBNull(4)?null:r.GetDecimal(4),r.GetBoolean(5),r.GetDecimal(6),
