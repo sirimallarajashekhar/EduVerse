@@ -45,7 +45,8 @@ public sealed class MySqlInstitutionRepository(string connectionString) : IInsti
                   AND ca.subject_id=@subjectId AND ca.campus_id=c.id)
               ) ORDER BY code;
             """, connection);
-        command.Parameters.AddWithValue("@tenantId", tenantId.ToString("D"));
+        command.Parameters.AddWithValue("@tenantId", identity.TenantId.ToString("D"));
+        command.Parameters.AddWithValue("@subjectId", identity.SubjectId);
         await using var reader = await command.ExecuteReaderAsync(ct);
         while (await reader.ReadAsync(ct))
             campuses.Add(new Campus(reader.GetGuid(0), reader.GetGuid(1),
