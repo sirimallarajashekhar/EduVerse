@@ -31,6 +31,16 @@ public sealed class StudentService(IStudentStore store,ITenantContext context)
     {
         if(value?.Length>maximum)throw new ArgumentException("Contact field too long.");
     }
+    public async Task<AdmissionReceipt> SubmitPublicAsync(AdmissionSubmit input,CancellationToken ct)
+    {
+        Campus(input.CampusId);
+        var (g,f)=Names(input.GivenName,input.FamilyName);
+        Date(input.DateOfBirth);Optional(input.Email,254);Optional(input.Phone,24);
+        var application=await store.SubmitPublicAsync(input with {GivenName=g,FamilyName=f},ct)
+            ?? throw new StudentScopeException();
+        return new AdmissionReceipt(application.Id,application.ApplicationNumber,"SUBMITTED");
+    }
+
     public async Task<AdmissionRecord> SubmitAsync(AdmissionSubmit input,CancellationToken ct)
     {
         var actor=await Admin(ct);
