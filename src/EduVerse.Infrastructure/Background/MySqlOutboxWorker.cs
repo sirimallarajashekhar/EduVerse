@@ -91,6 +91,19 @@ public sealed class MySqlOutboxWorker(
             update.Parameters.AddWithValue("@id", eventId.ToString("D"));
             update.Parameters.AddWithValue("@tenant", tenantId.ToString("D"));
             await update.ExecuteNonQueryAsync(ct);
+            if (!supported)
+            {
+                // On the eighth failed attempt move the event to a durable review queue.
+                await using var deadLetter = new MySqlCommand("""
+                    INSERT INTO integration_outbox_dead_letters(event_id,tenant_id,event_type,error_message)
+                    SELECT id,tenant_id,type,COALESCE(last_error,'Unprocessable event')
+                    FROM integration_outbox WHERE id=@id AND tenant_id=@tenant AND attempts>=8
+                    ON DUPLICATE KEY UPDATE event_id=VALUES(event_id)
+                    """, db, tx);
+                deadLetter.Parameters.AddWithValue("@id", eventId.ToString("D"));
+                deadLetter.Parameters.AddWithValue("@tenant", tenantId.ToString("D"));
+                await deadLetter.ExecuteNonQueryAsync(ct);
+            }
             await tx.CommitAsync(ct);
             if (supported)
                 logger.LogInformation("Internal outbox event processed; type={EventType}", eventType);
