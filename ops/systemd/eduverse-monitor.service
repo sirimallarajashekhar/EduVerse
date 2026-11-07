@@ -1,0 +1,17 @@
+[Unit]
+Description=EduVerse local health and backup freshness check
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+Environment=BACKUP_DIR=/srv/eduverse-backups
+Environment=BACKUP_MAX_AGE_HOURS=30
+ExecStart=/usr/bin/bash /opt/eduverse-ops/deploy/monitor.sh
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+UMask=0077

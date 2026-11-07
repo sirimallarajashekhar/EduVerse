@@ -1,0 +1,12 @@
+[Unit]
+Description=Periodic EduVerse local health/backup checks
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=5min
+AccuracySec=1min
+Unit=eduverse-monitor.service
+Persistent=true
+
+[Install]
+WantedBy=timers.target

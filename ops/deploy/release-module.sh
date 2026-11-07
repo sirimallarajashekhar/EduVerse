@@ -85,7 +85,13 @@ chmod -R g+rX "$target"
 temporary=''
 ln -s "$target" "$root/current.new"
 mv -Tf "$root/current.new" "$root/current"
-if ! systemctl restart "$service" || ! curl --fail --silent --show-error --max-time 15 --retry 5 --retry-delay 3 "$health" >/dev/null; then
+probe_ready() {
+  local status
+  status="$(curl --silent --show-error --max-time 15 --retry 5 --retry-delay 3 \
+    --output /dev/null --write-out '%{http_code}' "$health")" || return 1
+  [[ "$status" =~ ^2[0-9]{2}$ ]]
+}
+if ! systemctl restart "$service" || ! probe_ready; then
   echo 'New release failed service restart/readiness probe.' >&2
   if [[ -n "$old" ]]; then
     ln -s "$old" "$root/current.rollback"

@@ -19,6 +19,8 @@ jobs:
           for script in ops/deploy/*.sh ops/mysql/*.sh; do
             bash -n "$script"
           done
+      - name: Run operational safety regression tests
+        run: bash ops/tests/ops-safety-tests.sh
       - name: Validate deployment unit structure
         run: |
           set -euo pipefail
