@@ -209,6 +209,14 @@ public sealed class MySqlCrossModuleStore(string connectionString) : ICrossModul
         Run(tenant, actor, r.CampusId, null, r.PurchaseId, "PROCUREMENT_FINANCE", key, digest,
             async (db, tx, token) =>
             {
+                if (Convert.ToInt32(await Scalar(db, tx, """
+                    SELECT EXISTS(SELECT 1 FROM institution_subscriptions s
+                    JOIN subscription_plan_features f ON f.plan_code=s.plan_code AND f.feature_code='ams'
+                    JOIN subscription_plans p ON p.plan_code=s.plan_code AND p.is_active=1
+                    WHERE s.tenant_id=@t AND s.status='ACTIVE'
+                      AND (s.expires_utc IS NULL OR s.expires_utc>UTC_TIMESTAMP(6)))
+                    """, token, ("@t", Id(tenant)))) != 1)
+                    throw new UnauthorizedAccessException("Active AMS subscription required.");
                 var state = await Scalar(db, tx, """
                     SELECT status FROM ams_purchase_orders
                     WHERE tenant_id=@t AND campus_id=@c AND id=@p FOR UPDATE
