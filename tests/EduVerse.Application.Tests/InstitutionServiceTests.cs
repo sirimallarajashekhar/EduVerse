@@ -44,7 +44,7 @@ public sealed class InstitutionServiceTests
         public bool IsAdmin { get; set; } = true;
         public Task<Institution?> GetAccessibleInstitutionAsync(TenantIdentity identity, CancellationToken ct) =>
             Task.FromResult<Institution?>(new Institution(identity.TenantId, "test", "Test", "School", true));
-        public Task<IReadOnlyList<Campus>> ListCampusesAsync(Guid tenantId, CancellationToken ct) =>
+        public Task<IReadOnlyList<Campus>> ListCampusesAsync(TenantIdentity identity, CancellationToken ct) =>
             Task.FromResult<IReadOnlyList<Campus>>(Array.Empty<Campus>());
         public Task<bool> IsTenantAdminAsync(TenantIdentity identity, CancellationToken ct) =>
             Task.FromResult(IsAdmin);
