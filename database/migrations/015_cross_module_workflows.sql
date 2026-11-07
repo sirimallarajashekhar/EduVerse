@@ -35,5 +35,15 @@ CREATE TABLE workflow_purchase_finance (
  CHECK(status IN ('PENDING','APPROVED','REJECTED'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+CREATE TABLE workflow_event_receipts (
+ event_id CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL PRIMARY KEY,
+ tenant_id CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+ event_type VARCHAR(90) NOT NULL,
+ received_utc DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+ KEY ix_workflow_receipt_tenant(tenant_id,received_utc),
+ FOREIGN KEY(event_id) REFERENCES integration_outbox(id),
+ FOREIGN KEY(tenant_id) REFERENCES tenants(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 INSERT INTO schema_migrations(version) VALUES ('015_cross_module_workflows')
 ON DUPLICATE KEY UPDATE version=VALUES(version);
