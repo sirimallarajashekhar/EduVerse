@@ -59,6 +59,23 @@ public sealed partial class MySqlHrmsStore
   await tx.CommitAsync(ct);
   return new HrPayrollPreview(employee,month,gross,deductions,net);
  }
+ public async Task<IReadOnlyList<HrStaffAttendance>> Attendance(Guid tenant,Guid campus,DateOnly date,CancellationToken ct)
+ {
+  var records=new List<HrStaffAttendance>();
+  await using var db=Connect();await db.OpenAsync(ct);
+  await using var cmd=new MySqlCommand("""
+   SELECT e.id,a.attendance_date,a.status FROM hr_employees e
+   JOIN staff_attendance a ON a.tenant_id=e.tenant_id AND a.campus_id=e.campus_id
+     AND a.staff_subject_id=e.user_subject_id
+   WHERE e.tenant_id=@t AND e.campus_id=@c AND a.attendance_date=@date
+   ORDER BY e.employee_number LIMIT 500
+   """,db);
+  Add(cmd,("@t",Id(tenant)),("@c",Id(campus)),("@date",Day(date)));
+  await using var r=await cmd.ExecuteReaderAsync(ct);
+  while(await r.ReadAsync(ct))records.Add(new HrStaffAttendance(
+   r.GetGuid(0),DateOnly.FromDateTime(r.GetDateTime(1)),r.GetString(2)));
+  return records;
+ }
  public async Task<HrDashboard> Dashboard(Guid tenant,Guid campus,CancellationToken ct)
  {
   await using var db=Connect();await db.OpenAsync(ct);
