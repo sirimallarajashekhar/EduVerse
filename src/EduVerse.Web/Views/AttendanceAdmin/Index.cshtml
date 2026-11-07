@@ -1,0 +1,79 @@
+@{ViewData["Title"]="Attendance & Timetables";}
+<div class="mb-4">
+ <p class="ev-eyebrow">EduVerse · Academic operations</p>
+ <h1 class="h3">Attendance &amp; Timetables</h1>
+ <p class="text-secondary">Manage teaching periods, teacher allocation and school/college attendance.</p>
+</div>
+<section class="ev-card p-4 mb-3">
+ @Html.AntiForgeryToken()
+ <label for="campus" class="form-label">Active campus</label>
+ <select id="campus" class="form-select" style="max-width:460px"></select>
+ <p id="status" role="status" class="small mt-3 mb-0"></p>
+</section>
+<div class="row g-3 mb-3">
+ <div class="col-lg-5">
+  <section class="ev-card p-4 h-100">
+   <h2 class="h5">Academic periods</h2>
+   <form id="period-form" class="row g-2">
+    <div class="col-sm-4"><label for="period-code" class="form-label">Code</label><input id="period-code" class="form-control" required maxlength="30" /></div>
+    <div class="col-sm-8"><label for="period-name" class="form-label">Period name</label><input id="period-name" class="form-control" required maxlength="100" /></div>
+    <div class="col-sm-6"><label for="period-start" class="form-label">Starts at</label><input id="period-start" type="time" class="form-control" required /></div>
+    <div class="col-sm-6"><label for="period-end" class="form-label">Ends at</label><input id="period-end" type="time" class="form-control" required /></div>
+    <div class="col-12"><button class="btn btn-primary" type="submit">Add period</button></div>
+   </form>
+   <ul id="period-list" class="small mt-3"></ul>
+  </section>
+ </div>
+ <div class="col-lg-7">
+  <section class="ev-card p-4 h-100">
+   <h2 class="h5">Timetable &amp; teacher allocation</h2>
+   <form id="timetable-form" class="row g-2">
+    <div class="col-sm-6"><label for="year" class="form-label">Academic year</label><select id="year" class="form-select" required></select></div>
+    <div class="col-sm-6"><label for="weekday" class="form-label">Weekday</label>
+     <select id="weekday" class="form-select"><option value="1">Monday</option><option value="2">Tuesday</option><option value="3">Wednesday</option><option value="4">Thursday</option><option value="5">Friday</option><option value="6">Saturday</option><option value="7">Sunday</option></select></div>
+    <div class="col-sm-6"><label for="class" class="form-label">Class / section / course / batch</label><select id="class" class="form-select" required></select></div>
+    <div class="col-sm-6"><label for="subject" class="form-label">Subject</label><select id="subject" class="form-select" required></select></div>
+    <div class="col-sm-6"><label for="slot-period" class="form-label">Period</label><select id="slot-period" class="form-select" required></select></div>
+    <div class="col-sm-6"><label for="teacher" class="form-label">Assigned faculty</label><select id="teacher" class="form-select" required></select></div>
+    <div class="col-12"><button class="btn btn-primary" type="submit">Allocate timetable slot</button></div>
+   </form>
+   <ul id="timetable-list" class="small mt-3"></ul>
+  </section>
+ </div>
+</div>
+<div class="row g-3 mb-3">
+ <div class="col-lg-6">
+  <section class="ev-card p-4 h-100">
+   <h2 class="h5">Student daily / period attendance</h2>
+   <form id="student-mark-form" class="row g-2">
+    <div class="col-sm-12"><label for="enrollment" class="form-label">Student enrollment</label><select id="enrollment" class="form-select" required></select></div>
+    <div class="col-sm-6"><label for="student-date" class="form-label">Date</label><input id="student-date" type="date" class="form-control" required /></div>
+    <div class="col-sm-6"><label for="mark-period" class="form-label">Attendance scope</label><select id="mark-period" class="form-select"></select></div>
+    <div class="col-sm-6"><label for="student-status" class="form-label">Status</label><select id="student-status" class="form-select"><option>PRESENT</option><option>ABSENT</option><option>LATE</option><option>EXCUSED</option></select></div>
+    <div class="col-sm-6"><label for="student-remarks" class="form-label">Remarks</label><input id="student-remarks" class="form-control" maxlength="250" /></div>
+    <div class="col-12"><button class="btn btn-outline-primary" type="submit">Save student attendance</button></div>
+   </form>
+   <p id="student-summary" class="small mt-3"></p>
+   <ul id="student-marks" class="small"></ul>
+  </section>
+ </div>
+ <div class="col-lg-6">
+  <section class="ev-card p-4 h-100">
+   <h2 class="h5">Faculty / staff attendance</h2>
+   <form id="staff-mark-form" class="row g-2">
+    <div class="col-sm-12"><label for="staff" class="form-label">Institution member</label><select id="staff" class="form-select" required></select></div>
+    <div class="col-sm-6"><label for="staff-date" class="form-label">Date</label><input id="staff-date" type="date" class="form-control" required /></div>
+    <div class="col-sm-6"><label for="staff-status" class="form-label">Status</label><select id="staff-status" class="form-select"><option>PRESENT</option><option>ABSENT</option><option>LATE</option><option>EXCUSED</option></select></div>
+    <div class="col-12"><label for="staff-remarks" class="form-label">Remarks</label><input id="staff-remarks" maxlength="250" class="form-control" /></div>
+    <div class="col-12"><button class="btn btn-outline-primary" type="submit">Save staff attendance</button></div>
+   </form>
+   <ul id="staff-marks" class="small mt-3"></ul>
+  </section>
+ </div>
+</div>
+<section class="ev-card p-4">
+ <h2 class="h5">Campus attendance overview</h2>
+ <p id="dashboard" class="text-secondary small"></p>
+ <p class="text-secondary small mb-0">School holidays are checked server-side. Teacher and class overlaps are rejected by the API.</p>
+</section>
+@section Scripts {<script src="~/js/attendance-admin.js" asp-append-version="true"></script>}
