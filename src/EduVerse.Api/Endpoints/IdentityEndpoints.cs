@@ -18,7 +18,7 @@ public static class IdentityEndpoints
             var result = await service.LoginAsync(request.TenantSlug, request.Email, request.Password, ct);
             return result is null
                 ? Results.Problem(statusCode: 401, title: "Invalid credentials or institution")
-                : Results.Ok(new LoginResponse(result.AccessToken, result.ExpiresUtc, result.DisplayName, result.Email));
+                : Results.Ok(new LoginResponse(result.AccessToken, result.ExpiresUtc, result.DisplayName, result.Email, result.UserId.ToString("D"), result.TenantId, result.RoleCode));
         }).RequireRateLimiting("auth");
 
         group.MapPost("/password-reset/request", async (PasswordResetRequest request,
