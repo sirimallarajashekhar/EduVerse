@@ -198,6 +198,30 @@ public sealed class FinanceManagementTests:IAsyncLifetime
   Assert.Equal(HttpStatusCode.NotFound,againReconcile.StatusCode);
  }
  [Fact]
+ public async Task ConcurrentCollectionsCannotOverpayInstallment()
+ {
+  if(host is null)return;
+  using var client=await Client();
+  var setup=await Setup(client);
+  var payload=new PaymentCreate(campus,setup.First.Id,400m,"CASH",null);
+  var first=PostWithKey(client,"/api/v1/finance/payments",payload,
+   "concurrent-one-"+Guid.NewGuid().ToString("N"));
+  var second=PostWithKey(client,"/api/v1/finance/payments",payload,
+   "concurrent-two-"+Guid.NewGuid().ToString("N"));
+  var responses=await Task.WhenAll(first,second);
+  try
+  {
+   Assert.Single(responses,r=>r.StatusCode==HttpStatusCode.OK);
+   Assert.Single(responses,r=>r.StatusCode==HttpStatusCode.Conflict);
+  }
+  finally {foreach(var response in responses)response.Dispose();}
+  using var listing=await client.GetAsync($"/api/v1/finance/payments?campusId={campus:D}");
+  var payments=(await listing.Content.ReadFromJsonAsync<PaymentRecord[]>())!;
+  Assert.Single(payments);
+  Assert.Equal(400m,payments[0].Amount);
+ }
+
+ [Fact]
  public async Task TenantCampusAndRoleBoundariesBlockFinancialRecords()
  {
   if(host is null)return;
