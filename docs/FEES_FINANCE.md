@@ -24,6 +24,7 @@ Apply `database/migrations/008_fees_finance.sql` after migrations 001–007 usin
 | POST | `/api/v1/finance/payments` | Idempotent manual collection |
 | GET | `/api/v1/finance/payments?campusId=...` | Recorded payments |
 | GET | `/api/v1/finance/payments/{id}/receipt?campusId=...` | Structured receipt data |
+| GET | `/api/v1/finance/payments/{id}/receipt/download?campusId=...` | Authenticated downloadable plain-text receipt |
 | POST | `/api/v1/finance/refunds` | Idempotent offline refund recording |
 | POST | `/api/v1/finance/reconciliation` | Pending → MATCHED/DISPUTED |
 | GET | `/api/v1/finance/dashboard?campusId=...` | Financial dashboard |
@@ -36,7 +37,7 @@ All POST bodies are typed. An administrator selects their campus, never an arbit
 - Concessions cannot exceed remaining net outstanding. The total amount due is `gross - concessions - payments + recorded refunds`.
 - Collections require a visible ASCII `Idempotency-Key` (8–128 chars). Repeated key + identical normalized request returns original payment/receipt. Same key + changed details returns 409. A transaction locks the tenant row, then charge, and prevents overpayment of both the charge and chosen installment.
 - Refunds require their own idempotency key; cumulative refunds of one payment cannot exceed that payment's original collected value.
-- Receipts are generated deterministically from recorded payment IDs and never returned from another tenant/campus.
+- Receipts are generated deterministically from recorded payment IDs and never returned from another tenant/campus. The dashboard downloads a plain-text receipt attachment (not yet a signed PDF).
 - Reconciliation is a manually confirmed transition out of PENDING. There is no provider webhook or bank file matching yet.
 
 ## Operational risks and future work
