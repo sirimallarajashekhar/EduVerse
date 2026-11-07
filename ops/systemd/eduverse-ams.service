@@ -1,0 +1,24 @@
+[Unit]
+Description=EduVerse AMS Razor Frontend
+After=network-online.target eduverse-api.service
+Wants=network-online.target
+
+[Service]
+User=eduverse
+Group=eduverse
+WorkingDirectory=/opt/eduverse/ams/current
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=ASPNETCORE_URLS=http://127.0.0.1:5202
+EnvironmentFile=/etc/eduverse/env/ams.env
+ExecStart=/usr/bin/dotnet /opt/eduverse/ams/current/EduVerse.Ams.Web.dll
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/eduverse/keyring
+UMask=0027
+
+[Install]
+WantedBy=multi-user.target

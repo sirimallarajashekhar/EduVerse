@@ -1,0 +1,24 @@
+[Unit]
+Description=EduVerse ASP.NET Core API
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=eduverse
+Group=eduverse
+WorkingDirectory=/opt/eduverse/api/current
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=ASPNETCORE_URLS=http://127.0.0.1:5201
+EnvironmentFile=/etc/eduverse/env/api.env
+ExecStart=/usr/bin/dotnet /opt/eduverse/api/current/EduVerse.Api.dll
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/log/eduverse
+UMask=0027
+
+[Install]
+WantedBy=multi-user.target

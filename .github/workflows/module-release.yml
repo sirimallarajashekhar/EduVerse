@@ -1,0 +1,90 @@
+name: EduVerse module release bundles
+on:
+  workflow_dispatch:
+    inputs:
+      module:
+        description: "Which separately deployable module to package?"
+        required: true
+        type: choice
+        options: [all, api, portal, hrms, ams]
+      environment:
+        description: "Target for release metadata only. No deployment happens here."
+        required: true
+        type: choice
+        options: [staging, production]
+      reference:
+        description: "Approved source ref. Runs are limited to the main branch commit."
+        required: true
+        default: main
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: eduverse-package-${{ github.ref }}-${{ inputs.module }}
+  cancel-in-progress: false
+jobs:
+  validate:
+    if: github.ref == 'refs/heads/main' && inputs.reference == 'main'
+    runs-on: ubuntu-latest
+    outputs:
+      commit: ${{ steps.revision.outputs.commit }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Confirm expected ref and commit
+        id: revision
+        run: |
+          set -euo pipefail
+          test "${GITHUB_REF}" = "refs/heads/main"
+          printf 'commit=%s\n' "${GITHUB_SHA}" >> "${GITHUB_OUTPUT}"
+      - name: Validate operational shell scripts
+        run: |
+          bash -n ops/deploy/release-module.sh
+          bash -n ops/mysql/backup.sh
+          bash -n ops/mysql/verify-backup.sh
+  bundle:
+    needs: validate
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - module: api
+            project: src/EduVerse.Api/EduVerse.Api.csproj
+          - module: portal
+            project: src/EduVerse.Web/EduVerse.Web.csproj
+          - module: hrms
+            project: src/EduVerse.Hrms.Web/EduVerse.Hrms.Web.csproj
+          - module: ams
+            project: src/EduVerse.Ams.Web/EduVerse.Ams.Web.csproj
+    steps:
+      - uses: actions/checkout@v4
+        if: inputs.module == 'all' || inputs.module == matrix.module
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v4
+        if: inputs.module == 'all' || inputs.module == matrix.module
+        with:
+          dotnet-version: 10.0.x
+      - name: Publish independent module
+        if: inputs.module == 'all' || inputs.module == matrix.module
+        run: |
+          set -euo pipefail
+          dotnet restore "${{ matrix.project }}"
+          dotnet publish "${{ matrix.project }}" -c Release --no-restore -o "bundle/${{ matrix.module }}" /p:UseAppHost=false
+          printf 'module=%s\ncommit=%s\nenvironment=%s\n' \
+            "${{ matrix.module }}" "${GITHUB_SHA}" "${{ inputs.environment }}" \
+            > "bundle/${{ matrix.module }}/release-info.txt"
+          tar -C "bundle/${{ matrix.module }}" -czf "${{ matrix.module }}-${GITHUB_SHA}.tar.gz" .
+          sha256sum "${{ matrix.module }}-${GITHUB_SHA}.tar.gz" > "${{ matrix.module }}-${GITHUB_SHA}.sha256"
+      - name: Upload immutable release bundle
+        if: inputs.module == 'all' || inputs.module == matrix.module
+        uses: actions/upload-artifact@v4
+        with:
+          name: eduverse-${{ matrix.module }}-${{ github.sha }}
+          path: |
+            ${{ matrix.module }}-${{ github.sha }}.tar.gz
+            ${{ matrix.module }}-${{ github.sha }}.sha256
+          if-no-files-found: error
+          retention-days: 30

@@ -1,0 +1,24 @@
+[Unit]
+Description=EduVerse MVC Portal
+After=network-online.target eduverse-api.service
+Wants=network-online.target
+
+[Service]
+User=eduverse
+Group=eduverse
+WorkingDirectory=/opt/eduverse/portal/current
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=ASPNETCORE_URLS=http://127.0.0.1:5200
+EnvironmentFile=/etc/eduverse/env/portal.env
+ExecStart=/usr/bin/dotnet /opt/eduverse/portal/current/EduVerse.Web.dll
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/eduverse/keyring
+UMask=0027
+
+[Install]
+WantedBy=multi-user.target

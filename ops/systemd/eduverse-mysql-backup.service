@@ -1,0 +1,19 @@
+[Unit]
+Description=EduVerse encrypted-storage MySQL backup
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+Environment=MYSQL_DEFAULTS_FILE=/etc/eduverse/mysql-backup.cnf
+Environment=BACKUP_DIR=/srv/eduverse-backups
+Environment=DB_NAME=eduverse
+ExecStart=/usr/bin/bash /opt/eduverse-ops/mysql/backup.sh
+UMask=0077
+NoNewPrivileges=true
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/srv/eduverse-backups
+

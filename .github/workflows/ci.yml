@@ -7,6 +7,28 @@ on:
 permissions:
   contents: read
 jobs:
+  operations-safety:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate deployment and backup shell syntax
+        run: |
+          set -euo pipefail
+          for script in ops/deploy/*.sh ops/mysql/*.sh; do
+            bash -n "$script"
+          done
+      - name: Validate deployment unit structure
+        run: |
+          set -euo pipefail
+          test "$(find ops/systemd -name 'eduverse-*.service' | wc -l)" -ge 5
+          test -f ops/systemd/eduverse-mysql-backup.timer
+          grep -q 'OnCalendar=' ops/systemd/eduverse-mysql-backup.timer
+      - name: Ensure no sample credentials or production tokens in scripts
+        run: |
+          set -euo pipefail
+          ! grep -ERn 'ci_root_only|Password=[^$]|BEGIN (RSA|OPENSSH|PRIVATE) KEY' ops/ || exit 1
   build-test:
     runs-on: ubuntu-latest
     services:
