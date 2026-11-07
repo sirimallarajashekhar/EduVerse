@@ -45,7 +45,7 @@ public sealed class InstitutionAdminProxyController(IHttpClientFactory clients):
         path=path?.Trim('/') ?? "";
         if(method==HttpMethod.Get && !AllowedGet.Contains(path) ||
             method!=HttpMethod.Get && !AllowedChange.Contains(path) ||
-            method==HttpMethod.Post && path!="onboarding/ready" && path!="resources/departments" && path!="resources/buildings")
+            method==HttpMethod.Post && path!="onboarding/ready" && path!="campuses" && path!="resources/departments" && path!="resources/buildings")
             return NotFound();
 
         var token=await HttpContext.GetTokenAsync(EduVerseCookieAuth.Scheme,"access_token");
