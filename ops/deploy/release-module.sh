@@ -41,8 +41,7 @@ sha="${BASH_REMATCH[1]}"
 root="/opt/eduverse/$module"
 releases="$root/releases"
 target="$releases/$sha"
-mkdir -p "$releases"
-chmod 0750 "$root" "$releases"
+install -d -m 0750 -o root -g eduverse "$root" "$releases"
 # Fail closed on unexpected archive paths, links, or non-regular archive members.
 while IFS= read -r member; do
   case "$member" in
@@ -81,6 +80,8 @@ if [[ ! -s "$temporary/release-info.txt" ]] ||
 fi
 # Never include runtime secrets or production appsettings in an artifact.
 mv -- "$temporary" "$target"
+chgrp -R eduverse "$target"
+chmod -R g+rX "$target"
 temporary=''
 ln -s "$target" "$root/current.new"
 mv -Tf "$root/current.new" "$root/current"
