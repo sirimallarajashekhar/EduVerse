@@ -113,6 +113,12 @@ public sealed class HrmsService(IHrmsStore store,ITenantContext context)
   if(month==default||month.Day!=1)throw new ArgumentException("Payroll month must be first of month.");
   return await store.Preview(a.TenantId,a.SubjectId,campus,employee,month,ct)??throw new HrScopeException();
  }
+ public async Task<IReadOnlyList<HrStaffAttendance>> Attendance(Guid campus,DateOnly date,CancellationToken ct)
+ {
+  var a=await Admin(ct);Id(campus);
+  if(date==default)throw new ArgumentException("Attendance date required.");
+  return await store.Attendance(a.TenantId,campus,date,ct);
+ }
  public async Task<HrDashboard> Dashboard(Guid campus,CancellationToken ct)
  {var a=await Admin(ct);return await store.Dashboard(a.TenantId,Id(campus),ct);}
 }
