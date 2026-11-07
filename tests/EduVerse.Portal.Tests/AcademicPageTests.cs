@@ -20,6 +20,6 @@ public sealed class AcademicPageTests:IClassFixture<WebApplicationFactory<Progra
     public async Task AnonymousAcademicBffCannotRead()
     {
         using var result=await client.GetAsync("/bff/academic/catalog?campusId="+Guid.NewGuid());
-        Assert.Equal(HttpStatusCode.Redirect,result.StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized,result.StatusCode);
     }
 }
