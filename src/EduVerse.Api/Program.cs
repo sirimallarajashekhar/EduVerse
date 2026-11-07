@@ -8,6 +8,7 @@ using EduVerse.Application.Exams;
 using EduVerse.Application.Hrms;
 using EduVerse.Application.Ams;
 using EduVerse.Application.OperationsModules;
+using EduVerse.Application.Learning;
 using EduVerse.Application.Students;
 using EduVerse.Application.Administration;
 using EduVerse.Api.Observability;
@@ -102,6 +103,10 @@ builder.Services.AddScoped<ExamService>();
 builder.Services.AddScoped<HrmsService>();
 builder.Services.AddScoped<AmsService>();
 builder.Services.AddScoped<OperationsService>();
+builder.Services.AddScoped<LearningService>();
+builder.Services.AddScoped<ILearningStore>(p=>new MySqlLearningStore(
+ p.GetRequiredService<IConfiguration>().GetConnectionString("EduVerse")
+ ?? throw new InvalidOperationException("Database not configured.")));
 builder.Services.AddScoped<IOperationsStore>(p=>new MySqlOperationsStore(
  p.GetRequiredService<IConfiguration>().GetConnectionString("EduVerse")
  ?? throw new InvalidOperationException("Database not configured.")));
@@ -189,6 +194,7 @@ app.MapExamEndpoints();
 app.MapHrmsEndpoints();
 app.MapAmsEndpoints();
 app.MapOperationsEndpoints();
+app.MapLearningEndpoints();
 app.Run();
 
 public partial class Program { }
