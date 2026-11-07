@@ -1,0 +1,32 @@
+@model EduVerse.Web.Controllers.PublicAdmissionForm
+@{ViewData["Title"]="Apply for admission";}
+<section class="ev-card p-4 mx-auto" style="max-width:620px">
+  <p class="ev-eyebrow">EduVerse admissions</p>
+  <h1 class="h3">Admission application</h1>
+  <p class="text-secondary">Submit the student's details using the application link supplied by your institution. The institution reviews applications before registration.</p>
+  @if(ViewData["Receipt"] is string number)
+  {
+    <div class="alert alert-success" role="status">
+      Application received. Your application number is <strong>@number</strong>. Save this number for reference.
+    </div>
+  }
+  else
+  {
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <form method="post" asp-action="Index">
+      @Html.AntiForgeryToken()
+      <input type="hidden" asp-for="CampusId" />
+      <label asp-for="GivenName" class="form-label">Student given name</label>
+      <input asp-for="GivenName" class="form-control mb-3" required maxlength="100" autocomplete="given-name" />
+      <label asp-for="FamilyName" class="form-label">Family name</label>
+      <input asp-for="FamilyName" class="form-control mb-3" maxlength="100" autocomplete="family-name" />
+      <label asp-for="DateOfBirth" class="form-label">Date of birth</label>
+      <input asp-for="DateOfBirth" class="form-control mb-3" type="date" required />
+      <label asp-for="Email" class="form-label">Parent / guardian contact email</label>
+      <input asp-for="Email" class="form-control mb-3" type="email" maxlength="254" autocomplete="email" />
+      <label asp-for="Phone" class="form-label">Contact phone</label>
+      <input asp-for="Phone" class="form-control mb-3" maxlength="24" autocomplete="tel" />
+      <button class="btn btn-primary" type="submit">Submit application</button>
+    </form>
+  }
+</section>
