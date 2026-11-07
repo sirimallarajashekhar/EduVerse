@@ -34,7 +34,7 @@ public static class FinanceEndpoints
     try
     {
      var receipt=await s.Receipt(campusId,id,ct);
-     var contents=string.Join("\\n",new[]{
+     var contents=string.Join("\n",new[]{
       "EduVerse | Fee Receipt",
       "Receipt: "+receipt.ReceiptNumber,
       "Institution: "+receipt.Institution,
