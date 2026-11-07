@@ -25,7 +25,7 @@ public sealed class MySqlInstitutionRepository(string connectionString) : IInsti
         command.Parameters.AddWithValue("@subjectId", identity.SubjectId);
         await using var reader = await command.ExecuteReaderAsync(ct);
         if (!await reader.ReadAsync(ct)) return null;
-        return new Institution(Guid.Parse(reader.GetString(0)), reader.GetString(1),
+        return new Institution(reader.GetGuid(0), reader.GetString(1),
             reader.GetString(2), reader.GetString(3), reader.GetBoolean(4));
     }
 
@@ -41,7 +41,7 @@ public sealed class MySqlInstitutionRepository(string connectionString) : IInsti
         command.Parameters.AddWithValue("@tenantId", tenantId.ToString("D"));
         await using var reader = await command.ExecuteReaderAsync(ct);
         while (await reader.ReadAsync(ct))
-            campuses.Add(new Campus(Guid.Parse(reader.GetString(0)), Guid.Parse(reader.GetString(1)),
+            campuses.Add(new Campus(reader.GetGuid(0), reader.GetGuid(1),
                 reader.GetString(2), reader.GetString(3), reader.GetBoolean(4)));
         return campuses;
     }
