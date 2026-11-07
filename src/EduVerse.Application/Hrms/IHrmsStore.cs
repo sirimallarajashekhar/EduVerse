@@ -20,6 +20,7 @@ public interface IHrmsStore
  Task<HrLeaveBalance?> Balance(Guid tenant,Guid campus,Guid employee,Guid type,int year,CancellationToken ct);
  Task<HrSalary?> Salary(Guid tenant,HrSalaryCreate input,CancellationToken ct);
  Task<HrPayrollPreview?> Preview(Guid tenant,string actor,Guid campus,Guid employee,DateOnly month,CancellationToken ct);
+ Task<IReadOnlyList<HrStaffAttendance>> Attendance(Guid tenant,Guid campus,DateOnly date,CancellationToken ct);
  Task<HrDashboard> Dashboard(Guid tenant,Guid campus,CancellationToken ct);
 }
 public sealed class HrScopeException:Exception {}
