@@ -320,7 +320,12 @@ public sealed class MySqlIdentityStore(string connectionString) : IIdentityStore
                 AND t.is_active=1 AND u.is_active=1
                 AND (m.role_code='ADMIN' OR EXISTS (
                     SELECT 1 FROM identity_role_permissions p
-                    WHERE p.tenant_id=m.tenant_id AND p.role_code=m.role_code AND p.permission_code=@permission))
+                    WHERE p.tenant_id=m.tenant_id AND p.role_code=m.role_code AND p.permission_code=@permission)
+                   OR EXISTS (
+                    SELECT 1 FROM rbac_user_roles a
+                    JOIN rbac_role_permissions p ON p.tenant_id=a.tenant_id AND p.role_code=a.role_code
+                    WHERE a.tenant_id=m.tenant_id AND a.subject_id=m.subject_id
+                      AND p.permission_code=@permission))
                 AND (@campus IS NULL OR (m.role_code='ADMIN' OR EXISTS (
                     SELECT 1 FROM identity_campus_access x
                     WHERE x.tenant_id=m.tenant_id AND x.subject_id=m.subject_id AND x.campus_id=@campus)))

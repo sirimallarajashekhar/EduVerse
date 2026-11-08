@@ -2,7 +2,7 @@ using EduVerse.Application.Tenancy;
 using EduVerse.Contracts;
 using EduVerse.Domain;
 namespace EduVerse.Application.Hrms;
-public sealed class HrmsService(IHrmsStore store,ITenantContext context)
+public sealed class HrmsService(IHrmsStore store,ITenantContext context, EduVerse.Application.Identity.IIdentityStore identities)
 {
  private async Task<TenantIdentity> Admin(CancellationToken ct)
  {
@@ -43,7 +43,12 @@ public sealed class HrmsService(IHrmsStore store,ITenantContext context)
     ??throw new HrScopeException();
  }
  public async Task<IReadOnlyList<HrEmployee>> Employees(Guid campus,CancellationToken ct)
- {var a=await Admin(ct);return await store.Employees(a.TenantId,Id(campus),ct);}
+ {
+  if(!context.TryGet(out var a)||a is null || campus==Guid.Empty ||
+     !await identities.HasPermissionAsync(a,"hrms.read",campus,ct))
+    throw new UnauthorizedAccessException("Campus-scoped HRMS read access required.");
+  return await store.Employees(a.TenantId,campus,ct);
+ }
  public async Task Lifecycle(Guid campus,Guid employee,HrLifecycle input,CancellationToken ct)
  {
   var a=await Admin(ct);Id(campus);Id(employee);

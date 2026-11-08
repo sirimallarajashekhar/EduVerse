@@ -2,7 +2,7 @@ using EduVerse.Application.Tenancy;
 using EduVerse.Contracts;
 using EduVerse.Domain;
 namespace EduVerse.Application.Ams;
-public sealed class AmsService(IAmsStore store,ITenantContext context)
+public sealed class AmsService(IAmsStore store,ITenantContext context, EduVerse.Application.Identity.IIdentityStore identities)
 {
  private async Task<TenantIdentity> Admin(CancellationToken ct)
  {
@@ -55,7 +55,12 @@ public sealed class AmsService(IAmsStore store,ITenantContext context)
    ??throw new AmsScopeException();
  }
  public async Task<IReadOnlyList<AmsAsset>> Assets(Guid c,CancellationToken ct)
- {var a=await Admin(ct);return await store.Assets(a.TenantId,Id(c),ct);}
+ {
+  if(!context.TryGet(out var a)||a is null || c==Guid.Empty ||
+     !await identities.HasPermissionAsync(a,"ams.read",c,ct))
+    throw new UnauthorizedAccessException("Campus-scoped AMS read access required.");
+  return await store.Assets(a.TenantId,c,ct);
+ }
  public async Task<AmsAsset> Allocate(AmsAllocation r,CancellationToken ct)
  {
   var a=await Admin(ct);Id(r.CampusId);Id(r.AssetId);

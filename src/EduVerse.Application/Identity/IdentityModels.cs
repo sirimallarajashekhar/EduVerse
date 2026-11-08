@@ -12,6 +12,11 @@ public static class KnownPermissions
     {
         "institutions.read", "institutions.campuses.manage",
         "hrms.read", "hrms.employees.manage", "hrms.payroll.read",
-        "ams.read", "ams.assets.manage", "ams.maintenance.manage"
+        "ams.read", "ams.assets.manage", "ams.maintenance.manage",
+        "academic.read", "academic.manage", "students.read", "students.manage",
+        "attendance.read", "attendance.manage", "finance.read", "finance.manage",
+        "exams.read", "exams.manage", "college.read", "college.manage",
+        "operations.read", "operations.manage", "learning.read", "learning.manage",
+        "reporting.read", "workflows.read", "workflows.manage"
     };
 }

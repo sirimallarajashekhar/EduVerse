@@ -178,6 +178,10 @@ builder.Services.AddScoped<IIdempotentCampusWriter>(provider =>
         .GetConnectionString("EduVerse")
         ?? throw new InvalidOperationException("ConnectionStrings:EduVerse is required.")));
 builder.Services.AddScoped<IdentityService>();
+builder.Services.AddScoped<AdvancedRbacService>();
+builder.Services.AddScoped<IAdvancedRbacStore>(p =>
+    new MySqlAdvancedRbacStore(p.GetRequiredService<IConfiguration>().GetConnectionString("EduVerse")
+        ?? throw new InvalidOperationException("ConnectionStrings:EduVerse is required.")));
 builder.Services.AddSingleton<IPasswordService, PasswordService>();
 builder.Services.AddSingleton<IAccessTokenIssuer, JwtTokenIssuer>();
 builder.Services.AddSingleton<IPasswordResetMessenger, SmtpPasswordResetMessenger>();
@@ -222,6 +226,7 @@ api.MapGet("/platform/modules", () => TypedResults.Ok(ModuleRegistry.All))
 app.MapPlatformPagedEndpoints();
 app.MapIdempotentCampusEndpoints();
 app.MapIdentityEndpoints();
+app.MapAdvancedRbacEndpoints();
 app.MapInstitutionEndpoints();
 app.MapInstitutionAdminEndpoints();
 app.MapPlatformApprovalEndpoints();
