@@ -225,6 +225,7 @@ app.MapIdentityEndpoints();
 app.MapInstitutionEndpoints();
 app.MapInstitutionAdminEndpoints();
 app.MapPlatformApprovalEndpoints();
+app.MapTenantModuleEndpoints();
 app.MapAcademicEndpoints();
 app.MapStudentEndpoints();
 app.MapAttendanceEndpoints();
