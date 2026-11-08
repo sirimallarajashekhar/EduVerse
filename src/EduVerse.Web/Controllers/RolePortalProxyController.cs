@@ -47,6 +47,10 @@ public sealed class RolePortalProxyController(IHttpClientFactory clients):Contro
             return Send(HttpMethod.Get,$"student/{ownStudent:D}/{bits[2]}",campus,null,ct);
         return Task.FromResult<IActionResult>(NotFound());
     }
+    [HttpPost("teacher/lessons")]
+    public Task<IActionResult> CreateLesson([FromBody]System.Text.Json.JsonElement body,CancellationToken ct)=>
+        Send(HttpMethod.Post,"teacher/lessons",null,body.GetRawText(),ct);
+
     [HttpPost("teacher/attendance")]
     public Task<IActionResult> Attendance([FromBody]System.Text.Json.JsonElement body,CancellationToken ct)=>
         Send(HttpMethod.Post,"teacher/attendance",null,body.GetRawText(),ct);
