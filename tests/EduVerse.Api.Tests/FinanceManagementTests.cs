@@ -53,6 +53,12 @@ public sealed class FinanceManagementTests:IAsyncLifetime
   foreach(var tid in new[]{tenant,foreignTenant})
    await Exec("INSERT INTO institution_subscriptions(tenant_id,plan_code) VALUES(@tenant,'PILOT')",
     ("@tenant",tid.ToString("D")));
+  var plan="F"+Guid.NewGuid().ToString("N")[..20];
+  await Exec("INSERT INTO subscription_plans(plan_code,display_name,description) VALUES(@code,'Finance Tests','Isolated finance entitlement')",("@code",plan));
+  await Exec("INSERT INTO subscription_plan_features(plan_code,feature_code) VALUES(@code,'finance'),(@code,'core'),(@code,'academics')",("@code",plan));
+  await Exec("UPDATE institution_subscriptions SET plan_code=@code WHERE tenant_id=@tenant",
+   ("@code",plan),("@tenant",tenant.ToString("D")));
+
   host=new WebApplicationFactory<Program>().WithWebHostBuilder(web=>
    web.ConfigureAppConfiguration((_,configuration)=>
     configuration.AddInMemoryCollection(new Dictionary<string,string?>
@@ -68,6 +74,24 @@ public sealed class FinanceManagementTests:IAsyncLifetime
   Assert.NotNull(ticket);
   client.DefaultRequestHeaders.Authorization=new AuthenticationHeaderValue("Bearer",ticket.AccessToken);
   return client;
+ }
+
+
+ [Fact]
+ public async Task FinanceEndpointsDenyExpiredOrUnsubscribedInstitution()
+ {
+  if(host is null)return;
+  using var client=await Client();
+  var path=$"/api/v1/finance/fees?campusId={campus:D}";
+  using(var allowed=await client.GetAsync(path)) Assert.Equal(HttpStatusCode.OK,allowed.StatusCode);
+  await Exec("UPDATE institution_subscriptions SET status='SUSPENDED' WHERE tenant_id=@id",
+   ("@id",tenant.ToString("D")));
+  using(var denied=await client.GetAsync(path)) Assert.Equal(HttpStatusCode.Forbidden,denied.StatusCode);
+  await Exec("UPDATE institution_subscriptions SET status='ACTIVE',expires_utc=UTC_TIMESTAMP(6)-INTERVAL 1 DAY WHERE tenant_id=@id",
+   ("@id",tenant.ToString("D")));
+  using(var expired=await client.GetAsync(path)) Assert.Equal(HttpStatusCode.Forbidden,expired.StatusCode);
+  using(var write=await client.PostAsJsonAsync("/api/v1/finance/fees",new { campusId=campus }))
+   Assert.Equal(HttpStatusCode.Forbidden,write.StatusCode);
  }
 
  private async Task<(FeeStructureRecord Fee,ChargeRecord Charge,InstallmentRecord First,InstallmentRecord Second)> Setup(HttpClient client)

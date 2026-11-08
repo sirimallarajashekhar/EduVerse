@@ -1,6 +1,7 @@
 using EduVerse.Application.Finance;
 using EduVerse.Contracts;
 using MySqlConnector;
+using EduVerse.Api.Security;
 
 namespace EduVerse.Api.Endpoints;
 
@@ -9,7 +10,7 @@ public static class FinanceEndpoints
 {
  public static IEndpointRouteBuilder MapFinanceEndpoints(this IEndpointRouteBuilder app)
  {
-  var g=app.MapGroup("/api/v1/finance").RequireAuthorization();
+  var g=app.MapGroup("/api/v1/finance").RequireAuthorization().RequireTenantFeature("finance");
   g.MapPost("/fees",async (FeeStructureCreate r,FinanceService s,CancellationToken ct)=>
    await Write(()=>s.AddFee(r,ct)));
   g.MapGet("/fees",async (Guid campusId,FinanceService s,CancellationToken ct)=>
