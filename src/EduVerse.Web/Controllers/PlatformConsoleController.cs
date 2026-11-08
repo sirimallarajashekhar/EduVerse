@@ -34,6 +34,11 @@ public sealed class PlatformControlProxyController(IHttpClientFactory clients):C
     public Task<IActionResult> Invite(Guid tenantId,[FromBody]System.Text.Json.JsonElement json,CancellationToken ct)=>
         Forward(HttpMethod.Post,$"institutions/{tenantId:D}/users",json.GetRawText(),ct);
 
+    [HttpPost("institutions/{tenantId:guid}/users/{userId:guid}/approve")]
+    public Task<IActionResult> Approve(Guid tenantId,Guid userId,
+        [FromBody]System.Text.Json.JsonElement json,CancellationToken ct)=>
+        Forward(HttpMethod.Post,$"institutions/{tenantId:D}/users/{userId:D}/approve",json.GetRawText(),ct);
+
     [HttpPost("institutions/{tenantId:guid}/users/{userId:guid}/deactivate")]
     public Task<IActionResult> Deactivate(Guid tenantId,Guid userId,
         [FromBody]System.Text.Json.JsonElement json,CancellationToken ct)=>
