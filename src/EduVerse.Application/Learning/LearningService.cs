@@ -25,11 +25,11 @@ public sealed class LearningService(ILearningStore store,ITenantContext context,
  }
  public async Task<LessonRecord> CreateLesson(LessonCreate r,CancellationToken ct)
  {
-  var a=await Admin(ct);Id(r.CampusId);Id(r.AcademicYearId);Id(r.ClassId);Id(r.SubjectId);
+  var a=await reader.RequireAsync("learning.manage",r.CampusId,ct);Id(r.CampusId);Id(r.AcademicYearId);Id(r.ClassId);Id(r.SubjectId);
   if(r.ResourceUrl is not null && (r.ResourceUrl.Length>600 ||
       !Uri.TryCreate(r.ResourceUrl,UriKind.Absolute,out var url) || url.Scheme!="https"))
    throw new ArgumentException("Resource URL must be HTTPS.");
-  return Found(await store.CreateLesson(a.TenantId,r with{Title=Text(r.Title,160),Body=Text(r.Body,8000)},ct));
+  return Found(await store.CreateLesson(a.TenantId,a.SubjectId,r with{Title=Text(r.Title,160),Body=Text(r.Body,8000)},ct));
  }
  public async Task<IReadOnlyList<LessonRecord>> Lessons(Guid c,CancellationToken ct)=>
   await store.Lessons((await reader.RequireAsync("learning.read",c,ct)).TenantId,Id(c),ct);
