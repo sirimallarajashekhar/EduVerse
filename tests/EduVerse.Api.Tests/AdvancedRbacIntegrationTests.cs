@@ -240,6 +240,96 @@ public sealed class AdvancedRbacIntegrationTests:IAsyncLifetime
             Assert.Equal(HttpStatusCode.Forbidden,cannotWrite.StatusCode);
     }
 
+    [Fact]
+    public async Task TeacherOnlySeesStudentsInAssignedTimetableClasses()
+    {
+        if(factory is null)return;
+        using var administrator=await Login(admin);
+        using var normal=await Login(member);
+        using var denied=await normal.GetAsync($"/api/v1/ownership/my/teaching/classes?campusId={campus:D}");
+        Assert.Equal(HttpStatusCode.Forbidden,denied.StatusCode);
+
+        using(var created=await administrator.PostAsJsonAsync("/api/v1/rbac/roles",
+            new CreateRbacRole("TEACHER","Assigned Teacher")))
+            Assert.Equal(HttpStatusCode.NoContent,created.StatusCode);
+        using(var granted=await administrator.PutAsJsonAsync("/api/v1/rbac/roles/TEACHER/permissions",
+            new SetRbacPermissions(new[]{"academic.read","students.read"})))
+            Assert.Equal(HttpStatusCode.NoContent,granted.StatusCode);
+        using(var assign=await administrator.PostAsJsonAsync("/api/v1/rbac/assignments",
+            new SetRbacAssignment(member.ToString("D"),"TEACHER")))
+            Assert.Equal(HttpStatusCode.NoContent,assign.StatusCode);
+        using(var campusGrant=await administrator.PostAsJsonAsync("/api/v1/identity/campus-access",
+            new CampusGrantRequest(member.ToString("D"),campus)))
+            Assert.Equal(HttpStatusCode.NoContent,campusGrant.StatusCode);
+
+        var year=Guid.NewGuid();var classA=Guid.NewGuid();var classB=Guid.NewGuid();
+        var subject=Guid.NewGuid();var period=Guid.NewGuid();
+        await Exec("""
+            INSERT INTO academic_years(id,tenant_id,campus_id,code,display_name,starts_on,ends_on)
+            VALUES(@id,@tid,@campus,'YEAR26','Academic 2026-27','2026-06-01','2027-05-31')
+            """,("@id",year.ToString("D")),("@tid",tenant.ToString("D")),("@campus",campus.ToString("D")));
+        foreach(var (id,kind,code) in new[]{(classA,"CLASS","CLASS-A"),(classB,"CLASS","CLASS-B"),
+                                              (subject,"SUBJECT","ENGLISH")})
+            await Exec("""
+                INSERT INTO academic_catalog(id,tenant_id,campus_id,kind,code,display_name)
+                VALUES(@id,@tid,@campus,@kind,@code,'RBAC Test Catalog')
+                """,("@id",id.ToString("D")),("@tid",tenant.ToString("D")),
+                ("@campus",campus.ToString("D")),("@kind",kind),("@code",code));
+        await Exec("""
+            INSERT INTO academic_periods(id,tenant_id,campus_id,code,display_name,starts_at,ends_at)
+            VALUES(@id,@tid,@campus,'P1','First period','09:00:00','10:00:00')
+            """,("@id",period.ToString("D")),("@tid",tenant.ToString("D")),("@campus",campus.ToString("D")));
+        await Exec("""
+            INSERT INTO academic_timetable_slots(
+             id,tenant_id,campus_id,academic_year_id,class_item_id,subject_id,period_id,
+             teacher_subject_id,day_of_week)
+            VALUES(@id,@tid,@campus,@year,@class,@subject,@period,@teacher,1)
+            """,("@id",Guid.NewGuid().ToString("D")),("@tid",tenant.ToString("D")),
+            ("@campus",campus.ToString("D")),("@year",year.ToString("D")),("@class",classA.ToString("D")),
+            ("@subject",subject.ToString("D")),("@period",period.ToString("D")),("@teacher",member.ToString("D")));
+
+        var ownStudent=Guid.NewGuid();var otherStudent=Guid.NewGuid();
+        foreach(var (student,number,schoolClass) in new[]{
+            (ownStudent,"TEACHER-A-"+Guid.NewGuid().ToString("N")[..8],classA),
+            (otherStudent,"TEACHER-B-"+Guid.NewGuid().ToString("N")[..8],classB)})
+        {
+            await Exec("""
+                INSERT INTO students(id,tenant_id,campus_id,admission_number,given_name,family_name,date_of_birth)
+                VALUES(@id,@tid,@campus,@number,'Teacher','Test','2014-05-07')
+                """,("@id",student.ToString("D")),("@tid",tenant.ToString("D")),
+                ("@campus",campus.ToString("D")),("@number",number));
+            await Exec("""
+                INSERT INTO student_enrollments(
+                 id,tenant_id,campus_id,student_id,academic_year_id,academic_item_id)
+                VALUES(@id,@tid,@campus,@student,@year,@class)
+                """,("@id",Guid.NewGuid().ToString("D")),("@tid",tenant.ToString("D")),
+                ("@campus",campus.ToString("D")),("@student",student.ToString("D")),
+                ("@year",year.ToString("D")),("@class",schoolClass.ToString("D")));
+        }
+        using var refreshed=await Login(member);
+        using(var classes=await refreshed.GetAsync($"/api/v1/ownership/my/teaching/classes?campusId={campus:D}"))
+        {
+            Assert.Equal(HttpStatusCode.OK,classes.StatusCode);
+            var json=await classes.Content.ReadAsStringAsync();
+            Assert.Contains(classA.ToString("D"),json,StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain(classB.ToString("D"),json,StringComparison.OrdinalIgnoreCase);
+        }
+        using(var roster=await refreshed.GetAsync(
+            $"/api/v1/ownership/my/teaching/classes/{classA:D}/students?campusId={campus:D}"))
+        {
+            Assert.Equal(HttpStatusCode.OK,roster.StatusCode);
+            var json=await roster.Content.ReadAsStringAsync();
+            Assert.Contains(ownStudent.ToString("D"),json,StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain(otherStudent.ToString("D"),json,StringComparison.OrdinalIgnoreCase);
+        }
+        using(var wrongClass=await refreshed.GetAsync(
+            $"/api/v1/ownership/my/teaching/classes/{classB:D}/students?campusId={campus:D}"))
+        {
+            Assert.Equal(HttpStatusCode.OK,wrongClass.StatusCode);
+            Assert.Equal("[]",await wrongClass.Content.ReadAsStringAsync());
+        }
+    }
+
     private sealed record PermissionResult(bool Allowed);
     public Task DisposeAsync(){factory?.Dispose();return Task.CompletedTask;}
 }
