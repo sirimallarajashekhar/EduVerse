@@ -143,6 +143,35 @@ public sealed class PlatformControlStore(string connectionString,IIdentityStore 
         }
     }
 
+    public async Task<bool> Approve(Guid operatorId,Guid tenant,Guid target,string reason,CancellationToken ct)
+    {
+        if(tenant==Guid.Empty||target==Guid.Empty||string.IsNullOrWhiteSpace(reason)||
+           reason.Length>500)throw new ArgumentException("A user approval reason is required.");
+        await using var db=Open();await db.OpenAsync(ct);
+        await using var tx=await db.BeginTransactionAsync(ct);
+        await using(var update=new MySqlCommand("""
+          UPDATE tenant_memberships m
+          JOIN identity_users u ON u.id=m.subject_id AND u.is_active=1
+          JOIN tenants t ON t.id=m.tenant_id AND t.is_active=1
+          SET m.is_active=1 WHERE m.tenant_id=@tenant AND m.subject_id=@target AND m.is_active=0
+          """,db,tx))
+        {
+            Add(update,("@tenant",tenant.ToString("D")),("@target",target.ToString("D")));
+            if(await update.ExecuteNonQueryAsync(ct)!=1)return false;
+        }
+        await using(var audit=new MySqlCommand("""
+          INSERT INTO platform_control_audit(operator_id,tenant_id,target_user_id,action_code,reason)
+          VALUES(@operator,@tenant,@target,'USER_ACTIVATED',@reason)
+          """,db,tx))
+        {
+            Add(audit,("@operator",operatorId.ToString("D")),("@tenant",tenant.ToString("D")),
+                ("@target",target.ToString("D")),("@reason",reason.Trim()));
+            await audit.ExecuteNonQueryAsync(ct);
+        }
+        await tx.CommitAsync(ct);
+        return true;
+    }
+
     public async Task<bool> Deactivate(Guid operatorId,Guid tenant,Guid target,string reason,CancellationToken ct)
     {
         if(tenant==Guid.Empty||target==Guid.Empty||string.IsNullOrWhiteSpace(reason)||
