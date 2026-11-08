@@ -15,6 +15,10 @@
       <div class="ev-nav-label mb-2">PLATFORM</div>
       <nav aria-label="Modules">
         <a class="ev-nav-item" href="/">Dashboard</a>
+        @if (User.IsInRole("PLATFORM_SUPER_ADMIN"))
+        {
+          <a class="ev-nav-item" href="/platform/registrations">School Approvals</a>
+        }
         @if (User.IsInRole("ADMIN"))
         {
           <a class="ev-nav-item" href="/admin/users">User Management</a>
@@ -41,7 +45,7 @@
         {
           <div class="d-flex align-items-center gap-3">
             <span class="small text-secondary">@User.Identity.Name</span>
-            <form method="post" action="/account/logout" class="mb-0">
+            <form method="post" action="@(User.IsInRole("PLATFORM_SUPER_ADMIN") ? "/platform/logout" : "/account/logout")" class="mb-0">
               @Html.AntiForgeryToken()
               <button class="btn btn-sm btn-outline-secondary" type="submit">Sign out</button>
             </form>
