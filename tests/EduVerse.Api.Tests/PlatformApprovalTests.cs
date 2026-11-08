@@ -186,6 +186,14 @@ public sealed class PlatformApprovalTests : IAsyncLifetime
             await cmd.ExecuteNonQueryAsync();
         }
         using var platform=await OperatorClientAsync();
+        using(var inventory=await platform.GetAsync("/api/v1/platform-control/actions"))
+        {
+            Assert.Equal(HttpStatusCode.OK,inventory.StatusCode);
+            var json=await inventory.Content.ReadAsStringAsync();
+            Assert.Contains("/api/v1/identity/login",json);
+            Assert.Contains("/api/v1/platform-control/institutions",json);
+            Assert.Contains("platformManaged",json);
+        }
         using(var institutions=await platform.GetAsync("/api/v1/platform-control/institutions"))
         {
             Assert.Equal(HttpStatusCode.OK,institutions.StatusCode);
