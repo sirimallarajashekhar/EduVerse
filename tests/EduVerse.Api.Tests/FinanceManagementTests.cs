@@ -53,6 +53,12 @@ public sealed class FinanceManagementTests:IAsyncLifetime
   foreach(var tid in new[]{tenant,foreignTenant})
    await Exec("INSERT INTO institution_subscriptions(tenant_id,plan_code) VALUES(@tenant,'PILOT')",
     ("@tenant",tid.ToString("D")));
+  var plan="F"+Guid.NewGuid().ToString("N")[..20];
+  await Exec("INSERT INTO subscription_plans(plan_code,display_name,description) VALUES(@code,'Finance Tests','Isolated finance entitlement')",("@code",plan));
+  await Exec("INSERT INTO subscription_plan_features(plan_code,feature_code) VALUES(@code,'finance'),(@code,'core'),(@code,'academics')",("@code",plan));
+  await Exec("UPDATE institution_subscriptions SET plan_code=@code WHERE tenant_id=@tenant",
+   ("@code",plan),("@tenant",tenant.ToString("D")));
+
   host=new WebApplicationFactory<Program>().WithWebHostBuilder(web=>
    web.ConfigureAppConfiguration((_,configuration)=>
     configuration.AddInMemoryCollection(new Dictionary<string,string?>
