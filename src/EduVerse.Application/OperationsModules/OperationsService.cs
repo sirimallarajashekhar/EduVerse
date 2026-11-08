@@ -4,7 +4,7 @@ using EduVerse.Domain;
 namespace EduVerse.Application.OperationsModules;
 
 /// <summary>API-owned authorization, input validation and scoped operations.</summary>
-public sealed class OperationsService(IOperationsStore store,ITenantContext context)
+public sealed class OperationsService(IOperationsStore store,ITenantContext context, EduVerse.Application.Identity.TenantReadAuthorizer reader)
 {
  private async Task<Guid> Tenant(CancellationToken ct)
  {
@@ -28,10 +28,10 @@ public sealed class OperationsService(IOperationsStore store,ITenantContext cont
  private static T Found<T>(T? record) where T:class=>record??throw new OperationsScopeException();
  public async Task<LibraryTitle> Title(LibraryTitleCreate r,CancellationToken ct)=>
   Found(await store.Title(await Tenant(ct),r with {CampusId=Id(r.CampusId),Title=Text(r.Title,180),Author=Text(r.Author,160)},ct));
- public async Task<IReadOnlyList<LibraryTitle>> Titles(Guid c,CancellationToken ct)=>await store.Titles(await Tenant(ct),Id(c),ct);
+ public async Task<IReadOnlyList<LibraryTitle>> Titles(Guid c,CancellationToken ct)=>await store.Titles((await reader.RequireAsync("operations.read",c,ct)).TenantId,Id(c),ct);
  public async Task<LibraryCopy> Copy(LibraryCopyCreate r,CancellationToken ct)=>
   Found(await store.Copy(await Tenant(ct),r with {CampusId=Id(r.CampusId),TitleId=Id(r.TitleId),Barcode=Code(r.Barcode,64)},ct));
- public async Task<IReadOnlyList<LibraryCopy>> Copies(Guid c,CancellationToken ct)=>await store.Copies(await Tenant(ct),Id(c),ct);
+ public async Task<IReadOnlyList<LibraryCopy>> Copies(Guid c,CancellationToken ct)=>await store.Copies((await reader.RequireAsync("operations.read",c,ct)).TenantId,Id(c),ct);
  public async Task<LibraryLoan> Borrow(LibraryLoanCreate r,CancellationToken ct)
  {
   if(r.DueOn<DateOnly.FromDateTime(DateTime.UtcNow.Date)||r.DueOn.DayNumber-DateOnly.FromDateTime(DateTime.UtcNow.Date).DayNumber>90)
@@ -48,16 +48,16 @@ public sealed class OperationsService(IOperationsStore store,ITenantContext cont
   if(r.Capacity is < 1 or > 100||r.DriverPhone?.Length>30)throw new ArgumentException("Invalid vehicle details.");
   return Found(await store.Vehicle(await Tenant(ct),r with {CampusId=Id(r.CampusId),Registration=Code(r.Registration.Replace(" ","").Replace("-",""),32),DriverName=Text(r.DriverName,120)},ct));
  }
- public async Task<IReadOnlyList<TransportVehicle>> Vehicles(Guid c,CancellationToken ct)=>await store.Vehicles(await Tenant(ct),Id(c),ct);
+ public async Task<IReadOnlyList<TransportVehicle>> Vehicles(Guid c,CancellationToken ct)=>await store.Vehicles((await reader.RequireAsync("operations.read",c,ct)).TenantId,Id(c),ct);
  public async Task<TransportRoute> Route(TransportRouteCreate r,CancellationToken ct)=>
   Found(await store.Route(await Tenant(ct),r with {CampusId=Id(r.CampusId),VehicleId=Id(r.VehicleId),Code=Code(r.Code,30),Name=Text(r.Name,120)},ct));
- public async Task<IReadOnlyList<TransportRoute>> Routes(Guid c,CancellationToken ct)=>await store.Routes(await Tenant(ct),Id(c),ct);
+ public async Task<IReadOnlyList<TransportRoute>> Routes(Guid c,CancellationToken ct)=>await store.Routes((await reader.RequireAsync("operations.read",c,ct)).TenantId,Id(c),ct);
  public async Task<TransportStop> Stop(TransportStopCreate r,CancellationToken ct)
  {
   if(r.Order is < 1 or > 500)throw new ArgumentException("Invalid stop sequence.");
   return Found(await store.Stop(await Tenant(ct),r with {CampusId=Id(r.CampusId),RouteId=Id(r.RouteId),Name=Text(r.Name,120)},ct));
  }
- public async Task<IReadOnlyList<TransportStop>> Stops(Guid c,CancellationToken ct)=>await store.Stops(await Tenant(ct),Id(c),ct);
+ public async Task<IReadOnlyList<TransportStop>> Stops(Guid c,CancellationToken ct)=>await store.Stops((await reader.RequireAsync("operations.read",c,ct)).TenantId,Id(c),ct);
  public async Task<TransportAssignment> AssignRoute(TransportAssignmentCreate r,CancellationToken ct)=>
   Found(await store.AssignRoute(await Tenant(ct),r with {CampusId=Id(r.CampusId),StudentId=Id(r.StudentId),RouteId=Id(r.RouteId),StopId=Id(r.StopId)},ct));
  public async Task ReleaseRoute(Guid c,Guid a,CancellationToken ct)
@@ -77,5 +77,5 @@ public sealed class OperationsService(IOperationsStore store,ITenantContext cont
  public async Task Vacate(Guid c,Guid a,CancellationToken ct)
  {if(!await store.Vacate(await Tenant(ct),Id(c),Id(a),ct))throw new OperationsScopeException();}
  public async Task<IReadOnlyList<HostelAllocation>> Allocations(Guid c,CancellationToken ct)=>await store.Allocations(await Tenant(ct),Id(c),ct);
- public async Task<OperationsDashboard> Dashboard(Guid c,CancellationToken ct)=>await store.Dashboard(await Tenant(ct),Id(c),ct);
+ public async Task<OperationsDashboard> Dashboard(Guid c,CancellationToken ct)=>await store.Dashboard((await reader.RequireAsync("operations.read",c,ct)).TenantId,Id(c),ct);
 }
