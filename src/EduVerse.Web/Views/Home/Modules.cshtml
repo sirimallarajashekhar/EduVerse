@@ -1,0 +1,32 @@
+@{
+    ViewData["Title"] = "My modules";
+}
+<header class="mb-4">
+    <p class="ev-eyebrow">EduVerse · Institution workspace</p>
+    <h1 class="h3">Available modules</h1>
+    <p class="text-secondary">Your available school and college modules are loaded from the API according to your institution and subscription.</p>
+</header>
+@if(User.IsInRole("ADMIN"))
+{
+    <section>
+        <div class="ev-card p-4 mb-3">
+            <h2 class="h5" id="institution-name">Loading institution…</h2>
+            <p id="institution-plan" class="text-secondary">Checking subscription…</p>
+        </div>
+        <div id="tenant-module-cards" class="row g-3" aria-live="polite">
+            <p class="text-secondary">Loading modules…</p>
+        </div>
+    </section>
+}
+else
+{
+    <section class="ev-card p-4">
+        <h2 class="h5">Choose your workspace</h2>
+        <p class="text-secondary">The API checks your campus assignment and linked records for each portal.</p>
+        <div class="d-flex flex-wrap gap-2">
+            <a class="btn btn-primary" href="/portal/teacher">Teacher</a>
+            <a class="btn btn-outline-primary" href="/portal/parent">Parent</a>
+            <a class="btn btn-outline-primary" href="/portal/student">Student</a>
+        </div>
+    </section>
+}
