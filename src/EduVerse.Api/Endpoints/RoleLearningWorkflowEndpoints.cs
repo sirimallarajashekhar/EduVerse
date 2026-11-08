@@ -7,7 +7,7 @@ public static class RoleLearningWorkflowEndpoints
 {
     public static IEndpointRouteBuilder MapRoleLearningWorkflowEndpoints(this IEndpointRouteBuilder app)
     {
-        var api=app.MapGroup("/api/v1/role-learning").RequireAuthorization();
+        var api=app.MapGroup("/api/v1/role-learning").RequireAuthorization().RequireTenantFeature("academics");
         api.MapPost("/teacher/assignments",async (TeacherAssignmentDraft input,
             RoleLearningWorkflowStore s,CancellationToken ct)=>await Create(()=>s.DraftAssignment(input,ct)));
         api.MapGet("/teacher/submissions",async (Guid campusId,RoleLearningWorkflowStore s,CancellationToken ct)=>
