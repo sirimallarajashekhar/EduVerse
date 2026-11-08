@@ -396,6 +396,40 @@ public sealed class AdvancedRbacIntegrationTests:IAsyncLifetime
         using(var deniedCampus=await refreshed.PostAsJsonAsync("/api/v1/portals/teacher/attendance",
             new StudentAttendanceMark(otherCampus,enrollmentIds[ownStudent],day,null,"PRESENT",null)))
             Assert.Equal(HttpStatusCode.Forbidden,deniedCampus.StatusCode);
+        // Exam marks must match an assigned class AND subject, not just campus permission.
+        var scheme=Guid.NewGuid();var exam=Guid.NewGuid();var ownAssessment=Guid.NewGuid();
+        var otherAssessment=Guid.NewGuid();
+        await Exec("""
+            INSERT INTO exam_grading_schemes(id,tenant_id,campus_id,code,name)
+            VALUES(@id,@tenant,@campus,'TEACHER-RBAC','RBAC Grading')
+            """,("@id",scheme.ToString("D")),("@tenant",tenant.ToString("D")),
+            ("@campus",campus.ToString("D")));
+        await Exec("""
+            INSERT INTO examinations(
+              id,tenant_id,campus_id,academic_year_id,scheme_id,code,title,exam_type)
+            VALUES(@id,@tenant,@campus,@year,@scheme,'TEACHER-RBAC','Class Assessment','UNIT')
+            """,("@id",exam.ToString("D")),("@tenant",tenant.ToString("D")),
+            ("@campus",campus.ToString("D")),("@year",year.ToString("D")),
+            ("@scheme",scheme.ToString("D")));
+        foreach(var (assessment,schoolClass) in new[]{
+            (ownAssessment,classA),(otherAssessment,classB)})
+            await Exec("""
+                INSERT INTO exam_assessments(
+                  id,tenant_id,campus_id,exam_id,academic_item_id,subject_id,
+                  scheduled_on,max_marks,pass_marks,credits)
+                VALUES(@id,@tenant,@campus,@exam,@class,@subject,'2026-11-09',100,35,1)
+                """,("@id",assessment.ToString("D")),("@tenant",tenant.ToString("D")),
+                ("@campus",campus.ToString("D")),("@exam",exam.ToString("D")),
+                ("@class",schoolClass.ToString("D")),("@subject",subject.ToString("D")));
+        using(var permittedMark=await refreshed.PostAsJsonAsync("/api/v1/portals/teacher/marks",
+            new MarkCreate(campus,ownAssessment,enrollmentIds[ownStudent],85m,false)))
+            Assert.Equal(HttpStatusCode.OK,permittedMark.StatusCode);
+        using(var rejectedMark=await refreshed.PostAsJsonAsync("/api/v1/portals/teacher/marks",
+            new MarkCreate(campus,otherAssessment,enrollmentIds[otherStudent],85m,false)))
+            Assert.Equal(HttpStatusCode.NotFound,rejectedMark.StatusCode);
+        using(var mismatchedMark=await refreshed.PostAsJsonAsync("/api/v1/portals/teacher/marks",
+            new MarkCreate(campus,ownAssessment,enrollmentIds[otherStudent],85m,false)))
+            Assert.Equal(HttpStatusCode.NotFound,mismatchedMark.StatusCode);
         using(var wrongClass=await refreshed.GetAsync(
             $"/api/v1/ownership/my/teaching/classes/{classB:D}/students?campusId={campus:D}"))
         {
