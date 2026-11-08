@@ -4,7 +4,15 @@
 
 1. Apply migrations 001-016 sequentially on MySQL 8. For an existing database that has applied 001-015, execute **only** `database/migrations/016_platform_approvals.sql` with a migration-only account.
 2. Configure API `ConnectionStrings:EduVerse`, `Authentication:SigningKey` (32+ UTF-8 bytes), `Authentication:Issuer` and `Authentication:Audience` through development user-secrets or production secret management. Do not put database credentials in Git. Use HTTPS API URL in `EduVerse.Web` `Api:BaseUrl`.
-3. Provision a first platform operator out of band **after verifying their identity**. This feature intentionally has **no public self-enrollment or bootstrap endpoint**. The operator must already have an active identity account with a verified password (e.g. an existing institution ADMIN). Run from a restricted DBA session:
+3. Provision a first platform operator out of band **after verifying their identity**. For a brand-new deployment, use the interactive bootstrap utility from a secure terminal with a restricted `ConnectionStrings__EduVerse` environment variable:
+
+```powershell
+$env:ConnectionStrings__EduVerse = 'Server=localhost;Database=eduverse;User ID=eduverse_bootstrap;Password=<enter-from-secret-store>'
+dotnet run --project tools/EduVerse.PlatformBootstrap/EduVerse.PlatformBootstrap.csproj
+Remove-Item Env:ConnectionStrings__EduVerse
+```
+
+Use a temporary least-privilege account that can insert into `identity_users` and `platform_operators`; revoke this privilege after bootstrap. Password input is hidden and never sent to the browser or logged. Alternatively, if a verified active user already exists, grant their operator membership via the DBA-only SQL below. This feature intentionally has **no public self-enrollment or bootstrap endpoint**. For the existing-user option, the operator must already have an active identity account with a verified password (e.g. an existing institution ADMIN). Run from a restricted DBA session:
 
 ```sql
 INSERT INTO platform_operators(user_id)
