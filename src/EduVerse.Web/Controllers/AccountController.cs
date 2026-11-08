@@ -56,7 +56,8 @@ public sealed class AccountController(IHttpClientFactory clients) : Controller
             };
             properties.StoreTokens(new[] { new AuthenticationToken { Name = "access_token", Value = token.AccessToken } });
             await HttpContext.SignInAsync(EduVerseCookieAuth.Scheme, principal, properties);
-            return Url.IsLocalUrl(form.ReturnUrl) ? LocalRedirect(form.ReturnUrl) : RedirectToAction("Index", "Home");
+            return Url.IsLocalUrl(form.ReturnUrl) && !form.ReturnUrl.StartsWith("/platform",StringComparison.OrdinalIgnoreCase)
+                ? LocalRedirect(form.ReturnUrl) : Redirect("/modules");
         }
         catch (HttpRequestException)
         {
