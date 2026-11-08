@@ -18,7 +18,7 @@ public sealed class TenantReadAuthorizer(
         // Maintain existing plan restrictions when converting an ADMIN-only read into a delegated read.
         var feature=permission switch
         {
-            "academic.read" or "attendance.read" or "attendance.manage" or "exams.read" or "exams.manage" or "learning.read" => "academics",
+            "academic.read" or "attendance.read" or "attendance.manage" or "exams.read" or "exams.manage" or "learning.read" or "learning.manage" => "academics",
             "students.read" or "operations.read" => "core",
             "finance.read" => "finance",
             "college.read" => "college",
