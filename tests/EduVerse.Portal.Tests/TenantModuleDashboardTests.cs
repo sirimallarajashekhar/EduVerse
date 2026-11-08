@@ -25,7 +25,6 @@ public sealed class TenantModuleDashboardTests:IClassFixture<WebApplicationFacto
     public async Task TenantModuleBffRequiresAuthentication()
     {
         using var response=await client.GetAsync("/bff/tenant/modules");
-        Assert.Equal(HttpStatusCode.Redirect,response.StatusCode);
-        Assert.Contains("/account/login",response.Headers.Location?.ToString());
+        Assert.Equal(HttpStatusCode.Unauthorized,response.StatusCode);
     }
 }
