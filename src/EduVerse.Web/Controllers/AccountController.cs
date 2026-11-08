@@ -14,7 +14,12 @@ namespace EduVerse.Web.Controllers;
 public sealed class AccountController(IHttpClientFactory clients) : Controller
 {
     [AllowAnonymous, HttpGet("login")]
-    public IActionResult Login(string? returnUrl = null) => View(new LoginForm { ReturnUrl = returnUrl });
+    public IActionResult Login(string? returnUrl = null)
+    {
+        if(User.Identity?.IsAuthenticated==true)
+            return User.IsInRole("PLATFORM_SUPER_ADMIN")?Redirect("/platform/console"):Redirect("/modules");
+        return View(new LoginForm { ReturnUrl = returnUrl });
+    }
 
     [AllowAnonymous, HttpPost("login"), ValidateAntiForgeryToken]
     public async Task<IActionResult> Login(LoginForm form, CancellationToken ct)
@@ -56,7 +61,8 @@ public sealed class AccountController(IHttpClientFactory clients) : Controller
             };
             properties.StoreTokens(new[] { new AuthenticationToken { Name = "access_token", Value = token.AccessToken } });
             await HttpContext.SignInAsync(EduVerseCookieAuth.Scheme, principal, properties);
-            return Url.IsLocalUrl(form.ReturnUrl) ? LocalRedirect(form.ReturnUrl) : RedirectToAction("Index", "Home");
+            return Url.IsLocalUrl(form.ReturnUrl) && !form.ReturnUrl.StartsWith("/platform",StringComparison.OrdinalIgnoreCase)
+                ? LocalRedirect(form.ReturnUrl) : Redirect("/modules");
         }
         catch (HttpRequestException)
         {

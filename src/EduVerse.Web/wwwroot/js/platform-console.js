@@ -27,7 +27,27 @@
    btn.type='button';btn.addEventListener('click',()=>safe(()=>selectInstitution(x)));col.append(btn);host.append(col);
   }
  }
+ async function loadModuleCatalog(){
+  const host=el('platform-all-modules');
+  if(!host)return;
+  host.replaceChildren();
+  const modules=await api('modules');
+  if(!modules.length){
+   host.append(node('p','No modules registered.','text-secondary'));
+   return;
+  }
+  for(const module of modules){
+   const col=node('div','','col-md-6 col-xl-4');
+   const card=node('article','','ev-card p-3 h-100');
+   card.append(node('h3',module.name,'h6'));
+   card.append(node('p',module.description,'text-secondary small'));
+   card.append(node('p','Select an institution to check access.','small'));
+   col.append(card);
+   host.append(col);
+  }
+ }
  async function refresh(){
+  await loadModuleCatalog();
   all=await api('institutions');
   el('platform-total').textContent=all.length;
   el('platform-active').textContent=all.filter(x=>x.active).length;

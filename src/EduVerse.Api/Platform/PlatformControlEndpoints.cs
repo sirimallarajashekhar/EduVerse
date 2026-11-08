@@ -37,6 +37,7 @@ public static class PlatformControlEndpoints
                 .Take(2000).ToArray();
             return Results.Ok(rows);
         });
+        api.MapGet("/modules",()=>Results.Ok(EduVerse.Api.Modules.TenantModuleCatalog.ForPlatformOverview()));
         api.MapGet("/institutions",async (PlatformControlStore store,CancellationToken ct)=>
             Results.Ok(await store.Institutions(ct)));
         api.MapGet("/institutions/{tenantId:guid}/modules",async (Guid tenantId,
