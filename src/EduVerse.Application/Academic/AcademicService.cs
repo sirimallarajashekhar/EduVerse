@@ -5,7 +5,7 @@ using EduVerse.Domain;
 namespace EduVerse.Application.Academic;
 
 /// <summary>All academic writes are authorized against live tenant membership and plan state.</summary>
-public sealed class AcademicService(IAcademicStore store, ITenantContext context)
+public sealed class AcademicService(IAcademicStore store, ITenantContext context, EduVerse.Application.Identity.TenantReadAuthorizer reader)
 {
     private static readonly IReadOnlySet<string> Kinds = new HashSet<string>(StringComparer.Ordinal)
     { "TERM","SEMESTER","GRADE","CLASS","SECTION","PROGRAM","COURSE","BATCH","SUBJECT" };
@@ -22,7 +22,7 @@ public sealed class AcademicService(IAcademicStore store, ITenantContext context
 
     public async Task<IReadOnlyList<AcademicYear>> YearsAsync(Guid campusId,CancellationToken ct)
     {
-        var actor=await RequireAdminAsync(ct);
+        var actor=await reader.RequireAsync("academic.read",campusId,ct);
         return await store.YearsAsync(actor.TenantId,RequireCampus(campusId),ct);
     }
 
@@ -40,7 +40,7 @@ public sealed class AcademicService(IAcademicStore store, ITenantContext context
 
     public async Task<IReadOnlyList<AcademicItem>> ItemsAsync(Guid campusId,string? kind,CancellationToken ct)
     {
-        var actor=await RequireAdminAsync(ct);
+        var actor=await reader.RequireAsync("academic.read",campusId,ct);
         if(kind is not null && !Kinds.Contains(kind))throw new ArgumentException("Unknown academic item kind.");
         return await store.ItemsAsync(actor.TenantId,RequireCampus(campusId),kind,ct);
     }
@@ -73,7 +73,7 @@ public sealed class AcademicService(IAcademicStore store, ITenantContext context
 
     public async Task<IReadOnlyList<FacultyAssignment>> FacultyAsync(Guid campusId,CancellationToken ct)
     {
-        var actor=await RequireAdminAsync(ct);
+        var actor=await reader.RequireAsync("academic.read",campusId,ct);
         return await store.FacultyAsync(actor.TenantId,RequireCampus(campusId),ct);
     }
 
@@ -89,7 +89,7 @@ public sealed class AcademicService(IAcademicStore store, ITenantContext context
 
     public async Task<IReadOnlyList<AcademicEvent>> EventsAsync(Guid campusId,CancellationToken ct)
     {
-        var actor=await RequireAdminAsync(ct);
+        var actor=await reader.RequireAsync("academic.read",campusId,ct);
         return await store.EventsAsync(actor.TenantId,RequireCampus(campusId),ct);
     }
 
@@ -107,7 +107,7 @@ public sealed class AcademicService(IAcademicStore store, ITenantContext context
 
     public async Task<AcademicOverview> OverviewAsync(Guid campusId,CancellationToken ct)
     {
-        var actor=await RequireAdminAsync(ct);
+        var actor=await reader.RequireAsync("academic.read",campusId,ct);
         return await store.OverviewAsync(actor.TenantId,RequireCampus(campusId),ct);
     }
 
