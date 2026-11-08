@@ -56,6 +56,18 @@
    const line=node('div','','border-bottom py-2');
    line.append(node('span',user.displayName+' · '+user.email+' · '+user.role+
      ' · '+(user.active?'Active':'Inactive'),'me-2'));
+   if(!user.active){
+    const approve=node('button','Approve / reactivate','btn btn-outline-success btn-sm');
+    approve.type='button';approve.addEventListener('click',()=>safe(async()=>{
+     const reason=window.prompt('Approval reason (recorded in platform audit):');
+     if(!reason||!reason.trim())return;
+     await api('institutions/'+institution.id+'/users/'+user.id+'/approve',
+       {tenantId:institution.id,reason:reason.trim()});
+     message('User membership approved and activated.');
+     await selectInstitution(institution);
+    }));
+    line.append(approve);
+   }
    if(user.active){
     const btn=node('button','Deactivate','btn btn-outline-danger btn-sm');
     btn.type='button';btn.addEventListener('click',()=>safe(async()=>{
