@@ -164,6 +164,31 @@ public sealed class InstitutionAdministrationTests : IAsyncLifetime
         Assert.Equal(HttpStatusCode.Unauthorized,response.StatusCode);
     }
 
+    [Fact]
+    public async Task TenantModuleDiscoveryIsProtectedAndSubscriptionScoped()
+    {
+        if(factory is null)return;
+        using var anonymous=factory.CreateClient(new WebApplicationFactoryClientOptions {AllowAutoRedirect=false});
+        using var unauth=await anonymous.GetAsync("/api/v1/tenant/modules");
+        Assert.Equal(HttpStatusCode.Unauthorized,unauth.StatusCode);
+
+        using var member=await ClientAsync(admin:false);
+        using var forbidden=await member.GetAsync("/api/v1/tenant/modules");
+        Assert.Equal(HttpStatusCode.Forbidden,forbidden.StatusCode);
+
+        using var admin=await ClientAsync(admin:true);
+        using var response=await admin.GetAsync("/api/v1/tenant/modules");
+        Assert.Equal(HttpStatusCode.OK,response.StatusCode);
+        var result=await response.Content.ReadFromJsonAsync<TenantModuleDashboard>();
+        Assert.NotNull(result);
+        Assert.Equal(tenantA,result.TenantId);
+        Assert.Equal("School",result.InstitutionKind);
+        Assert.Equal("PILOT",result.PlanCode);
+        Assert.Contains(result.Modules,m=>m.Id=="academics"&&m.Enabled);
+        Assert.Contains(result.Modules,m=>m.Id=="finance"&&!m.Enabled);
+        Assert.DoesNotContain(result.Modules,m=>m.Id=="college");
+    }
+
     public Task DisposeAsync()
     {
         factory?.Dispose();
