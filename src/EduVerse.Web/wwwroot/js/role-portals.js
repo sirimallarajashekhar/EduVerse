@@ -71,7 +71,19 @@
     button.addEventListener('click',async()=>{
      try {
       const rows=await api('teacher/classes/'+item.classId+'/students'+query(campus));
-      renderList(el('roster'),rows.map(x=>x.givenName+' '+x.familyName+' ('+x.admissionNumber+')'),'students');
+      const roster=el('roster');roster.replaceChildren();
+      if(!rows.length)roster.append(make('p','No students for this assigned class.'));
+      for(const student of rows){
+       const pick=make('button',student.givenName+' '+student.familyName+' · '+student.admissionNumber,
+          'btn btn-outline-secondary btn-sm d-block mb-2');
+       pick.type='button';
+       pick.addEventListener('click',()=>{
+        el('enrollment').value=student.enrollmentId;
+        el('marks-enrollment').value=student.enrollmentId;
+        notice('Selected '+student.givenName+' '+student.familyName+'.');
+       });
+       roster.append(pick);
+      }
      }catch(e){notice(e.message,true);}
     });host.append(button);
    }
