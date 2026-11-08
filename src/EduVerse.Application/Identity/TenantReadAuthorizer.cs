@@ -1,10 +1,12 @@
 using EduVerse.Application.Tenancy;
+using EduVerse.Application.Administration;
 using EduVerse.Domain;
 
 namespace EduVerse.Application.Identity;
 
-/// <summary>Reusable application-layer campus-bound reader check; never accepts a caller-supplied tenant.</summary>
-public sealed class TenantReadAuthorizer(ITenantContext context,IIdentityStore identities)
+/// <summary>Application-layer reader authorization: validated tenant, live scoped role permission and plan.</summary>
+public sealed class TenantReadAuthorizer(
+    ITenantContext context,IIdentityStore identities,IInstitutionAdminStore subscriptions)
 {
     public async Task<TenantIdentity> RequireAsync(string permission,Guid campus,CancellationToken ct)
     {
@@ -12,6 +14,22 @@ public sealed class TenantReadAuthorizer(ITenantContext context,IIdentityStore i
            !context.TryGet(out var actor)||actor is null||
            !await identities.HasPermissionAsync(actor,permission,campus,ct))
             throw new UnauthorizedAccessException("Campus-scoped permission required.");
+
+        // Maintain existing plan restrictions when converting an ADMIN-only read into a delegated read.
+        var feature=permission switch
+        {
+            "academic.read" or "attendance.read" or "exams.read" or "learning.read" => "academics",
+            "students.read" or "operations.read" => "core",
+            "finance.read" => "finance",
+            "college.read" => "college",
+            _ => null
+        };
+        if(feature is not null)
+        {
+            var subscription=await subscriptions.SubscriptionAsync(actor.TenantId,ct);
+            if(!subscription.Features.Contains(feature,StringComparer.Ordinal))
+                throw new UnauthorizedAccessException("Active module subscription required.");
+        }
         return actor;
     }
 }
