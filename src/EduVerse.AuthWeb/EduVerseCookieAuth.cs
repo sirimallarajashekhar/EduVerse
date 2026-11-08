@@ -56,7 +56,7 @@ public static class EduVerseCookieAuth
                     return Task.CompletedTask;
                 }
                 context.Response.Redirect(redirect+"?returnUrl="+Uri.EscapeDataString(
-                    context.Request.PathBase+context.Request.Path+context.Request.QueryString));
+                    context.Request.PathBase.ToString()+context.Request.Path.ToString()+context.Request.QueryString.ToString()));
                 return Task.CompletedTask;
             };
             options.Events.OnRedirectToAccessDenied = context =>
