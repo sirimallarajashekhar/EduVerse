@@ -10,7 +10,7 @@ public static class FinanceEndpoints
 {
  public static IEndpointRouteBuilder MapFinanceEndpoints(this IEndpointRouteBuilder app)
  {
-  var g=app.MapGroup("/api/v1/finance").RequireAuthorization().RequireTenantFeature("finance");
+  var g=app.MapGroup("/api/v1/finance").RequireAuthorization().RequireTenantFeature("finance").RequireModuleActions("finance.read","finance.manage", "/api/v1/finance/fees", "/api/v1/finance/charges", "/api/v1/finance/dashboard");
   g.MapPost("/fees",async (FeeStructureCreate r,FinanceService s,CancellationToken ct)=>
    await Write(()=>s.AddFee(r,ct)));
   g.MapGet("/fees",async (Guid campusId,FinanceService s,CancellationToken ct)=>
