@@ -5,7 +5,7 @@ namespace EduVerse.Application.Learning;
 public interface ILearningStore
 {
  Task<bool> IsAdmin(TenantIdentity identity,CancellationToken ct);
- Task<LessonRecord?> CreateLesson(Guid tenant,LessonCreate r,CancellationToken ct);
+ Task<LessonRecord?> CreateLesson(Guid tenant,string actor,LessonCreate r,CancellationToken ct);
  Task<IReadOnlyList<LessonRecord>> Lessons(Guid tenant,Guid campus,CancellationToken ct);
  Task<bool> PublishLesson(Guid tenant,Guid campus,Guid id,CancellationToken ct);
  Task<AssignmentRecord?> CreateAssignment(Guid tenant,AssignmentCreate r,CancellationToken ct);
