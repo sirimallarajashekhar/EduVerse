@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS platform_control_audit (
  CONSTRAINT fk_platform_audit_operator FOREIGN KEY(operator_id) REFERENCES identity_users(id),
  CONSTRAINT fk_platform_audit_tenant FOREIGN KEY(tenant_id) REFERENCES tenants(id),
  CONSTRAINT fk_platform_audit_target FOREIGN KEY(target_user_id) REFERENCES identity_users(id),
- CHECK(action_code IN ('USER_INVITED','USER_DEACTIVATED','INVITE_EMAIL_FAILED'))
+ CHECK(action_code IN ('USER_INVITED','USER_DEACTIVATED','USER_ACTIVATED','INVITE_EMAIL_FAILED'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 INSERT INTO schema_migrations(version) VALUES ('020_platform_control_audit')
