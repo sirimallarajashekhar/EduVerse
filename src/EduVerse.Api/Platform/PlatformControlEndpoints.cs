@@ -30,7 +30,11 @@ public static class PlatformControlEndpoints
         {
             if(!Guid.TryParse(user.FindFirst("sub")?.Value,out var operatorId))return Results.Forbid();
             if(tenantId!=request.TenantId)return Results.BadRequest(new {message="Tenant mismatch."});
-            try{return await store.Invite(operatorId,request,ct)?Results.Accepted():Results.NotFound();}
+            try
+            {
+                var result=await store.Invite(operatorId,request,ct);
+                return result is null?Results.NotFound():Results.Accepted("/api/v1/platform-control",result);
+            }
             catch(ArgumentException ex){return Results.BadRequest(new {message=ex.Message});}
             catch(MySqlException ex) when(ex.Number==1062)
               {return Results.Conflict(new {message="User is already assigned to the institution."});}
