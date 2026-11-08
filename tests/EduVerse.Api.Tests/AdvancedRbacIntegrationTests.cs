@@ -180,7 +180,7 @@ public sealed class AdvancedRbacIntegrationTests:IAsyncLifetime
         using(var guardian=await administrator.PostAsJsonAsync(
             $"/api/v1/students/{student.Id:D}/guardians?campusId={campus:D}",
             new GuardianCreate("Parent Example","MOTHER",null,memberEmail,true)))
-            Assert.Equal(HttpStatusCode.OK,guardian.StatusCode);
+            Assert.Equal(HttpStatusCode.Created,guardian.StatusCode);
 
         using(var linked=await administrator.PostAsJsonAsync("/api/v1/ownership/links",
             new {campusId=campus,studentId=student.Id,userId=member,relationship="PARENT"}))
