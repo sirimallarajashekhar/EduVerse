@@ -19,7 +19,7 @@ public sealed record WorkflowMessage(Guid Id,string Author,string Body,DateTime 
 public sealed record LearningReview(Guid Id,string Type,string Title,string Status);
 
 /// <summary>Every student, teacher and parent mutation is constrained in the same MySQL transaction as its write.</summary>
-public sealed class RoleLearningWorkflowStore(string connectionString,ITenantContext tenant,IIdentityStore identity,
+public sealed partial class RoleLearningWorkflowStore(string connectionString,ITenantContext tenant,IIdentityStore identity,
     TenantReadAuthorizer authorizer)
 {
     private MySqlConnection Connect()=>new(connectionString);
