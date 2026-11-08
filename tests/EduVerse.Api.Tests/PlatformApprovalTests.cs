@@ -92,10 +92,10 @@ public sealed class PlatformApprovalTests : IAsyncLifetime
         var receipt=await register.Content.ReadFromJsonAsync<RegistrationReceipt>();
         Assert.NotNull(receipt);
         using var approved=await client.PostAsJsonAsync(
-            $"/api/v1/platform-admin/registrations/{receipt.Id}/approve",new{reason="Verified school details"});
+            $"/api/v1/platform-admin/registrations/{receipt.RequestId}/approve",new{reason="Verified school details"});
         Assert.Equal(HttpStatusCode.OK,approved.StatusCode);
         using var replay=await client.PostAsJsonAsync(
-            $"/api/v1/platform-admin/registrations/{receipt.Id}/approve",new{reason="Duplicate"});
+            $"/api/v1/platform-admin/registrations/{receipt.RequestId}/approve",new{reason="Duplicate"});
         Assert.Equal(HttpStatusCode.Conflict,replay.StatusCode);
         await using var db2=new MySqlConnection(connection);await db2.OpenAsync();
         await using var check=new MySqlCommand("""
