@@ -76,6 +76,24 @@ public sealed class FinanceManagementTests:IAsyncLifetime
   return client;
  }
 
+
+ [Fact]
+ public async Task FinanceEndpointsDenyExpiredOrUnsubscribedInstitution()
+ {
+  if(host is null)return;
+  using var client=await Client();
+  var path=$"/api/v1/finance/fees?campusId={campus:D}";
+  using(var allowed=await client.GetAsync(path)) Assert.Equal(HttpStatusCode.OK,allowed.StatusCode);
+  await Exec("UPDATE institution_subscriptions SET status='SUSPENDED' WHERE tenant_id=@id",
+   ("@id",tenant.ToString("D")));
+  using(var denied=await client.GetAsync(path)) Assert.Equal(HttpStatusCode.Forbidden,denied.StatusCode);
+  await Exec("UPDATE institution_subscriptions SET status='ACTIVE',expires_utc=UTC_TIMESTAMP(6)-INTERVAL 1 DAY WHERE tenant_id=@id",
+   ("@id",tenant.ToString("D")));
+  using(var expired=await client.GetAsync(path)) Assert.Equal(HttpStatusCode.Forbidden,expired.StatusCode);
+  using(var write=await client.PostAsJsonAsync("/api/v1/finance/fees",new { campusId=campus }))
+   Assert.Equal(HttpStatusCode.Forbidden,write.StatusCode);
+ }
+
  private async Task<(FeeStructureRecord Fee,ChargeRecord Charge,InstallmentRecord First,InstallmentRecord Second)> Setup(HttpClient client)
  {
   using var yearResponse=await client.PostAsJsonAsync("/api/v1/academic/years",
