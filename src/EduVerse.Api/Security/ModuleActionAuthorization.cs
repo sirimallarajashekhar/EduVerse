@@ -25,8 +25,7 @@ public static class ModuleActionAuthorization
             if(await identity.IsAdminAsync(actor,http.RequestAborted))return await next(ctx);
             // Admin-only mutations are intentional until business services safely support delegation.
             if(http.Request.Method!="GET")return Results.Forbid();
-            var endpoint= http.GetEndpoint() as RouteEndpoint;
-            var route=endpoint?.RoutePattern.RawText;
+            var route=http.Request.Path.Value;
             if(route is null||!delegated.Contains(route))return Results.Forbid();
             if(!Guid.TryParse(http.Request.Query["campusId"],out var campus)||campus==Guid.Empty)
                 return Results.Forbid();
