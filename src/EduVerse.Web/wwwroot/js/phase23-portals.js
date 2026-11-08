@@ -84,6 +84,25 @@
   }
   status('Conversations loaded.');
  });
+ attach('p23-load-notifications',async()=>{
+  const currentCampus=campus();
+  const rows=await request('notifications?campusId='+currentCampus);
+  const host=el('p23-notifications');host.replaceChildren();
+  if(!rows.length){host.append(node('p','No notifications.','text-secondary'));return;}
+  for(const x of rows){
+   const box=node('div','','border-bottom py-2');
+   box.append(node('span',x.title+': '+x.body+' · '+x.status,'me-2'));
+   if(x.status==='DELIVERED'){
+    const ack=node('button','Mark read','btn btn-sm btn-outline-secondary');
+    ack.type='button';ack.addEventListener('click',()=>act(async()=>{
+     await request('notifications/'+x.id+'/read',{campusId:currentCampus});
+     el('p23-load-notifications').click();
+    }));box.append(ack);
+   }
+   host.append(box);
+  }
+  status('Notifications loaded.');
+ });
  attach('p23-load-reviews',async()=>{
   const rows=await request('admin/reviews?campusId='+valid('p23-campus','campus'));
   const host=el('p23-reviews');host.replaceChildren();
