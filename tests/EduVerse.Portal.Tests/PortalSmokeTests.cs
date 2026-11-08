@@ -21,7 +21,7 @@ public sealed class PortalSmokeTests : IClassFixture<WebApplicationFactory<Progr
         var html = await response.Content.ReadAsStringAsync();
         Assert.Contains("Institution command center", html);
         Assert.Contains("module-navigation", html);
-        Assert.Contains("href=\"/ams\"", html);
-        Assert.Contains("href=\"/hrms\"", html);
+        Assert.Contains("Register school", html);
+        Assert.DoesNotContain("Open AMS", html);
     }
 }
