@@ -63,7 +63,7 @@ public sealed class AttendanceService(IAttendanceStore store,ITenantContext cont
  }
  public async Task<AttendanceRecord> MarkStudentAsync(StudentAttendanceMark input,CancellationToken ct)
  {
-  var actor=await AdminAsync(ct);Required(input.CampusId);Required(input.EnrollmentId);
+  var actor=await reader.RequireAsync("attendance.manage",input.CampusId,ct);Required(input.CampusId);Required(input.EnrollmentId);
   Date(input.Date);State(input.Status,input.Remarks);
   if(input.PeriodId==Guid.Empty)throw new ArgumentException("Invalid period.");
   return await store.MarkStudentAsync(actor.TenantId,Guid.Parse(actor.SubjectId),input,ct)
