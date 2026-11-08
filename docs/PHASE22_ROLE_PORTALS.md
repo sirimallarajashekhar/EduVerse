@@ -12,6 +12,7 @@ Teacher:
 - `GET /api/v1/portals/teacher/classes?campusId=...` lists timetable-assigned classes
 - `GET /api/v1/portals/teacher/classes/{classId}/students?campusId=...` lists active assigned-class students and enrollment IDs
 - `GET /api/v1/portals/teacher/lessons?campusId=...` returns lessons matching the teacher's assigned class/year/subject, with `learning.read`
+- `POST /api/v1/portals/teacher/lessons` creates a DRAFT lesson only for the teacher's active class/year/subject with `learning.manage`; assignment checked inside the MySQL write transaction
 - `POST /api/v1/portals/teacher/attendance` records a daily or period mark after an `attendance.manage` grant and assignment checks
 - `POST /api/v1/portals/teacher/marks` records examination marks after an `exams.manage` grant and assignment checks
 
@@ -36,13 +37,13 @@ Only an active `PARENT` or `SELF` `student_portal_links` relationship allows acc
 
 ## Provisioning
 1. Institution admin creates a custom TEACHER role in `/admin/rbac`.
-2. Assign `academic.read`, `students.read`, `learning.read`, `attendance.manage` and `exams.manage` for teaching duties.
+2. Assign `academic.read`, `students.read`, `learning.read`, `learning.manage`, `attendance.manage` and `exams.manage` for teaching duties.
 3. Assign role to active MEMBER, grant campus access using `POST /api/v1/identity/campus-access`, and create a timetable assignment for the teacher/class/subject.
 4. After permissions change, the teacher signs in again because RBAC changes revoke existing sessions.
 5. For parents, create guardian contact information then approve a PARENT identity link via `POST /api/v1/ownership/links`. For students, verify identity before an admin creates a SELF link.
 
 ## Scope limitation
-- Teacher lessons are **read-only** in the new portal; creation/publication stays institution-admin-controlled until teacher-specific content ownership and approval rules are added.
+- Teachers can create DRAFT lessons for their own assigned class/year/subject. Publishing lessons and assignments remains institution-admin-controlled pending an approval workflow.
 - Parent/student access is read-only; no private message write, assignment submission, document download, or finance access has been opened.
 - The UI prompts teachers for an existing campus ID; institution campus selection / profile UX can be improved without altering authorization.
 - Class/subject verification at transaction time protects against role scope escalation, but institution operators should audit old timetable assignments and subject provisioning.
