@@ -33,10 +33,10 @@ public static class PlatformApprovalEndpoints
         });
         group.MapPost("/registrations/{id:guid}/approve",async (
             Guid id,ReviewCommand request,ClaimsPrincipal user,PlatformApprovalStore store,CancellationToken ct) =>
-            Review(id,user,request,store,true,ct));
+            await Review(id,user,request,store,true,ct));
         group.MapPost("/registrations/{id:guid}/reject",async (
             Guid id,ReviewCommand request,ClaimsPrincipal user,PlatformApprovalStore store,CancellationToken ct) =>
-            Review(id,user,request,store,false,ct));
+            await Review(id,user,request,store,false,ct));
         group.MapPost("/logout",async (ClaimsPrincipal user,PlatformApprovalStore store,CancellationToken ct) =>
         {
             if(!Guid.TryParse(user.FindFirst("sub")?.Value,out var uid) ||
