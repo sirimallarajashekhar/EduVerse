@@ -11,6 +11,7 @@ public sealed record PlatformInstitution(Guid Id,string Slug,string Name,string 
 public sealed record PlatformUser(Guid Id,string Email,string DisplayName,string Role,bool Active);
 public sealed record PlatformInvite(Guid TenantId,string Email,string DisplayName,string RoleCode);
 public sealed record PlatformDeactivate(Guid TenantId,string Reason);
+public sealed record PlatformInviteReceipt(bool ActivationEmailSent);
 public sealed record PlatformModuleOverview(Guid TenantId,string Slug,string Name,string Kind,string? PlanCode,IReadOnlyList<TenantModule> Modules);
 
 /// <summary>
@@ -86,7 +87,7 @@ public sealed class PlatformControlStore(string connectionString,IIdentityStore 
         return list;
     }
 
-    public async Task<bool> Invite(Guid operatorId,PlatformInvite request,CancellationToken ct)
+    public async Task<PlatformInviteReceipt?> Invite(Guid operatorId,PlatformInvite request,CancellationToken ct)
     {
         if(request.TenantId==Guid.Empty||request.RoleCode is not ("ADMIN" or "MEMBER")||
            string.IsNullOrWhiteSpace(request.Email)||request.Email.Length>254||
@@ -98,15 +99,24 @@ public sealed class PlatformControlStore(string connectionString,IIdentityStore 
             await db.OpenAsync(ct);
             await using var cmd=new MySqlCommand("SELECT EXISTS(SELECT 1 FROM tenants WHERE id=@tenant AND is_active=1)",db);
             Add(cmd,("@tenant",request.TenantId.ToString("D")));
-            if(Convert.ToInt32(await cmd.ExecuteScalarAsync(ct))!=1)return false;
+            if(Convert.ToInt32(await cmd.ExecuteScalarAsync(ct))!=1)return null;
         }
         // No default or operator-visible password. Activation remains one-time password reset.
         var disabledPassword=passwords.Hash(Convert.ToBase64String(RandomNumberGenerator.GetBytes(48)));
         await identities.CreateUserMembershipAsync(request.TenantId,email,request.DisplayName.Trim(),
             disabledPassword,request.RoleCode,ct);
         await identities.AuditAsync(request.TenantId,operatorId,"PLATFORM_USER_INVITED",ct);
-        await identityService.RequestResetAsync(email,ct);
-        return true;
+        try
+        {
+            await identityService.RequestResetAsync(email,ct);
+            return new PlatformInviteReceipt(true);
+        }
+        catch(Exception ex) when(ex is not OperationCanceledException)
+        {
+            // Account remains created; do not hide failed email delivery from the operator.
+            await identities.AuditAsync(request.TenantId,operatorId,"PLATFORM_INVITE_EMAIL_FAILED",ct);
+            return new PlatformInviteReceipt(false);
+        }
     }
 
     public async Task<bool> Deactivate(Guid operatorId,Guid tenant,Guid target,string reason,CancellationToken ct)
