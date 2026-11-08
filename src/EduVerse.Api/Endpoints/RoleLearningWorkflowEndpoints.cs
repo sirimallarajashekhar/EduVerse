@@ -26,6 +26,15 @@ public static class RoleLearningWorkflowEndpoints
             RoleLearningWorkflowStore s,CancellationToken ct)=>await Owned(()=>s.Messages(campusId,id,ct)));
         api.MapPost("/conversations/reply",async (ConversationReply input,
             RoleLearningWorkflowStore s,CancellationToken ct)=>await Create(()=>s.Reply(input,ct)));
+        api.MapGet("/notifications",async (Guid campusId,RoleLearningWorkflowStore s,CancellationToken ct)=>
+            await Read(()=>s.Notifications(campusId,ct)));
+        api.MapPost("/notifications/{id:guid}/read",async (Guid id,NotificationRead input,
+            RoleLearningWorkflowStore s,CancellationToken ct)=>
+        {
+            try{return await s.MarkNotificationRead(id,input,ct)?Results.NoContent():Results.NotFound();}
+            catch(UnauthorizedAccessException){return Results.Forbid();}
+            catch(ArgumentException ex){return Results.BadRequest(new {message=ex.Message});}
+        });
         api.MapGet("/admin/reviews",async (Guid campusId,RoleLearningWorkflowStore s,CancellationToken ct)=>
             await Read(()=>s.Reviews(campusId,ct)));
         api.MapPost("/admin/reviews/{kind}/publish",async (string kind,LearningApproval input,
