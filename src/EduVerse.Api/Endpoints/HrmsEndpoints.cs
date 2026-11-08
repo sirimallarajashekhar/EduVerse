@@ -1,3 +1,4 @@
+using EduVerse.Api.Security;
 using EduVerse.Application.Hrms;
 using EduVerse.Contracts;
 using MySqlConnector;
@@ -7,7 +8,7 @@ public static class HrmsEndpoints
 {
  public static IEndpointRouteBuilder MapHrmsEndpoints(this IEndpointRouteBuilder app)
  {
-  var g=app.MapGroup("/api/v1/hrms").RequireAuthorization();
+  var g=app.MapGroup("/api/v1/hrms").RequireAuthorization().RequireModuleActions("hrms.read","hrms.employees.manage", "/api/v1/hrms/employees");
   g.MapPost("/designations",async (HrDesignationCreate r,HrmsService s,CancellationToken ct)=>await Write(()=>s.Designate(r,ct)));
   g.MapGet("/designations",async (Guid campusId,HrmsService s,CancellationToken ct)=>await Read(()=>s.Designations(campusId,ct)));
   g.MapPost("/employees",async (HrEmployeeCreate r,HrmsService s,CancellationToken ct)=>await Write(()=>s.Hire(r,ct)));
