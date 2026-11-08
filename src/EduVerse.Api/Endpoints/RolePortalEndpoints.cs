@@ -17,8 +17,8 @@ public static class RolePortalEndpoints
         group.MapGet("/teacher/classes",async (Guid campusId,StudentOwnershipStore store,CancellationToken ct)=>
             await Read(()=>store.ClassesAsync(campusId,ct)));
         group.MapGet("/teacher/classes/{classId:guid}/students",async (Guid classId,Guid campusId,
-            StudentOwnershipStore store,CancellationToken ct)=>
-            await Read(()=>store.ClassStudentsAsync(campusId,classId,ct)));
+            RolePortalStore store,CancellationToken ct)=>
+            await Read(()=>store.TeachingRoster(campusId,classId,ct)));
         group.MapGet("/teacher/lessons",async (Guid campusId,RolePortalStore store,CancellationToken ct)=>
             await Read(()=>store.TeachingLessons(campusId,ct)));
 
