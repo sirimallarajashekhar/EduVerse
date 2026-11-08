@@ -11,6 +11,7 @@
 `/platform/console` (protected by platform operator cookie + API JWT) includes institution inventory, kind, subscription plan, active membership counts, module catalog, institution users, invitations, deactivation, and user reactivation/approval. Existing `/platform/registrations` remains the institution approval page.
 
 New platform-only REST endpoints:
+- `GET /api/v1/platform-control/actions` returns the actual registered REST action/method/route inventory (including tenant actions, marked as tenant-authorized)
 - `GET /api/v1/platform-control/institutions`
 - `GET /api/v1/platform-control/institutions/{tenantId}/modules`
 - `GET /api/v1/platform-control/institutions/{tenantId}/users`
