@@ -126,5 +126,40 @@ public sealed class PlatformApprovalTests : IAsyncLifetime
         Assert.Equal(HttpStatusCode.Unauthorized,rejected.StatusCode);
     }
 
+
+    [Fact]
+    public async Task RejectionDoesNotCreateTenant_AndIsAudited()
+    {
+        if(factory is null||connection is null)return;
+        await using(var db=new MySqlConnection(connection))
+        {
+            await db.OpenAsync();
+            await using var grant=new MySqlCommand("INSERT IGNORE INTO platform_operators(user_id) VALUES(@id)",db);
+            grant.Parameters.AddWithValue("@id",operatorId.ToString("D"));
+            await grant.ExecuteNonQueryAsync();
+        }
+        using var client=await OperatorClientAsync();
+        var requestSlug="rejected-"+Guid.NewGuid().ToString("N");
+        using var register=await client.PostAsJsonAsync("/api/v1/institution-registration/requests",
+            new RegistrationRequest(requestSlug,"Rejected School","School",Guid.NewGuid().ToString("N")+"@example.org"));
+        var receipt=await register.Content.ReadFromJsonAsync<RegistrationReceipt>();
+        Assert.NotNull(receipt);
+        using var reject=await client.PostAsJsonAsync(
+            $"/api/v1/platform-admin/registrations/{receipt.RequestId}/reject",
+            new{reason="Verification failed"});
+        Assert.Equal(HttpStatusCode.OK,reject.StatusCode);
+        await using var db2=new MySqlConnection(connection);await db2.OpenAsync();
+        await using var command=new MySqlCommand("""
+            SELECT COUNT(*) FROM institution_registration_requests r
+              JOIN platform_approval_audit a ON a.request_id=r.id
+            WHERE r.id=@id AND r.status='REJECTED'
+              AND a.action='REJECTED' AND a.operator_id=@operator
+              AND NOT EXISTS(SELECT 1 FROM tenants t WHERE t.slug=r.requested_slug)
+            """,db2);
+        command.Parameters.AddWithValue("@id",receipt.RequestId.ToString("D"));
+        command.Parameters.AddWithValue("@operator",operatorId.ToString("D"));
+        Assert.Equal(1,Convert.ToInt32(await command.ExecuteScalarAsync()));
+    }
+
     public Task DisposeAsync(){factory?.Dispose();return Task.CompletedTask;}
 }
