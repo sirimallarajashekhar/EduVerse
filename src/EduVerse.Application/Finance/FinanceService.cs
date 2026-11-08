@@ -5,7 +5,7 @@ using EduVerse.Domain;
 namespace EduVerse.Application.Finance;
 
 /// <summary>All financial validation and access decisions are API-owned. Currency: INR; amounts: decimal(18,2).</summary>
-public sealed class FinanceService(IFinanceStore store,ITenantContext context)
+public sealed class FinanceService(IFinanceStore store,ITenantContext context, EduVerse.Application.Identity.TenantReadAuthorizer reader)
 {
  private async Task<TenantIdentity> Admin(CancellationToken ct)
  {
@@ -39,7 +39,7 @@ public sealed class FinanceService(IFinanceStore store,ITenantContext context)
  }
  public async Task<IReadOnlyList<FeeStructureRecord>> Fees(Guid campus,CancellationToken ct)
  {
-  var actor=await Admin(ct);return await store.FeesAsync(actor.TenantId,Required(campus),ct);
+  var actor=await reader.RequireAsync("finance.read",campus,ct);return await store.FeesAsync(actor.TenantId,Required(campus),ct);
  }
  public async Task<ChargeRecord> Assign(ChargeCreate input,CancellationToken ct)
  {
@@ -57,7 +57,7 @@ public sealed class FinanceService(IFinanceStore store,ITenantContext context)
  }
  public async Task<IReadOnlyList<ChargeRecord>> Charges(Guid campus,CancellationToken ct)
  {
-  var actor=await Admin(ct);return await store.ChargesAsync(actor.TenantId,Required(campus),ct);
+  var actor=await reader.RequireAsync("finance.read",campus,ct);return await store.ChargesAsync(actor.TenantId,Required(campus),ct);
  }
  public async Task<IReadOnlyList<InstallmentRecord>> Installments(Guid campus,Guid charge,CancellationToken ct)
  {
@@ -110,7 +110,7 @@ public sealed class FinanceService(IFinanceStore store,ITenantContext context)
  }
  public async Task<FinanceDashboard> Dashboard(Guid campus,CancellationToken ct)
  {
-  var actor=await Admin(ct);return await store.DashboardAsync(actor.TenantId,Required(campus),ct);
+  var actor=await reader.RequireAsync("finance.read",campus,ct);return await store.DashboardAsync(actor.TenantId,Required(campus),ct);
  }
  private static string Key(string? key)
  {

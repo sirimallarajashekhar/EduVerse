@@ -1,3 +1,4 @@
+using EduVerse.Api.Security;
 using EduVerse.Application.Ams;
 using EduVerse.Contracts;
 using MySqlConnector;
@@ -7,7 +8,7 @@ public static class AmsEndpoints
 {
  public static IEndpointRouteBuilder MapAmsEndpoints(this IEndpointRouteBuilder app)
  {
-  var g=app.MapGroup("/api/v1/ams").RequireAuthorization();
+  var g=app.MapGroup("/api/v1/ams").RequireAuthorization().RequireModuleActions("ams.read","ams.assets.manage", "/api/v1/ams/assets");
   g.MapPost("/categories",async (AmsCategoryCreate r,AmsService s,CancellationToken ct)=>
    await Write(()=>s.AddCategory(r,ct)));
   g.MapGet("/categories",async (Guid campusId,AmsService s,CancellationToken ct)=>

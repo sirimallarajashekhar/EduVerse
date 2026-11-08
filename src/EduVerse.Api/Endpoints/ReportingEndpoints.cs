@@ -1,3 +1,4 @@
+using EduVerse.Api.Security;
 using EduVerse.Application.Reporting;
 
 namespace EduVerse.Api.Endpoints;
@@ -6,7 +7,7 @@ public static class ReportingEndpoints
 {
     public static IEndpointRouteBuilder MapReportingEndpoints(this IEndpointRouteBuilder app)
     {
-        var api = app.MapGroup("/api/v1/reporting").RequireAuthorization();
+        var api = app.MapGroup("/api/v1/reporting").RequireAuthorization().RequireModuleActions("reporting.read","reporting.read");
         api.MapGet("/dashboard", async (Guid campusId, DateOnly from, DateOnly to,
             ReportingService service, CancellationToken ct) => await Read(async () =>
                 Results.Ok(await service.Dashboard(campusId, from, to, ct))));

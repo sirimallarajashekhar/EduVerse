@@ -1,3 +1,4 @@
+using EduVerse.Api.Security;
 using EduVerse.Application.Workflows;
 using MySqlConnector;
 
@@ -7,7 +8,7 @@ public static class CrossModuleEndpoints
 {
     public static IEndpointRouteBuilder MapCrossModuleEndpoints(this IEndpointRouteBuilder app)
     {
-        var api = app.MapGroup("/api/v1/workflows").RequireAuthorization();
+        var api = app.MapGroup("/api/v1/workflows").RequireAuthorization().RequireModuleActions("workflows.read","workflows.manage");
         api.MapGet("/employees/{employee:guid}/clearance", async
             (Guid employee, Guid campusId, CrossModuleService service, CancellationToken ct) =>
             await Handle(() => service.Clearance(campusId, employee, ct)));

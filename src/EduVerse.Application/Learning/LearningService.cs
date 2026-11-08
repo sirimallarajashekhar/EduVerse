@@ -3,7 +3,7 @@ using EduVerse.Contracts;
 using EduVerse.Domain;
 
 namespace EduVerse.Application.Learning;
-public sealed class LearningService(ILearningStore store,ITenantContext context)
+public sealed class LearningService(ILearningStore store,ITenantContext context, EduVerse.Application.Identity.TenantReadAuthorizer reader)
 {
  private async Task<TenantIdentity> Admin(CancellationToken ct)
  {
@@ -32,7 +32,7 @@ public sealed class LearningService(ILearningStore store,ITenantContext context)
   return Found(await store.CreateLesson(a.TenantId,r with{Title=Text(r.Title,160),Body=Text(r.Body,8000)},ct));
  }
  public async Task<IReadOnlyList<LessonRecord>> Lessons(Guid c,CancellationToken ct)=>
-  await store.Lessons((await Admin(ct)).TenantId,Id(c),ct);
+  await store.Lessons((await reader.RequireAsync("learning.read",c,ct)).TenantId,Id(c),ct);
  public async Task PublishLesson(Guid c,Guid id,CancellationToken ct)
  {if(!await store.PublishLesson((await Admin(ct)).TenantId,Id(c),Id(id),ct))throw new LearningScopeException();}
  public async Task<AssignmentRecord> CreateAssignment(AssignmentCreate r,CancellationToken ct)
@@ -45,7 +45,7 @@ public sealed class LearningService(ILearningStore store,ITenantContext context)
    Instructions=Text(r.Instructions,8000)},ct));
  }
  public async Task<IReadOnlyList<AssignmentRecord>> Assignments(Guid c,CancellationToken ct)=>
-  await store.Assignments((await Admin(ct)).TenantId,Id(c),ct);
+  await store.Assignments((await reader.RequireAsync("learning.read",c,ct)).TenantId,Id(c),ct);
  public async Task PublishAssignment(Guid c,Guid id,CancellationToken ct)
  {if(!await store.PublishAssignment((await Admin(ct)).TenantId,Id(c),Id(id),ct))throw new LearningScopeException();}
  public async Task<SubmissionRecord> Submit(SubmissionCreate r,CancellationToken ct)
@@ -70,7 +70,7 @@ public sealed class LearningService(ILearningStore store,ITenantContext context)
   return Found(await store.Announce(a.TenantId,r with{Title=Text(r.Title,160),Body=Text(r.Body,1000)},ct));
  }
  public async Task<IReadOnlyList<AnnouncementRecord>> Announcements(Guid c,CancellationToken ct)=>
-  await store.Announcements((await Admin(ct)).TenantId,Id(c),ct);
+  await store.Announcements((await reader.RequireAsync("learning.read",c,ct)).TenantId,Id(c),ct);
  public async Task<ParentThreadRecord> OpenThread(ParentThreadCreate r,CancellationToken ct)
  {
   var a=await Admin(ct);Id(r.CampusId);Id(r.StudentId);Id(r.GuardianId);
@@ -95,5 +95,5 @@ public sealed class LearningService(ILearningStore store,ITenantContext context)
   if(!await store.MarkRead(a.TenantId,Id(c),a.SubjectId,Id(notification),ct))throw new LearningScopeException();
  }
  public async Task<LearningDashboard> Dashboard(Guid c,CancellationToken ct)=>
-  await store.Dashboard((await Admin(ct)).TenantId,Id(c),ct);
+  await store.Dashboard((await reader.RequireAsync("learning.read",c,ct)).TenantId,Id(c),ct);
 }

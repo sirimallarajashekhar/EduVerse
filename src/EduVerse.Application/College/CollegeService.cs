@@ -2,7 +2,7 @@ using EduVerse.Application.Tenancy;
 using EduVerse.Contracts;
 using EduVerse.Domain;
 namespace EduVerse.Application.College;
-public sealed class CollegeService(ICollegeStore store,ITenantContext context)
+public sealed class CollegeService(ICollegeStore store,ITenantContext context, EduVerse.Application.Identity.TenantReadAuthorizer reader)
 {
  private async Task<TenantIdentity> Admin(CancellationToken ct)
  {
@@ -39,14 +39,14 @@ public sealed class CollegeService(ICollegeStore store,ITenantContext context)
   return Found(await store.CreateRegulation(actor.TenantId,r with {Code=Code(r.Code),Name=Name(r.Name,160)},ct));
  }
  public async Task<IReadOnlyList<CollegeRegulation>> Regulations(Guid campus,CancellationToken ct)=>
-  await store.Regulations((await Admin(ct)).TenantId,Id(campus),ct);
+  await store.Regulations((await reader.RequireAsync("college.read",campus,ct)).TenantId,Id(campus),ct);
  public async Task<CollegeProgram> CreateProgram(CollegeProgramCreate r,CancellationToken ct)
  {
   var actor=await Admin(ct);Id(r.CampusId);Id(r.CatalogProgramId);Id(r.RegulationId);
   return Found(await store.CreateProgram(actor.TenantId,r with {Code=Code(r.Code),Name=Name(r.Name,160)},ct));
  }
  public async Task<IReadOnlyList<CollegeProgram>> Programs(Guid campus,CancellationToken ct)=>
-  await store.Programs((await Admin(ct)).TenantId,Id(campus),ct);
+  await store.Programs((await reader.RequireAsync("college.read",campus,ct)).TenantId,Id(campus),ct);
  public async Task<CollegeSemester> CreateSemester(CollegeSemesterCreate r,CancellationToken ct)
  {
   var actor=await Admin(ct);Id(r.CampusId);Id(r.ProgramId);Id(r.AcademicYearId);Id(r.CatalogSemesterId);
@@ -54,7 +54,7 @@ public sealed class CollegeService(ICollegeStore store,ITenantContext context)
   return Found(await store.CreateSemester(actor.TenantId,r,ct));
  }
  public async Task<IReadOnlyList<CollegeSemester>> Semesters(Guid campus,CancellationToken ct)=>
-  await store.Semesters((await Admin(ct)).TenantId,Id(campus),ct);
+  await store.Semesters((await reader.RequireAsync("college.read",campus,ct)).TenantId,Id(campus),ct);
  public async Task<CollegeCourse> CreateCourse(CollegeCourseCreate r,CancellationToken ct)
  {
   var actor=await Admin(ct);Id(r.CampusId);Id(r.ProgramId);Id(r.SemesterId);Id(r.SubjectId);
@@ -65,7 +65,7 @@ public sealed class CollegeService(ICollegeStore store,ITenantContext context)
   return Found(await store.CreateCourse(actor.TenantId,r with {Code=Code(r.Code),Title=Name(r.Title,160)},ct));
  }
  public async Task<IReadOnlyList<CollegeCourse>> Courses(Guid campus,CancellationToken ct)=>
-  await store.Courses((await Admin(ct)).TenantId,Id(campus),ct);
+  await store.Courses((await reader.RequireAsync("college.read",campus,ct)).TenantId,Id(campus),ct);
  public async Task<CollegeRegistration> Register(CollegeRegistrationCreate r,CancellationToken ct)
  {
   var actor=await Admin(ct);Id(r.CampusId);Id(r.EnrollmentId);Id(r.CourseId);
@@ -86,5 +86,5 @@ public sealed class CollegeService(ICollegeStore store,ITenantContext context)
  public async Task<CollegeTranscript> Transcript(Guid campus,Guid enrollment,CancellationToken ct)=>
   Found(await store.Transcript((await Admin(ct)).TenantId,Id(campus),Id(enrollment),ct));
  public async Task<CollegeReport> Report(Guid campus,CancellationToken ct)=>
-  await store.Report((await Admin(ct)).TenantId,Id(campus),ct);
+  await store.Report((await reader.RequireAsync("college.read",campus,ct)).TenantId,Id(campus),ct);
 }

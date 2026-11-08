@@ -326,9 +326,14 @@ public sealed class MySqlIdentityStore(string connectionString) : IIdentityStore
                     JOIN rbac_role_permissions p ON p.tenant_id=a.tenant_id AND p.role_code=a.role_code
                     WHERE a.tenant_id=m.tenant_id AND a.subject_id=m.subject_id
                       AND p.permission_code=@permission))
-                AND (@campus IS NULL OR (m.role_code='ADMIN' OR EXISTS (
-                    SELECT 1 FROM identity_campus_access x
-                    WHERE x.tenant_id=m.tenant_id AND x.subject_id=m.subject_id AND x.campus_id=@campus)))
+                AND (@campus IS NULL OR m.role_code='ADMIN' OR (
+                    EXISTS (SELECT 1 FROM campuses ca WHERE ca.tenant_id=m.tenant_id
+                      AND ca.id=@campus AND ca.is_active=1)
+                    AND EXISTS (
+                      SELECT 1 FROM identity_campus_access x
+                      JOIN campuses c ON c.id=x.campus_id AND c.tenant_id=x.tenant_id
+                      WHERE x.tenant_id=m.tenant_id AND x.subject_id=m.subject_id
+                        AND x.campus_id=@campus AND c.is_active=1)))
               )
             """, db);
         Add(cmd, ("@tid", identity.TenantId.ToString("D")), ("@uid", identity.SubjectId),

@@ -7,7 +7,7 @@ public static class CollegeEndpoints
 {
  public static IEndpointRouteBuilder MapCollegeEndpoints(this IEndpointRouteBuilder app)
  {
-  var g=app.MapGroup("/api/v1/college").RequireAuthorization().RequireTenantFeature("college", collegeOnly:true);
+  var g=app.MapGroup("/api/v1/college").RequireAuthorization().RequireTenantFeature("college", collegeOnly:true).RequireModuleActions("college.read","college.manage", "/api/v1/college/regulations", "/api/v1/college/programs", "/api/v1/college/semesters", "/api/v1/college/courses", "/api/v1/college/report");
   g.MapPost("/regulations",async (CollegeRegulationCreate r,CollegeService s,CancellationToken ct)=>await Write(()=>s.CreateRegulation(r,ct)));
   g.MapGet("/regulations",async (Guid campusId,CollegeService s,CancellationToken ct)=>await Read(()=>s.Regulations(campusId,ct)));
   g.MapPost("/programs",async (CollegeProgramCreate r,CollegeService s,CancellationToken ct)=>await Write(()=>s.CreateProgram(r,ct)));

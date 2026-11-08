@@ -1,3 +1,4 @@
+using EduVerse.Api.Security;
 using EduVerse.Application.Attendance;
 using EduVerse.Contracts;
 using MySqlConnector;
@@ -8,7 +9,7 @@ public static class AttendanceEndpoints
 {
  public static IEndpointRouteBuilder MapAttendanceEndpoints(this IEndpointRouteBuilder app)
  {
-  var group=app.MapGroup("/api/v1/attendance").RequireAuthorization();
+  var group=app.MapGroup("/api/v1/attendance").RequireAuthorization().RequireModuleActions("attendance.read","attendance.manage", "/api/v1/attendance/periods", "/api/v1/attendance/timetable", "/api/v1/attendance/dashboard");
   group.MapPost("/periods",async (PeriodCreate request,AttendanceService service,CancellationToken ct)=>
    await Write(()=>service.CreatePeriodAsync(request,ct)));
   group.MapGet("/periods",async (Guid campusId,AttendanceService service,CancellationToken ct)=>

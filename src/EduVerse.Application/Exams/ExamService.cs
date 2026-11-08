@@ -4,7 +4,7 @@ using EduVerse.Domain;
 
 namespace EduVerse.Application.Exams;
 /// <summary>Exam marks and grading decisions are only performed inside the authenticated API.</summary>
-public sealed class ExamService(IExamStore store,ITenantContext context)
+public sealed class ExamService(IExamStore store,ITenantContext context, EduVerse.Application.Identity.TenantReadAuthorizer reader)
 {
  private async Task<TenantIdentity> Admin(CancellationToken ct)
  {
@@ -51,7 +51,7 @@ public sealed class ExamService(IExamStore store,ITenantContext context)
  }
  public async Task<IReadOnlyList<GradingSchemeRecord>> Schemes(Guid campus,CancellationToken ct)
  {
-  var actor=await Admin(ct);return await store.SchemesAsync(actor.TenantId,Id(campus),ct);
+  var actor=await reader.RequireAsync("exams.read",campus,ct);return await store.SchemesAsync(actor.TenantId,Id(campus),ct);
  }
  public async Task<ExamRecord> CreateExam(ExamCreate input,CancellationToken ct)
  {
@@ -66,7 +66,7 @@ public sealed class ExamService(IExamStore store,ITenantContext context)
  }
  public async Task<IReadOnlyList<ExamRecord>> Exams(Guid campus,CancellationToken ct)
  {
-  var actor=await Admin(ct);return await store.ExamsAsync(actor.TenantId,Id(campus),ct);
+  var actor=await reader.RequireAsync("exams.read",campus,ct);return await store.ExamsAsync(actor.TenantId,Id(campus),ct);
  }
  public async Task<AssessmentRecord> AddAssessment(AssessmentCreate input,CancellationToken ct)
  {
@@ -81,7 +81,7 @@ public sealed class ExamService(IExamStore store,ITenantContext context)
  }
  public async Task<IReadOnlyList<AssessmentRecord>> Assessments(Guid campus,Guid exam,CancellationToken ct)
  {
-  var actor=await Admin(ct);return await store.AssessmentsAsync(actor.TenantId,Id(campus),Id(exam),ct);
+  var actor=await reader.RequireAsync("exams.read",campus,ct);return await store.AssessmentsAsync(actor.TenantId,Id(campus),Id(exam),ct);
  }
  public async Task<MarkRecord> EnterMark(MarkCreate input,CancellationToken ct)
  {
@@ -111,7 +111,7 @@ public sealed class ExamService(IExamStore store,ITenantContext context)
  }
  public async Task<ExamAnalytics> Analytics(Guid campus,Guid exam,CancellationToken ct)
  {
-  var actor=await Admin(ct);
+  var actor=await reader.RequireAsync("exams.read",campus,ct);
   return await store.AnalyticsAsync(actor.TenantId,Id(campus),Id(exam),ct)
    ??throw new ExamScopeException();
  }
