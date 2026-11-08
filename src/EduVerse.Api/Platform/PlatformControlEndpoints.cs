@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.RateLimiting;
 using MySqlConnector;
+using Microsoft.AspNetCore.Routing;
 
 namespace EduVerse.Api.Platform;
 
@@ -11,6 +12,31 @@ public static class PlatformControlEndpoints
     {
         var api=app.MapGroup("/api/v1/platform-control")
             .RequireAuthorization(policy=>policy.RequireRole("PLATFORM_SUPER_ADMIN"));
+        // Discover the *actual* registered REST actions, not a second hardcoded menu registry.
+        // A listed tenant action remains tenant-authorized; visibility does not elevate a JWT.
+        api.MapGet("/actions",(EndpointDataSource source)=>
+        {
+            var rows=source.Endpoints.OfType<RouteEndpoint>()
+                .SelectMany(endpoint=>
+                {
+                    var route=endpoint.RoutePattern.RawText??"";
+                    var methods=endpoint.Metadata.GetMetadata<HttpMethodMetadata>()?.HttpMethods
+                        ?? Array.Empty<string>();
+                    return methods.Select(method=>new
+                    {
+                        Method=method,
+                        Route=route,
+                        Module=route.Split('/',StringSplitOptions.RemoveEmptyEntries)
+                            .Skip(2).FirstOrDefault()??"system",
+                        PlatformManaged=route.StartsWith("/api/v1/platform-control/",StringComparison.OrdinalIgnoreCase)
+                            || route.StartsWith("/api/v1/platform-admin/",StringComparison.OrdinalIgnoreCase)
+                    });
+                })
+                .Where(x=>x.Route.StartsWith("/api/v1/",StringComparison.OrdinalIgnoreCase))
+                .OrderBy(x=>x.Module).ThenBy(x=>x.Route).ThenBy(x=>x.Method)
+                .Take(2000).ToArray();
+            return Results.Ok(rows);
+        });
         api.MapGet("/institutions",async (PlatformControlStore store,CancellationToken ct)=>
             Results.Ok(await store.Institutions(ct)));
         api.MapGet("/institutions/{tenantId:guid}/modules",async (Guid tenantId,
