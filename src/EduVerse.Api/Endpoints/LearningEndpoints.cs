@@ -1,3 +1,4 @@
+using EduVerse.Api.Security;
 using EduVerse.Application.Learning;
 using EduVerse.Contracts;
 using MySqlConnector;
@@ -7,7 +8,7 @@ public static class LearningEndpoints
 {
  public static IEndpointRouteBuilder MapLearningEndpoints(this IEndpointRouteBuilder app)
  {
-  var g=app.MapGroup("/api/v1/learning").RequireAuthorization();
+  var g=app.MapGroup("/api/v1/learning").RequireAuthorization().RequireModuleActions("learning.read","learning.manage", "/api/v1/learning/lessons", "/api/v1/learning/assignments", "/api/v1/learning/announcements", "/api/v1/learning/dashboard");
   g.MapPost("/lessons",async (LessonCreate r,LearningService s,CancellationToken ct)=>await Write(()=>s.CreateLesson(r,ct)));
   g.MapGet("/lessons",async (Guid campusId,LearningService s,CancellationToken ct)=>await Read(()=>s.Lessons(campusId,ct)));
   g.MapPost("/lessons/{id:guid}/publish",async (Guid id,Guid campusId,LearningService s,CancellationToken ct)=>
