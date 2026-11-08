@@ -51,7 +51,8 @@ public static class EduVerseCookieAuth
                 var isPlatformPath=context.Request.Path.StartsWithSegments("/platform")
                     || context.Request.Path.StartsWithSegments("/bff/platform-control");
                 var redirect=isPlatformPath?"/platform/login":"/account/login";
-                if(context.Request.Path.StartsWithSegments("/bff"))
+                if(context.Request.Path.StartsWithSegments("/bff") ||
+                   context.Request.Path.Value?.Contains("/bff/",StringComparison.OrdinalIgnoreCase)==true)
                 {
                     context.Response.StatusCode=StatusCodes.Status401Unauthorized;
                     return Task.CompletedTask;
