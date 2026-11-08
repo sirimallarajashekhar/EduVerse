@@ -179,6 +179,10 @@ builder.Services.AddScoped<IIdempotentCampusWriter>(provider =>
         ?? throw new InvalidOperationException("ConnectionStrings:EduVerse is required.")));
 builder.Services.AddScoped<IdentityService>();
 builder.Services.AddScoped<TenantReadAuthorizer>();
+builder.Services.AddScoped<RolePortalStore>(p=>new RolePortalStore(
+    p.GetRequiredService<IConfiguration>().GetConnectionString("EduVerse")
+        ?? throw new InvalidOperationException("ConnectionStrings:EduVerse is required."),
+    p.GetRequiredService<ITenantContext>(),p.GetRequiredService<IIdentityStore>()));
 builder.Services.AddScoped<StudentOwnershipStore>(p=>new StudentOwnershipStore(
     p.GetRequiredService<IConfiguration>().GetConnectionString("EduVerse")
         ?? throw new InvalidOperationException("ConnectionStrings:EduVerse is required."),
@@ -233,6 +237,7 @@ app.MapIdempotentCampusEndpoints();
 app.MapIdentityEndpoints();
 app.MapAdvancedRbacEndpoints();
 app.MapOwnershipEndpoints();
+app.MapRolePortalEndpoints();
 app.MapInstitutionEndpoints();
 app.MapInstitutionAdminEndpoints();
 app.MapPlatformApprovalEndpoints();
