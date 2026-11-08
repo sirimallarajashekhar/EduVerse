@@ -9,6 +9,8 @@ New API family: `/api/v1/role-learning`. The existing `/api/v1/learning` adminis
 - Verified parent PARENT link: `POST /parent/conversations` opens a thread for that student after checking the guardian email and binding inside the transaction. `GET /conversations?campusId=`, `GET /conversations/{id}/messages?campusId=`, `POST /conversations/reply` enforce parent verified contact/child relationship, current assigned classroom teacher, or tenant ADMIN; messages never leak to arbitrary campus users.
 - Institution ADMIN: `GET /admin/reviews?campusId=` returns DRAFT lessons/assignments. `POST /admin/reviews/LESSON/publish` and `/ASSIGNMENT/publish` approve content. Assignments require a published lesson and a future deadline. All approvals are audited.
 - In-app notification rows are produced for newly opened parent threads (assigned teachers), and parent accounts on replies. No SMS/email or push delivery is claimed.
+- `GET /notifications?campusId=` lists only the current tenant/JWT recipient's messages. `POST /notifications/{id}/read` updates only that recipient's delivered notification. The Web teacher/parent portals include a notifications inbox.
+- Every new endpoint also requires the active `academics` plan feature, enforced by the API module entitlement filter.
 
 ## Web
 `/portal/teacher`, `/portal/student`, `/portal/parent` gain forms for assigned-class workflows. `/portal/learning-review` is an ADMIN-only Razor approval queue, linked on the administrator home screen. All new JS calls go through CSRF-protected `/bff/role-learning` with an exact route allowlist. HTML is populated using `textContent` to avoid untrusted HTML insertion.
