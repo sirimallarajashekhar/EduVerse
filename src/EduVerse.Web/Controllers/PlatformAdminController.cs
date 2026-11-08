@@ -14,7 +14,9 @@ namespace EduVerse.Web.Controllers;
 public sealed class PlatformAdminController(IHttpClientFactory clients):Controller
 {
     [AllowAnonymous,HttpGet("login")]
-    public IActionResult Login()=>View(new PlatformLoginForm());
+    public IActionResult Login()=>User.Identity?.IsAuthenticated==true
+        ?Redirect(User.IsInRole("PLATFORM_SUPER_ADMIN")?"/platform/console":"/modules")
+        :View(new PlatformLoginForm());
 
     [AllowAnonymous,HttpPost("login"),ValidateAntiForgeryToken]
     public async Task<IActionResult> Login(PlatformLoginForm form,CancellationToken ct)
