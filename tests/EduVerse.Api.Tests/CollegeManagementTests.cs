@@ -69,6 +69,21 @@ public sealed class CollegeManagementTests:IAsyncLifetime
   c.DefaultRequestHeaders.Authorization=new AuthenticationHeaderValue("Bearer",token.AccessToken);
   return c;
  }
+
+ [Fact]
+ public async Task CollegeEndpointsDenySuspendedAndUnentitledTenants()
+ {
+  if(host is null)return;
+  using var client=await Client();
+  var path=$"/api/v1/college/programs?campusId={campus:D}";
+  using(var allowed=await client.GetAsync(path)) Assert.Equal(HttpStatusCode.OK,allowed.StatusCode);
+  await Sql("UPDATE institution_subscriptions SET plan_code='PILOT' WHERE tenant_id=@id",
+   ("@id",tenant.ToString("D")));
+  using(var unentitled=await client.GetAsync(path)) Assert.Equal(HttpStatusCode.Forbidden,unentitled.StatusCode);
+  using(var write=await client.PostAsJsonAsync("/api/v1/college/programs",new { campusId=campus }))
+   Assert.Equal(HttpStatusCode.Forbidden,write.StatusCode);
+ }
+
  private static async Task<T> Create<T>(HttpClient c,string path,object request,HttpStatusCode status=HttpStatusCode.OK)
  {
   using var result=await c.PostAsJsonAsync(path,request);
