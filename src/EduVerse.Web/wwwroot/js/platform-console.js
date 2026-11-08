@@ -76,11 +76,13 @@
  el('platform-invite').addEventListener('submit',event=>{
   event.preventDefault();safe(async()=>{
    if(!current)throw new Error('Select an institution first.');
-   await api('institutions/'+current.id+'/users',{
+   const result=await api('institutions/'+current.id+'/users',{
     tenantId:current.id,email:el('invite-email').value.trim(),
     displayName:el('invite-name').value.trim(),roleCode:el('invite-role').value
    });
-   message('Invitation created; user must complete secure activation.');
+   message(result.activationEmailSent?'Invitation created and activation email sent.':
+     'Account created, but activation email could not be sent. Configure SMTP and request a password reset.',
+     !result.activationEmailSent);
    el('platform-invite').reset();await selectInstitution(current);await refresh();
   });
  });
