@@ -1,6 +1,7 @@
 using EduVerse.Api.Security;
 using EduVerse.Application.Attendance;
 using EduVerse.Application.Exams;
+using EduVerse.Application.Learning;
 using EduVerse.Contracts;
 
 namespace EduVerse.Api.Endpoints;
@@ -22,6 +23,13 @@ public static class RolePortalEndpoints
         group.MapGet("/teacher/lessons",async (Guid campusId,RolePortalStore store,CancellationToken ct)=>
             await Read(()=>store.TeachingLessons(campusId,ct)));
 
+        group.MapPost("/teacher/lessons",async (LessonCreate request,LearningService service,CancellationToken ct)=>
+        {
+            try {return Results.Created("/api/v1/portals/teacher/lessons",await service.CreateLesson(request,ct));}
+            catch(UnauthorizedAccessException){return Results.Forbid();}
+            catch(LearningScopeException){return Results.NotFound();}
+            catch(ArgumentException ex){return Results.BadRequest(new {message=ex.Message});}
+        });
         group.MapPost("/teacher/attendance",async (StudentAttendanceMark request,AttendanceService service,CancellationToken ct)=>
         {
             try {return Results.Ok(await service.MarkStudentAsync(request,ct));}
