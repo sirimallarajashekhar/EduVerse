@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using System.Text.Json;
 using EduVerse.Api.Health;
+using EduVerse.Api.Platform;
 using EduVerse.Application.Academic;
 using EduVerse.Application.Attendance;
 using EduVerse.Application.Finance;
@@ -90,6 +91,23 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     context.Fail("Invalid identity claims.");
                     return;
                 }
+                if (user.IsInRole("PLATFORM_SUPER_ADMIN"))
+                {
+                    if (tid != Guid.Empty || user.FindFirst("role")?.Value != "PLATFORM_SUPER_ADMIN")
+                    {
+                        context.Fail("Invalid operator scope.");
+                        return;
+                    }
+                    var platform = context.HttpContext.RequestServices.GetRequiredService<PlatformApprovalStore>();
+                    if (!await platform.SessionValidAsync(uid, sid, context.HttpContext.RequestAborted))
+                        context.Fail("Operator session revoked.");
+                    return;
+                }
+                if(tid==Guid.Empty)
+                {
+                    context.Fail("Missing tenant scope.");
+                    return;
+                }
                 var store = context.HttpContext.RequestServices.GetRequiredService<IIdentityStore>();
                 if (!await store.IsSessionValidAsync(sid, tid, uid, context.HttpContext.RequestAborted))
                     context.Fail("Session revoked or membership inactive.");
@@ -98,6 +116,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<ITenantContext, HttpTenantContext>();
+builder.Services.AddScoped<PlatformApprovalStore>(provider => new PlatformApprovalStore(
+    provider.GetRequiredService<IConfiguration>().GetConnectionString("EduVerse")
+        ?? throw new InvalidOperationException("Database not configured."),
+    provider.GetRequiredService<IIdentityStore>(),
+    provider.GetRequiredService<IPasswordService>()));
 builder.Services.AddScoped<InstitutionService>();
 builder.Services.AddScoped<AcademicService>();
 builder.Services.AddScoped<AttendanceService>();
@@ -201,6 +224,7 @@ app.MapIdempotentCampusEndpoints();
 app.MapIdentityEndpoints();
 app.MapInstitutionEndpoints();
 app.MapInstitutionAdminEndpoints();
+app.MapPlatformApprovalEndpoints();
 app.MapAcademicEndpoints();
 app.MapStudentEndpoints();
 app.MapAttendanceEndpoints();

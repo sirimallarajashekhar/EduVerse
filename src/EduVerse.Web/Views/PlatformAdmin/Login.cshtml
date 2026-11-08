@@ -1,0 +1,19 @@
+@model EduVerse.Web.Controllers.PlatformLoginForm
+@{ ViewData["Title"]="Platform operator sign in"; }
+<div class="row justify-content-center">
+ <div class="col-lg-5">
+  <section class="ev-card p-4">
+   <h1 class="h3">EduVerse Platform Super Admin</h1>
+   <p class="text-secondary">Authorized platform operators only. School administrator accounts cannot approve registrations.</p>
+   <form method="post" asp-controller="PlatformAdmin" asp-action="Login">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <label asp-for="Email" class="form-label">Email</label>
+    <input asp-for="Email" type="email" autocomplete="username" maxlength="254" required class="form-control mb-3"/>
+    <label asp-for="Password" class="form-label">Password</label>
+    <input asp-for="Password" type="password" autocomplete="current-password" required class="form-control mb-3"/>
+    <button class="btn btn-primary" type="submit">Sign in as operator</button>
+   </form>
+  </section>
+ </div>
+</div>
