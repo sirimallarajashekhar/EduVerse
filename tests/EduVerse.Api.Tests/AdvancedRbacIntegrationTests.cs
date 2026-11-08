@@ -57,6 +57,10 @@ public sealed class AdvancedRbacIntegrationTests:IAsyncLifetime
             VALUES(@c,@tid,'MAIN','Main'),(@otherCampus,@other,'MAIN','Foreign')
             """,("@c",campus.ToString("D")),("@tid",tenant.ToString("D")),
             ("@otherCampus",otherCampus.ToString("D")),("@other",foreign.ToString("D")));
+        await Exec("""
+            INSERT INTO institution_subscriptions(tenant_id,plan_code)
+            VALUES(@tid,'PILOT'),(@foreign,'PILOT')
+            """,("@tid",tenant.ToString("D")),("@foreign",foreign.ToString("D")));
         factory=new WebApplicationFactory<Program>().WithWebHostBuilder(web=>
             web.ConfigureAppConfiguration((_,config)=>config.AddInMemoryCollection(
                 new Dictionary<string,string?>{{"ConnectionStrings:EduVerse",connection}})));
