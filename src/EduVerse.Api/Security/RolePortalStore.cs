@@ -9,6 +9,7 @@ public sealed record PortalResult(Guid ExamId,string Exam,decimal Total,decimal 
 public sealed record PortalTimetable(int DayOfWeek,string Class,string Subject,TimeOnly StartsAt,TimeOnly EndsAt);
 public sealed record PortalAssignment(Guid Id,string Title,string Instructions,DateTime DueUtc,decimal MaximumScore);
 public sealed record PortalNotice(string Title,string Body,DateTime PublishedUtc);
+public sealed record PortalRoster(Guid StudentId,Guid EnrollmentId,string AdmissionNumber,string GivenName,string FamilyName);
 public sealed record PortalLesson(Guid Id,string Title,string Body,string? ResourceUrl,string Status);
 
 /// <summary>Self-service SQL projections; every query uses verified link + current JWT subject.</summary>
@@ -169,6 +170,37 @@ public sealed class RolePortalStore(string connectionString,ITenantContext conte
             list.Add(new PortalNotice(reader.GetString(0),reader.GetString(1),reader.GetDateTime(2)));
         return list;
     }
+    public async Task<IReadOnlyList<PortalRoster>> TeachingRoster(Guid campus,Guid classId,CancellationToken ct)
+    {
+        var actor=await Actor(ct);
+        var user=new EduVerse.Domain.TenantIdentity(actor.Tenant,actor.Subject);
+        if(campus==Guid.Empty||classId==Guid.Empty||
+           !await identities.HasPermissionAsync(user,"students.read",campus,ct))
+            throw new UnauthorizedAccessException();
+        var items=new List<PortalRoster>();
+        await using var db=Open();await db.OpenAsync(ct);
+        await using var cmd=new MySqlCommand("""
+            SELECT DISTINCT s.id,e.id,s.admission_number,s.given_name,s.family_name
+            FROM student_enrollments e
+            JOIN students s ON s.tenant_id=e.tenant_id AND s.campus_id=e.campus_id
+             AND s.id=e.student_id AND s.status='ACTIVE'
+            JOIN academic_timetable_slots t ON t.tenant_id=e.tenant_id AND t.campus_id=e.campus_id
+             AND t.class_item_id=e.academic_item_id AND t.academic_year_id=e.academic_year_id
+             AND t.teacher_subject_id=@subject AND t.is_active=1
+            JOIN campuses c ON c.id=e.campus_id AND c.tenant_id=e.tenant_id AND c.is_active=1
+            WHERE e.tenant_id=@tenant AND e.campus_id=@campus AND e.academic_item_id=@class
+             AND e.status='ACTIVE'
+            ORDER BY s.admission_number LIMIT 500
+            """,db);
+        Add(cmd,("@tenant",actor.Tenant.ToString("D")),("@campus",campus.ToString("D")),
+            ("@class",classId.ToString("D")),("@subject",actor.Subject));
+        await using var reader=await cmd.ExecuteReaderAsync(ct);
+        while(await reader.ReadAsync(ct))
+            items.Add(new PortalRoster(reader.GetGuid(0),reader.GetGuid(1),reader.GetString(2),
+                reader.GetString(3),reader.GetString(4)));
+        return items;
+    }
+
     public async Task<IReadOnlyList<PortalLesson>> TeachingLessons(Guid campus,CancellationToken ct)
     {
         var actor=await Actor(ct);
