@@ -29,6 +29,21 @@ public sealed class PlatformApprovalPageTests:IClassFixture<WebApplicationFactor
     }
 
     [Fact]
+    public async Task SuperAdminConsoleRequiresOperatorAuthentication()
+    {
+        using var response=await client.GetAsync("/platform/console");
+        Assert.Equal(HttpStatusCode.Redirect,response.StatusCode);
+        Assert.Contains("/account/login",response.Headers.Location?.ToString());
+    }
+
+    [Fact]
+    public async Task AnonymousCannotUsePlatformControlProxy()
+    {
+        using var response=await client.GetAsync("/bff/platform-control/institutions");
+        Assert.True(response.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Redirect);
+    }
+
+    [Fact]
     public async Task ReviewPostRequiresAntiForgery()
     {
         using var response=await client.PostAsync(

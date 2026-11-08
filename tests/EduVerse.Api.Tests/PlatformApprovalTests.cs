@@ -161,5 +161,116 @@ public sealed class PlatformApprovalTests : IAsyncLifetime
         Assert.Equal(1,Convert.ToInt32(await command.ExecuteScalarAsync()));
     }
 
+    [Fact]
+    public async Task PlatformConsoleRequiresLiveOperatorAndCanManageOtherInstitutionUsers()
+    {
+        if(factory is null||connection is null)return;
+        // Tenant ADMIN cannot obtain platform powers by claiming a tenant role.
+        using var tenantClient=factory.CreateClient(new WebApplicationFactoryClientOptions{AllowAutoRedirect=false});
+        using(var signIn=await tenantClient.PostAsJsonAsync("/api/v1/identity/login",
+            new LoginRequest(slug,email,Password)))
+        {
+            var login=await signIn.Content.ReadFromJsonAsync<LoginResponse>();
+            Assert.NotNull(login);
+            tenantClient.DefaultRequestHeaders.Authorization=
+                new AuthenticationHeaderValue("Bearer",login.AccessToken);
+        }
+        using(var forbidden=await tenantClient.GetAsync("/api/v1/platform-control/institutions"))
+            Assert.Equal(HttpStatusCode.Forbidden,forbidden.StatusCode);
+
+        await using(var db=new MySqlConnection(connection))
+        {
+            await db.OpenAsync();
+            await using var cmd=new MySqlCommand("INSERT IGNORE INTO platform_operators(user_id) VALUES(@id)",db);
+            cmd.Parameters.AddWithValue("@id",operatorId.ToString("D"));
+            await cmd.ExecuteNonQueryAsync();
+        }
+        using var platform=await OperatorClientAsync();
+        using(var inventory=await platform.GetAsync("/api/v1/platform-control/actions"))
+        {
+            Assert.Equal(HttpStatusCode.OK,inventory.StatusCode);
+            var json=await inventory.Content.ReadAsStringAsync();
+            Assert.Contains("/api/v1/identity/login",json);
+            Assert.Contains("/api/v1/platform-control/institutions",json);
+            Assert.Contains("platformManaged",json);
+        }
+        using(var institutions=await platform.GetAsync("/api/v1/platform-control/institutions"))
+        {
+            Assert.Equal(HttpStatusCode.OK,institutions.StatusCode);
+            var json=await institutions.Content.ReadAsStringAsync();
+            Assert.Contains(tenantId.ToString("D"),json,StringComparison.OrdinalIgnoreCase);
+        }
+        using(var existing=await platform.GetAsync($"/api/v1/platform-control/institutions/{tenantId:D}/users"))
+        {
+            Assert.Equal(HttpStatusCode.OK,existing.StatusCode);
+            Assert.Contains(email,await existing.Content.ReadAsStringAsync());
+        }
+        // A super admin can invite an institution member without joining that tenant.
+        var inviteEmail=Guid.NewGuid().ToString("N")+"@example.org";
+        using(var invite=await platform.PostAsJsonAsync(
+            $"/api/v1/platform-control/institutions/{tenantId:D}/users",
+            new {tenantId,email=inviteEmail,displayName="Portal Member",roleCode="MEMBER"}))
+        {
+            Assert.Equal(HttpStatusCode.Accepted,invite.StatusCode);
+            var receipt=await invite.Content.ReadFromJsonAsync<System.Text.Json.JsonElement>();
+            Assert.False(receipt.GetProperty("activationEmailSent").GetBoolean()); // SMTP intentionally not configured in CI
+        }
+        Guid newMember;
+        await using(var db=new MySqlConnection(connection))
+        {
+            await db.OpenAsync();
+            await using var query=new MySqlCommand("""
+                SELECT u.id FROM identity_users u
+                JOIN tenant_memberships m ON m.subject_id=u.id
+                WHERE m.tenant_id=@tenant AND u.email_normalized=@email
+                """,db);
+            query.Parameters.AddWithValue("@tenant",tenantId.ToString("D"));
+            query.Parameters.AddWithValue("@email",inviteEmail.ToUpperInvariant());
+            var value=await query.ExecuteScalarAsync();
+            newMember=Guid.Parse(Convert.ToString(value)!);
+        }
+        using(var wrongTenant=await platform.PostAsJsonAsync(
+            $"/api/v1/platform-control/institutions/{Guid.NewGuid():D}/users/{newMember:D}/deactivate",
+            new {tenantId,reason="Mismatched tenant"}))
+            Assert.Equal(HttpStatusCode.BadRequest,wrongTenant.StatusCode);
+        using(var deactivated=await platform.PostAsJsonAsync(
+            $"/api/v1/platform-control/institutions/{tenantId:D}/users/{newMember:D}/deactivate",
+            new {tenantId,reason="Membership access closed"}))
+            Assert.Equal(HttpStatusCode.NoContent,deactivated.StatusCode);
+        using(var approved=await platform.PostAsJsonAsync(
+            $"/api/v1/platform-control/institutions/{tenantId:D}/users/{newMember:D}/approve",
+            new {tenantId,reason="Identity verified by platform operator"}))
+            Assert.Equal(HttpStatusCode.NoContent,approved.StatusCode);
+        using(var again=await platform.PostAsJsonAsync(
+            $"/api/v1/platform-control/institutions/{tenantId:D}/users/{newMember:D}/approve",
+            new {tenantId,reason="Duplicate approval"}))
+            Assert.Equal(HttpStatusCode.NotFound,again.StatusCode);
+        await using(var db=new MySqlConnection(connection))
+        {
+            await db.OpenAsync();
+            await using var query=new MySqlCommand("""
+                SELECT COUNT(*) FROM platform_control_audit
+                WHERE tenant_id=@tenant AND operator_id=@operator AND target_user_id=@target
+                  AND action_code IN ('USER_INVITED','USER_DEACTIVATED','USER_ACTIVATED')
+                """,db);
+            query.Parameters.AddWithValue("@tenant",tenantId.ToString("D"));
+            query.Parameters.AddWithValue("@operator",operatorId.ToString("D"));
+            query.Parameters.AddWithValue("@target",newMember.ToString("D"));
+            Assert.Equal(3,Convert.ToInt32(await query.ExecuteScalarAsync()));
+        }
+        // Last active institutional admin is protected even from platform operators.
+        using(var blocked=await platform.PostAsJsonAsync(
+            $"/api/v1/platform-control/institutions/{tenantId:D}/users/{operatorId:D}/deactivate",
+            new {tenantId,reason="Attempt to remove last admin"}))
+            Assert.Equal(HttpStatusCode.Conflict,blocked.StatusCode);
+        using(var unknown=await platform.GetAsync($"/api/v1/platform-control/institutions/{Guid.NewGuid():D}/users"))
+            Assert.Equal(HttpStatusCode.NotFound,unknown.StatusCode);
+
+        using var logout=await platform.PostAsync("/api/v1/platform-admin/logout",null);
+        Assert.Equal(HttpStatusCode.NoContent,logout.StatusCode);
+        using var revoked=await platform.GetAsync("/api/v1/platform-control/institutions");
+        Assert.Equal(HttpStatusCode.Unauthorized,revoked.StatusCode);
+    }
+
     public Task DisposeAsync(){factory?.Dispose();return Task.CompletedTask;}
 }

@@ -45,7 +45,7 @@ public sealed class PlatformAdminController(IHttpClientFactory clients):Controll
             var properties=new AuthenticationProperties {IsPersistent=false,ExpiresUtc=ticket.ExpiresUtc,AllowRefresh=false};
             properties.StoreTokens(new[] {new AuthenticationToken{Name="access_token",Value=ticket.AccessToken}});
             await HttpContext.SignInAsync(EduVerseCookieAuth.Scheme,new ClaimsPrincipal(identity),properties);
-            return RedirectToAction(nameof(Registrations));
+            return RedirectToAction("Index","PlatformConsole");
         }
         catch(HttpRequestException)
         {

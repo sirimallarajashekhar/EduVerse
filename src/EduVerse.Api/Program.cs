@@ -116,6 +116,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<ITenantContext, HttpTenantContext>();
+builder.Services.AddScoped<PlatformControlStore>(p=>new PlatformControlStore(
+    p.GetRequiredService<IConfiguration>().GetConnectionString("EduVerse")
+        ?? throw new InvalidOperationException("ConnectionStrings:EduVerse required."),
+    p.GetRequiredService<IIdentityStore>(),p.GetRequiredService<IPasswordService>(),
+    p.GetRequiredService<IdentityService>(),p.GetRequiredService<IInstitutionAdminStore>()));
 builder.Services.AddScoped<PlatformApprovalStore>(provider => new PlatformApprovalStore(
     provider.GetRequiredService<IConfiguration>().GetConnectionString("EduVerse")
         ?? throw new InvalidOperationException("Database not configured."),
@@ -247,6 +252,7 @@ app.MapRoleLearningWorkflowEndpoints();
 app.MapInstitutionEndpoints();
 app.MapInstitutionAdminEndpoints();
 app.MapPlatformApprovalEndpoints();
+app.MapPlatformControlEndpoints();
 app.MapTenantModuleEndpoints();
 app.MapAcademicEndpoints();
 app.MapStudentEndpoints();
