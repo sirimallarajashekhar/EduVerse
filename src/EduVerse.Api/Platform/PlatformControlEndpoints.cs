@@ -39,6 +39,16 @@ public static class PlatformControlEndpoints
             catch(MySqlException ex) when(ex.Number==1062)
               {return Results.Conflict(new {message="User is already assigned to the institution."});}
         }).RequireRateLimiting("auth");
+        api.MapPost("/institutions/{tenantId:guid}/users/{userId:guid}/approve",async (
+            Guid tenantId,Guid userId,PlatformDeactivate request,ClaimsPrincipal user,
+            PlatformControlStore store,CancellationToken ct)=>
+        {
+            if(!Guid.TryParse(user.FindFirst("sub")?.Value,out var operatorId))return Results.Forbid();
+            if(tenantId!=request.TenantId)return Results.BadRequest(new {message="Tenant mismatch."});
+            try{return await store.Approve(operatorId,tenantId,userId,request.Reason,ct)
+                ?Results.NoContent():Results.NotFound();}
+            catch(ArgumentException ex){return Results.BadRequest(new {message=ex.Message});}
+        });
         api.MapPost("/institutions/{tenantId:guid}/users/{userId:guid}/deactivate",async (
             Guid tenantId,Guid userId,PlatformDeactivate request,ClaimsPrincipal user,
             PlatformControlStore store,CancellationToken ct)=>
