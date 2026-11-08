@@ -49,6 +49,12 @@ public sealed class CollegeManagementTests:IAsyncLifetime
   foreach(var t in new[]{tenant,tenantB})
    await Sql("INSERT INTO institution_subscriptions(tenant_id,plan_code) VALUES(@t,'PILOT')",
     ("@t",t.ToString("D")));
+  var plan="C"+Guid.NewGuid().ToString("N")[..20];
+  await Sql("INSERT INTO subscription_plans(plan_code,display_name,description) VALUES(@code,'College Tests','Isolated college entitlement')",("@code",plan));
+  await Sql("INSERT INTO subscription_plan_features(plan_code,feature_code) VALUES(@code,'college'),(@code,'core'),(@code,'academics')",("@code",plan));
+  await Sql("UPDATE institution_subscriptions SET plan_code=@code WHERE tenant_id=@tenant",
+   ("@code",plan),("@tenant",tenant.ToString("D")));
+
   host=new WebApplicationFactory<Program>().WithWebHostBuilder(web=>
    web.ConfigureAppConfiguration((_,cfg)=>cfg.AddInMemoryCollection(
     new Dictionary<string,string?>{{"ConnectionStrings:EduVerse",cs}})));
