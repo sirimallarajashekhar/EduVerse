@@ -211,6 +211,26 @@ public sealed class AdvancedRbacIntegrationTests:IAsyncLifetime
         using(var notCrossCampus=await normal.GetAsync(
             $"/api/v1/portals/parent/children/{student.Id:D}/results?campusId={otherCampus:D}"))
             Assert.Equal(HttpStatusCode.NotFound,notCrossCampus.StatusCode);
+        Guid conversation=Guid.Empty;
+        using(var started=await normal.PostAsJsonAsync("/api/v1/role-learning/parent/conversations",
+            new {campusId=campus,studentId=student.Id,subject="Class concerns",body="Please call me"}))
+        {
+            Assert.Equal(HttpStatusCode.Created,started.StatusCode);
+            var json=await started.Content.ReadFromJsonAsync<System.Text.Json.JsonElement>();
+            conversation=json.GetProperty("id").GetGuid();
+        }
+        using(var cannotOpenForeign=await foreignMember.GetAsync(
+            $"/api/v1/role-learning/conversations/{conversation:D}/messages?campusId={campus:D}"))
+            Assert.Equal(HttpStatusCode.NotFound,cannotOpenForeign.StatusCode);
+        using(var parentMessages=await normal.GetAsync(
+            $"/api/v1/role-learning/conversations/{conversation:D}/messages?campusId={campus:D}"))
+        {
+            Assert.Equal(HttpStatusCode.OK,parentMessages.StatusCode);
+            Assert.Contains("Please call me",await parentMessages.Content.ReadAsStringAsync());
+        }
+        using(var reply=await normal.PostAsJsonAsync("/api/v1/role-learning/conversations/reply",
+            new {campusId=campus,threadId=conversation,body="Following up"}))
+            Assert.Equal(HttpStatusCode.Created,reply.StatusCode);
         using(var accessible=await normal.GetAsync(path))
             Assert.Equal(HttpStatusCode.OK,accessible.StatusCode);
         using(var hidden=await foreignMember.GetAsync(
@@ -372,12 +392,14 @@ public sealed class AdvancedRbacIntegrationTests:IAsyncLifetime
         using(var teacherClasses=await refreshed.GetAsync(
             $"/api/v1/portals/teacher/classes?campusId={campus:D}"))
             Assert.Equal(HttpStatusCode.OK,teacherClasses.StatusCode);
+        Guid teacherLesson=Guid.Empty;
         using(var createdDraft=await refreshed.PostAsJsonAsync("/api/v1/portals/teacher/lessons",
             new LessonCreate(campus,year,classA,subject,"Reading Lesson","Assigned teacher lesson draft",null)))
         {
             Assert.Equal(HttpStatusCode.Created,createdDraft.StatusCode);
             var lesson=await createdDraft.Content.ReadFromJsonAsync<LessonRecord>();
             Assert.Equal("DRAFT",lesson?.Status);
+            teacherLesson=lesson!.Id;
         }
         using(var rejectedDraft=await refreshed.PostAsJsonAsync("/api/v1/portals/teacher/lessons",
             new LessonCreate(campus,year,classB,subject,"Other Class Lesson","Not assigned to this class",null)))
@@ -385,6 +407,75 @@ public sealed class AdvancedRbacIntegrationTests:IAsyncLifetime
         using(var teacherLessons=await refreshed.GetAsync(
             $"/api/v1/portals/teacher/lessons?campusId={campus:D}"))
             Assert.Equal(HttpStatusCode.OK,teacherLessons.StatusCode);
+        using(var queue=await administrator.GetAsync($"/api/v1/role-learning/admin/reviews?campusId={campus:D}"))
+        {
+            Assert.Equal(HttpStatusCode.OK,queue.StatusCode);
+            Assert.Contains(teacherLesson.ToString("D"),await queue.Content.ReadAsStringAsync(),
+                StringComparison.OrdinalIgnoreCase);
+        }
+        using(var teacherCannotPublish=await refreshed.PostAsJsonAsync(
+            "/api/v1/role-learning/admin/reviews/LESSON/publish",
+            new {campusId=campus,contentId=teacherLesson}))
+            Assert.Equal(HttpStatusCode.Forbidden,teacherCannotPublish.StatusCode);
+        using(var approved=await administrator.PostAsJsonAsync(
+            "/api/v1/role-learning/admin/reviews/LESSON/publish",
+            new {campusId=campus,contentId=teacherLesson}))
+            Assert.Equal(HttpStatusCode.NoContent,approved.StatusCode);
+        var due=DateTime.UtcNow.AddDays(3);
+        Guid assignment=Guid.Empty;
+        using(var draft=await refreshed.PostAsJsonAsync("/api/v1/role-learning/teacher/assignments",
+            new {campusId=campus,lessonId=teacherLesson,title="English Assignment",
+                instructions="Write a paragraph",dueUtc=due,maxScore=100m}))
+        {
+            Assert.Equal(HttpStatusCode.Created,draft.StatusCode);
+            var json=await draft.Content.ReadFromJsonAsync<System.Text.Json.JsonElement>();
+            assignment=json.GetProperty("id").GetGuid();
+            Assert.Equal("DRAFT",json.GetProperty("status").GetString());
+        }
+        using(var cannotMakeForeign=await refreshed.PostAsJsonAsync("/api/v1/role-learning/teacher/assignments",
+            new {campusId=otherCampus,lessonId=teacherLesson,title="Foreign Assignment",
+                instructions="Should be denied",dueUtc=due,maxScore=100m}))
+            Assert.Equal(HttpStatusCode.Forbidden,cannotMakeForeign.StatusCode);
+        using(var published=await administrator.PostAsJsonAsync(
+            "/api/v1/role-learning/admin/reviews/ASSIGNMENT/publish",
+            new {campusId=campus,contentId=assignment}))
+            Assert.Equal(HttpStatusCode.NoContent,published.StatusCode);
+        using(var unlinked=await refreshed.PostAsJsonAsync("/api/v1/role-learning/student/submit",
+            new {campusId=campus,studentId=ownStudent,assignmentId=assignment,responseText="My answer"}))
+            Assert.Equal(HttpStatusCode.NotFound,unlinked.StatusCode);
+        using(var ownLink=await administrator.PostAsJsonAsync("/api/v1/ownership/links",
+            new {campusId=campus,studentId=ownStudent,userId=member,relationship="SELF"}))
+            Assert.Equal(HttpStatusCode.NoContent,ownLink.StatusCode);
+        Guid submission=Guid.Empty;
+        using(var submitted=await refreshed.PostAsJsonAsync("/api/v1/role-learning/student/submit",
+            new {campusId=campus,studentId=ownStudent,assignmentId=assignment,responseText="My answer"}))
+        {
+            Assert.Equal(HttpStatusCode.Created,submitted.StatusCode);
+            var json=await submitted.Content.ReadFromJsonAsync<System.Text.Json.JsonElement>();
+            submission=json.GetProperty("id").GetGuid();
+        }
+        using(var deniedOtherStudent=await refreshed.PostAsJsonAsync("/api/v1/role-learning/student/submit",
+            new {campusId=campus,studentId=otherStudent,assignmentId=assignment,responseText="Not mine"}))
+            Assert.Equal(HttpStatusCode.NotFound,deniedOtherStudent.StatusCode);
+        using(var duplicate=await refreshed.PostAsJsonAsync("/api/v1/role-learning/student/submit",
+            new {campusId=campus,studentId=ownStudent,assignmentId=assignment,responseText="Second"}))
+            Assert.Equal(HttpStatusCode.Conflict,duplicate.StatusCode);
+        using(var teacherSubmissions=await refreshed.GetAsync(
+            $"/api/v1/role-learning/teacher/submissions?campusId={campus:D}"))
+            Assert.Contains(submission.ToString("D"),await teacherSubmissions.Content.ReadAsStringAsync(),
+                StringComparison.OrdinalIgnoreCase);
+        using(var graded=await refreshed.PostAsJsonAsync("/api/v1/role-learning/teacher/grade",
+            new {campusId=campus,submissionId=submission,score=88m,feedback="Well done"}))
+            Assert.Equal(HttpStatusCode.OK,graded.StatusCode);
+        using(var cannotGradeTwice=await refreshed.PostAsJsonAsync("/api/v1/role-learning/teacher/grade",
+            new {campusId=campus,submissionId=submission,score=90m,feedback="Changed"}))
+            Assert.Equal(HttpStatusCode.NotFound,cannotGradeTwice.StatusCode);
+        using(var mySubmissions=await refreshed.GetAsync(
+            $"/api/v1/role-learning/student/{ownStudent:D}/submissions?campusId={campus:D}"))
+        {
+            Assert.Equal(HttpStatusCode.OK,mySubmissions.StatusCode);
+            Assert.Contains("Well done",await mySubmissions.Content.ReadAsStringAsync());
+        }
         // The write must be allowed only for the teacher's actual current enrollment class.
         var day=new DateOnly(2026,11,9);
         using(var allowed=await refreshed.PostAsJsonAsync("/api/v1/portals/teacher/attendance",
