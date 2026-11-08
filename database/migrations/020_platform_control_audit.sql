@@ -10,9 +10,9 @@ CREATE TABLE IF NOT EXISTS platform_control_audit (
  created_utc DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
  KEY ix_platform_audit_tenant_time(tenant_id,created_utc),
  KEY ix_platform_audit_operator_time(operator_id,created_utc),
- CONSTRAINT fk_platform_audit_operator FOREIGN KEY(operator_id) REFERENCES identity_users(id),
- CONSTRAINT fk_platform_audit_tenant FOREIGN KEY(tenant_id) REFERENCES tenants(id),
- CONSTRAINT fk_platform_audit_target FOREIGN KEY(target_user_id) REFERENCES identity_users(id),
+ CONSTRAINT fk_platform_control_operator FOREIGN KEY(operator_id) REFERENCES identity_users(id),
+ CONSTRAINT fk_platform_control_tenant FOREIGN KEY(tenant_id) REFERENCES tenants(id),
+ CONSTRAINT fk_platform_control_target FOREIGN KEY(target_user_id) REFERENCES identity_users(id),
  CHECK(action_code IN ('USER_INVITED','USER_DEACTIVATED','USER_ACTIVATED','INVITE_EMAIL_FAILED'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
