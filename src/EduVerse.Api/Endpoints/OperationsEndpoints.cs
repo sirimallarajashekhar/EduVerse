@@ -1,3 +1,4 @@
+using EduVerse.Api.Security;
 using EduVerse.Application.OperationsModules;
 using EduVerse.Contracts;
 using MySqlConnector;
@@ -7,7 +8,7 @@ public static class OperationsEndpoints
 {
  public static IEndpointRouteBuilder MapOperationsEndpoints(this IEndpointRouteBuilder app)
  {
-  var g=app.MapGroup("/api/v1/operations").RequireAuthorization();
+  var g=app.MapGroup("/api/v1/operations").RequireAuthorization().RequireModuleActions("operations.read","operations.manage", "/api/v1/operations/titles", "/api/v1/operations/copies", "/api/v1/operations/vehicles", "/api/v1/operations/routes", "/api/v1/operations/stops", "/api/v1/operations/dashboard");
   g.MapPost("/titles",async (LibraryTitleCreate input,OperationsService s,CancellationToken ct)=>await Write(()=>s.Title(input,ct)));
   g.MapGet("/titles",async (Guid campusId,OperationsService s,CancellationToken ct)=>await Read(()=>s.Titles(campusId,ct)));
   g.MapPost("/copies",async (LibraryCopyCreate input,OperationsService s,CancellationToken ct)=>await Write(()=>s.Copy(input,ct)));
