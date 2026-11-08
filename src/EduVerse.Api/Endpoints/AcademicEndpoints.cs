@@ -1,3 +1,4 @@
+using EduVerse.Api.Security;
 using EduVerse.Application.Academic;
 using EduVerse.Contracts;
 using MySqlConnector;
@@ -9,7 +10,7 @@ public static class AcademicEndpoints
 {
     public static IEndpointRouteBuilder MapAcademicEndpoints(this IEndpointRouteBuilder app)
     {
-        var group=app.MapGroup("/api/v1/academic").RequireAuthorization();
+        var group=app.MapGroup("/api/v1/academic").RequireAuthorization().RequireModuleActions("academic.read","academic.manage", "/api/v1/academic/years", "/api/v1/academic/catalog", "/api/v1/academic/faculty-assignments", "/api/v1/academic/calendar", "/api/v1/academic/overview");
         group.MapGet("/years",async (Guid campusId,AcademicService service,CancellationToken ct)=>
             await ReadAsync(()=>service.YearsAsync(campusId,ct)));
         group.MapPost("/years",async (AcademicYearCreate request,AcademicService service,CancellationToken ct)=>
