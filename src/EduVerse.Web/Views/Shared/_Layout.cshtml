@@ -3,14 +3,83 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>EduVerse ERP</title>
+  <title>@(ViewData["Title"] ?? "EduVerse") · EduVerse ERP</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
   <link href="~/css/site.css" rel="stylesheet" asp-append-version="true" />
 </head>
 <body>
-  <header class="bg-dark text-white py-3"><div class="container"><strong>EduVerse ERP</strong> <span class="ms-2 text-white-50">Foundation Portal</span></div></header>
-  <main class="container py-5">@RenderBody()</main>
+  <header class="bg-dark text-white py-3">
+    <div class="container-fluid px-4 d-flex align-items-center justify-content-between flex-wrap gap-2">
+      <a href="/" class="fw-bold text-white text-decoration-none">EduVerse ERP</a>
+      <div class="d-flex flex-wrap align-items-center gap-2">
+      @if(User.Identity?.IsAuthenticated == true)
+      {
+        <span class="small text-white-50">@User.Identity.Name ·
+          @(User.IsInRole("PLATFORM_SUPER_ADMIN")?"Platform Super Admin":
+            User.IsInRole("ADMIN")?"Institution Admin":"Institution User")</span>
+        @if(User.IsInRole("PLATFORM_SUPER_ADMIN"))
+        {
+          <form method="post" action="/platform/logout" class="m-0">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-outline-light btn-sm">Sign out</button>
+          </form>
+        }
+        else
+        {
+          <form method="post" action="/account/logout" class="m-0">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-outline-light btn-sm">Sign out</button>
+          </form>
+        }
+      }
+      else
+      {
+        <a href="/account/login" class="btn btn-outline-light btn-sm">Institution login</a>
+        <a href="/platform/login" class="btn btn-outline-light btn-sm">Super Admin login</a>
+      }
+      </div>
+    </div>
+  </header>
+  <div class="container-fluid px-4 py-4">
+  <div class="row g-4">
+    @if(User.Identity?.IsAuthenticated == true)
+    {
+      <aside class="col-12 col-lg-3 col-xl-2">
+        <nav aria-label="Main navigation" class="ev-card p-3 d-grid gap-2">
+          <a href="/" class="ev-nav-item">Dashboard</a>
+          @if(User.IsInRole("PLATFORM_SUPER_ADMIN"))
+          {
+            <a href="/platform/console" class="ev-nav-item">Platform overview</a>
+            <a href="/platform/registrations" class="ev-nav-item">Institution approvals</a>
+            <p class="small text-secondary mb-0">Open an institution in the control center to view its modules and users.</p>
+          }
+          else if(User.IsInRole("ADMIN"))
+          {
+            <div class="small text-uppercase text-secondary fw-semibold">Institution modules</div>
+            <div id="tenant-module-navigation" class="d-grid gap-2" aria-live="polite"></div>
+            <a href="/admin/rbac" class="ev-nav-item">Roles &amp; permissions</a>
+            <a href="/portal/learning-review" class="ev-nav-item">Learning approvals</a>
+          }
+          else
+          {
+            <a href="/portal/teacher" class="ev-nav-item">Teacher workspace</a>
+            <a href="/portal/parent" class="ev-nav-item">Parent workspace</a>
+            <a href="/portal/student" class="ev-nav-item">Student workspace</a>
+            <p class="small text-secondary mb-0">Each portal verifies your authorized records through the API.</p>
+          }
+        </nav>
+      </aside>
+    }
+    <main class="@(User.Identity?.IsAuthenticated == true?"col-12 col-lg-9 col-xl-10":"col-12")">
+      @RenderBody()
+    </main>
+  </div>
+  </div>
   <script src="~/js/site.js" asp-append-version="true"></script>
+  @if(User.IsInRole("ADMIN"))
+  {
+    <script src="~/js/tenant-navigation.js" asp-append-version="true"></script>
+  }
   @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
