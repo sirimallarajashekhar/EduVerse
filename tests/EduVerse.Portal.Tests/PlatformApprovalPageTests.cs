@@ -33,7 +33,7 @@ public sealed class PlatformApprovalPageTests:IClassFixture<WebApplicationFactor
     {
         using var response=await client.GetAsync("/platform/console");
         Assert.Equal(HttpStatusCode.Redirect,response.StatusCode);
-        Assert.Contains("/account/login",response.Headers.Location?.ToString());
+        Assert.Contains("/platform/login",response.Headers.Location?.ToString());
     }
 
     [Fact]
