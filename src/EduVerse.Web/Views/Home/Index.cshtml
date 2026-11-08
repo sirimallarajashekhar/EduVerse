@@ -6,13 +6,34 @@
   <h1 class="display-6 fw-semibold">Institution command center</h1>
   <p class="text-secondary">One portal, independently deployable modules and API-owned business logic.</p>
 </div>
-<div class="row g-3">
-  <div class="col-md-6"><section class="ev-card p-4 h-100"><div class="ev-eyebrow mb-2">Asset management</div><h2 class="h4">AMS</h2><p>Asset registry, allocation and maintenance module placeholder.</p><a href="/ams" class="btn btn-primary">Open AMS</a></section></div>
-  <div class="col-md-6"><section class="ev-card p-4 h-100"><div class="ev-eyebrow mb-2">Human resources</div><h2 class="h4">HRMS</h2><p>Employees, leave and payroll module placeholder.</p><a href="/hrms" class="btn btn-outline-primary">Open HRMS</a></section></div>
-  @if (User.IsInRole("ADMIN"))
-  {
-    <div class="col-md-6"><section class="ev-card p-4 h-100"><div class="ev-eyebrow mb-2">Institution insights</div><h2 class="h4">Analytics & Reports</h2><p>View secure campus KPIs and export monthly collections.</p><a href="/admin/reporting" class="btn btn-outline-primary">Open reports</a></section></div>
-    <div class="col-md-6"><section class="ev-card p-4 h-100"><div class="ev-eyebrow mb-2">Cross-module operations</div><h2 class="h4">Workflows</h2><p>Staff identity binding, asset-clearance offboarding and procurement-to-finance handoffs.</p><a href="/admin/workflows" class="btn btn-outline-primary">Manage workflows</a></section></div>
-  }
-  <div class="col-12"><section class="ev-card p-4"><h2 class="h5">Core API status</h2><p id="api-status" role="status" aria-live="polite" class="mb-0">Checking REST API…</p></section></div>
-</div>
+@if (User.IsInRole("PLATFORM_SUPER_ADMIN"))
+{
+  <section class="ev-card p-4 mb-4">
+    <h2 class="h4">Platform administration</h2>
+    <p>Review institution registrations and control school onboarding.</p>
+    <a href="/platform/registrations" class="btn btn-primary">Review pending schools</a>
+  </section>
+}
+else if (User.IsInRole("ADMIN"))
+{
+  <section class="mb-4">
+    <h2 id="institution-name" class="h4">Loading institution…</h2>
+    <p id="institution-plan" class="text-secondary">Checking subscription…</p>
+    <div class="row g-3" id="tenant-module-cards" aria-live="polite">
+      <div class="col-12"><p>Loading school or college modules…</p></div>
+    </div>
+  </section>
+}
+else
+{
+  <section class="ev-card p-4 mb-4">
+    <h2 class="h4">Welcome to EduVerse</h2>
+    <p>Register your school, or sign in with an approved institution administrator account.</p>
+    <a class="btn btn-primary" href="/account/login">Sign in</a>
+    <a class="btn btn-outline-primary" href="/register-institution">Register school</a>
+  </section>
+}
+<section class="ev-card p-4">
+  <h2 class="h5">Core API status</h2>
+  <p id="api-status" role="status" aria-live="polite" class="mb-0">Checking REST API…</p>
+</section>
