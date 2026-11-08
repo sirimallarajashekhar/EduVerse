@@ -298,7 +298,7 @@ public sealed class AdvancedRbacIntegrationTests:IAsyncLifetime
             new CreateRbacRole("TEACHER","Assigned Teacher")))
             Assert.Equal(HttpStatusCode.NoContent,created.StatusCode);
         using(var granted=await administrator.PutAsJsonAsync("/api/v1/rbac/roles/TEACHER/permissions",
-            new SetRbacPermissions(new[]{"academic.read","students.read","attendance.manage","exams.manage","learning.read"})))
+            new SetRbacPermissions(new[]{"academic.read","students.read","attendance.manage","exams.manage","learning.read","learning.manage"})))
             Assert.Equal(HttpStatusCode.NoContent,granted.StatusCode);
         using(var assign=await administrator.PostAsJsonAsync("/api/v1/rbac/assignments",
             new SetRbacAssignment(member.ToString("D"),"TEACHER")))
@@ -372,6 +372,16 @@ public sealed class AdvancedRbacIntegrationTests:IAsyncLifetime
         using(var teacherClasses=await refreshed.GetAsync(
             $"/api/v1/portals/teacher/classes?campusId={campus:D}"))
             Assert.Equal(HttpStatusCode.OK,teacherClasses.StatusCode);
+        using(var createdDraft=await refreshed.PostAsJsonAsync("/api/v1/portals/teacher/lessons",
+            new LessonCreate(campus,year,classA,subject,"Reading Lesson","Assigned teacher lesson draft",null)))
+        {
+            Assert.Equal(HttpStatusCode.Created,createdDraft.StatusCode);
+            var lesson=await createdDraft.Content.ReadFromJsonAsync<LessonRecord>();
+            Assert.Equal("DRAFT",lesson?.Status);
+        }
+        using(var rejectedDraft=await refreshed.PostAsJsonAsync("/api/v1/portals/teacher/lessons",
+            new LessonCreate(campus,year,classB,subject,"Other Class Lesson","Not assigned to this class",null)))
+            Assert.Equal(HttpStatusCode.NotFound,rejectedDraft.StatusCode);
         using(var teacherLessons=await refreshed.GetAsync(
             $"/api/v1/portals/teacher/lessons?campusId={campus:D}"))
             Assert.Equal(HttpStatusCode.OK,teacherLessons.StatusCode);
