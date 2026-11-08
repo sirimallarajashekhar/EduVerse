@@ -1,3 +1,4 @@
+using EduVerse.Api.Security;
 using EduVerse.Application.Students;
 using EduVerse.Contracts;
 using Microsoft.AspNetCore.Http.Features;
@@ -16,7 +17,7 @@ public static class StudentEndpoints
             catch(StudentScopeException){return Results.NotFound();}
             catch(ArgumentException ex){return Invalid(ex.Message);}
         }).RequireRateLimiting("auth");
-        var group=app.MapGroup("/api/v1/students").RequireAuthorization();
+        var group=app.MapGroup("/api/v1/students").RequireAuthorization().RequireModuleActions("students.read","students.manage", "/api/v1/students/applications", "/api/v1/students");
         group.MapPost("/applications",async (AdmissionSubmit request,StudentService service,CancellationToken ct)=>
             await Write(()=>service.SubmitAsync(request,ct)));
         group.MapGet("/applications",async (Guid campusId,StudentService service,CancellationToken ct)=>
