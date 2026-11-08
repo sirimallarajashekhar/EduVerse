@@ -37,3 +37,26 @@
 </form><p class="small text-secondary mt-2">Lesson publication remains an institution administrator operation.</p></section></div>
 </div><p id="portal-message" role="status" class="mt-3"></p>
 @section Scripts {<script src="~/js/role-portals.js" asp-append-version="true"></script>}
+
+<section class="ev-card p-4 my-3"><h2 class="h5">Assignments and grading</h2>
+<form id="phase23-assignment-form">
+<label class="form-label" for="p23-lesson">Published lesson UUID</label><input class="form-control mb-2" id="p23-lesson" required/>
+<label class="form-label" for="p23-title">Assignment title</label><input class="form-control mb-2" id="p23-title" maxlength="160" required/>
+<label class="form-label" for="p23-instructions">Instructions</label><textarea class="form-control mb-2" id="p23-instructions" maxlength="8000" required></textarea>
+<label class="form-label" for="p23-due">Deadline</label><input type="datetime-local" class="form-control mb-2" id="p23-due" required/>
+<label class="form-label" for="p23-max">Maximum score</label><input type="number" class="form-control mb-2" id="p23-max" step=".01" min=".01" required/>
+<button class="btn btn-primary" type="submit">Prepare draft assignment</button></form>
+<h3 class="h6 mt-4">Assigned submissions</h3><button class="btn btn-outline-secondary btn-sm" id="p23-load-submissions">Refresh submissions</button>
+<div id="p23-submissions" class="mt-2"></div>
+<h3 class="h6 mt-4">Grade a submission</h3><form id="phase23-grade-form">
+<label class="form-label" for="p23-submission">Submission UUID</label><input class="form-control mb-2" id="p23-submission" required/>
+<label class="form-label" for="p23-score">Score</label><input type="number" class="form-control mb-2" id="p23-score" step=".01" min="0" required/>
+<label class="form-label" for="p23-feedback">Feedback</label><textarea class="form-control mb-2" id="p23-feedback" maxlength="1000"></textarea>
+<button class="btn btn-primary" type="submit">Grade submission</button></form>
+</section>
+<section class="ev-card p-4 my-3"><h2 class="h5">Parent conversations</h2><button class="btn btn-outline-secondary btn-sm" id="p23-load-conversations">Load messages</button><div id="p23-conversations"></div></section>
+<p id="p23-status" role="status"></p>
+<section class="ev-card p-4 my-3"><h2 class="h5">In-app notifications</h2>
+<button type="button" class="btn btn-outline-secondary btn-sm" id="p23-load-notifications">Refresh inbox</button>
+<div class="mt-2" id="p23-notifications" aria-live="polite"></div></section>
+<script defer src="/js/phase23-portals.js"></script>

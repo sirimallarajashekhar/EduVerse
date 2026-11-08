@@ -11,4 +11,5 @@ public sealed class RolePortalController:Controller
     [HttpGet("teacher")] public IActionResult Teacher()=>View();
     [HttpGet("parent")] public IActionResult Parent()=>View();
     [HttpGet("student")] public IActionResult Student()=>View();
+    [Authorize(Roles="ADMIN"),HttpGet("learning-review")] public IActionResult LearningReview()=>View();
 }
