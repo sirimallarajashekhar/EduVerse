@@ -10,3 +10,15 @@
 <div class="col-12"><section class="ev-card p-4"><h2 class="h5">Announcements</h2><div id="notices"></div></section></div>
 </div><p id="portal-message" role="status" class="mt-3"></p>
 @section Scripts {<script src="~/js/role-portals.js" asp-append-version="true"></script>}
+
+<form id="p23-anti">@Html.AntiForgeryToken()</form>
+<section class="ev-card p-4 my-3"><h2 class="h5">Submit assignment</h2>
+<form id="phase23-student-submit">
+<label class="form-label" for="p23-student">Your linked student ID</label><input class="form-control mb-2" id="p23-student" required/>
+<label class="form-label" for="p23-campus">Campus ID</label><input class="form-control mb-2" id="p23-campus" required/>
+<label class="form-label" for="p23-assignment">Published assignment UUID</label><input class="form-control mb-2" id="p23-assignment" required/>
+<label class="form-label" for="p23-response">Your response</label><textarea class="form-control mb-2" id="p23-response" maxlength="8000" required></textarea>
+<button class="btn btn-primary" type="submit">Submit work</button></form>
+<button class="btn btn-outline-secondary btn-sm mt-3" id="p23-load-work">View my submissions</button>
+<div id="p23-work"></div></section><p id="p23-status" role="status"></p>
+<script defer src="/js/phase23-portals.js"></script>
