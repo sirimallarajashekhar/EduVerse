@@ -190,6 +190,27 @@ public sealed class AdvancedRbacIntegrationTests:IAsyncLifetime
             new {campusId=campus,studentId=student.Id,userId=member,relationship="PARENT"}))
             Assert.Equal(HttpStatusCode.NoContent,linked.StatusCode);
 
+        using(var parentList=await normal.GetAsync("/api/v1/portals/parent/children"))
+        {
+            Assert.Equal(HttpStatusCode.OK,parentList.StatusCode);
+            Assert.Contains(student.Id.ToString("D"),await parentList.Content.ReadAsStringAsync(),
+                StringComparison.OrdinalIgnoreCase);
+        }
+        foreach(var section in new[]{"attendance","results","notices"})
+        {
+            using var linkedRead=await normal.GetAsync(
+                $"/api/v1/portals/parent/children/{student.Id:D}/{section}?campusId={campus:D}");
+            Assert.Equal(HttpStatusCode.OK,linkedRead.StatusCode);
+            using var foreignRead=await foreignMember.GetAsync(
+                $"/api/v1/portals/parent/children/{student.Id:D}/{section}?campusId={campus:D}");
+            Assert.Equal(HttpStatusCode.NotFound,foreignRead.StatusCode);
+        }
+        using(var notSelf=await normal.GetAsync(
+            $"/api/v1/portals/student/{student.Id:D}/timetable?campusId={campus:D}"))
+            Assert.Equal(HttpStatusCode.NotFound,notSelf.StatusCode);
+        using(var notCrossCampus=await normal.GetAsync(
+            $"/api/v1/portals/parent/children/{student.Id:D}/results?campusId={otherCampus:D}"))
+            Assert.Equal(HttpStatusCode.NotFound,notCrossCampus.StatusCode);
         using(var accessible=await normal.GetAsync(path))
             Assert.Equal(HttpStatusCode.OK,accessible.StatusCode);
         using(var hidden=await foreignMember.GetAsync(
