@@ -71,7 +71,16 @@ public sealed class PlatformSessionFlowTests
         Assert.Contains("/platform/console",signedIn.Headers.Location?.ToString());
         using var console=await client.GetAsync("/platform/console");
         Assert.Equal(HttpStatusCode.OK,console.StatusCode);
-        Assert.Contains("Platform control center",await console.Content.ReadAsStringAsync());
+        var consoleHtml=await console.Content.ReadAsStringAsync();
+        Assert.Contains("Platform control center",consoleHtml);
+        Assert.Contains("All EduVerse modules",consoleHtml);
+        Assert.Contains("platform-all-modules",consoleHtml);
+        using var institutionLogin=await client.GetAsync("/account/login");
+        Assert.Equal(HttpStatusCode.Redirect,institutionLogin.StatusCode);
+        Assert.Equal("/platform/console",institutionLogin.Headers.Location?.ToString());
+        using var modules=await client.GetAsync("/modules");
+        Assert.Equal(HttpStatusCode.Redirect,modules.StatusCode);
+        Assert.Equal("/platform/console",modules.Headers.Location?.ToString());
         Assert.True(handler.PlatformSessions>0);
         Assert.Equal(0,handler.InstitutionSessions);
     }
