@@ -99,6 +99,19 @@
  if(route==='/portal/teacher'){
   el('load-classes').addEventListener('click',loadTeacher);
   el('on').value=new Date().toISOString().slice(0,10);
+  el('lesson-form').addEventListener('submit',async event=>{
+   event.preventDefault();
+   try{
+    const result=await api('teacher/lessons','POST',{
+     campusId:validateCampus(),academicYearId:requireUuid('lesson-year','academic year'),
+     classId:requireUuid('lesson-class','class'),
+     subjectId:requireUuid('lesson-subject','subject'),
+     title:el('lesson-title').value.trim(),body:el('lesson-body').value.trim(),resourceUrl:null
+    });
+    notice('Draft lesson created: '+result.title);
+    el('lesson-form').reset();await loadTeacher();
+   }catch(e){notice(e.message,true);}
+  });
   el('attendance-form').addEventListener('submit',async event=>{
    event.preventDefault();
    try{
