@@ -71,6 +71,9 @@ public sealed class InstitutionModuleLandingTests
         var dashboard=await modulePage.Content.ReadAsStringAsync();
         Assert.Contains("Available modules",dashboard);
         Assert.Contains("tenant-module-cards",dashboard);
+        using var root=await client.GetAsync("/");
+        Assert.Equal(HttpStatusCode.Redirect,root.StatusCode);
+        Assert.Equal("/modules",root.Headers.Location?.ToString());
         using var loginAgain=await client.GetAsync("/account/login");
         Assert.Equal(HttpStatusCode.Redirect,loginAgain.StatusCode);
         Assert.Equal("/modules",loginAgain.Headers.Location?.ToString());
