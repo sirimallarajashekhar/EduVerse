@@ -5,7 +5,7 @@ using EduVerse.Domain;
 namespace EduVerse.Application.Attendance;
 
 /// <summary>All security, input, calendar and timetable policies are owned by the API.</summary>
-public sealed class AttendanceService(IAttendanceStore store,ITenantContext context)
+public sealed class AttendanceService(IAttendanceStore store,ITenantContext context, EduVerse.Application.Identity.TenantReadAuthorizer reader)
 {
  private async Task<TenantIdentity> AdminAsync(CancellationToken ct)
  {
@@ -45,7 +45,7 @@ public sealed class AttendanceService(IAttendanceStore store,ITenantContext cont
  }
  public async Task<IReadOnlyList<PeriodRecord>> PeriodsAsync(Guid campus,CancellationToken ct)
  {
-  var actor=await AdminAsync(ct);
+  var actor=await reader.RequireAsync("attendance.read",campus,ct);
   return await store.PeriodsAsync(actor.TenantId,Required(campus),ct);
  }
  public async Task<TimetableRecord> CreateSlotAsync(TimetableCreate input,CancellationToken ct)
@@ -58,7 +58,7 @@ public sealed class AttendanceService(IAttendanceStore store,ITenantContext cont
  }
  public async Task<IReadOnlyList<TimetableRecord>> SlotsAsync(Guid campus,Guid year,CancellationToken ct)
  {
-  var actor=await AdminAsync(ct);
+  var actor=await reader.RequireAsync("attendance.read",campus,ct);
   return await store.SlotsAsync(actor.TenantId,Required(campus),Required(year),ct);
  }
  public async Task<AttendanceRecord> MarkStudentAsync(StudentAttendanceMark input,CancellationToken ct)
@@ -93,7 +93,7 @@ public sealed class AttendanceService(IAttendanceStore store,ITenantContext cont
  }
  public async Task<AttendanceDashboard> DashboardAsync(Guid campus,CancellationToken ct)
  {
-  var actor=await AdminAsync(ct);
+  var actor=await reader.RequireAsync("attendance.read",campus,ct);
   return await store.DashboardAsync(actor.TenantId,Required(campus),ct);
  }
 }
