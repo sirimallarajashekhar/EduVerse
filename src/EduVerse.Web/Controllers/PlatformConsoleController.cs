@@ -18,6 +18,10 @@ public sealed class PlatformConsoleController:Controller
 [Route("bff/platform-control")]
 public sealed class PlatformControlProxyController(IHttpClientFactory clients):ControllerBase
 {
+    [HttpGet("actions")]
+    public Task<IActionResult> Actions(CancellationToken ct)=>
+        Forward(HttpMethod.Get,"actions",null,ct);
+
     [HttpGet("institutions")]
     public Task<IActionResult> Institutions(CancellationToken ct)=>
         Forward(HttpMethod.Get,"institutions",null,ct);
