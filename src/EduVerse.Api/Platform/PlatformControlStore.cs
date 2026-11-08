@@ -105,6 +105,18 @@ public sealed class PlatformControlStore(string connectionString,IIdentityStore 
         var disabledPassword=passwords.Hash(Convert.ToBase64String(RandomNumberGenerator.GetBytes(48)));
         await identities.CreateUserMembershipAsync(request.TenantId,email,request.DisplayName.Trim(),
             disabledPassword,request.RoleCode,ct);
+        await using(var auditDb=Open())
+        {
+            await auditDb.OpenAsync(ct);
+            await using var cmd=new MySqlCommand("""
+                INSERT INTO platform_control_audit(operator_id,tenant_id,target_user_id,action_code,reason)
+                SELECT @operator,@tenant,u.id,'USER_INVITED',@reason
+                FROM identity_users u WHERE u.email_normalized=@email
+                """,auditDb);
+            Add(cmd,("@operator",operatorId.ToString("D")),("@tenant",request.TenantId.ToString("D")),
+                ("@email",email.ToUpperInvariant()),("@reason","Role: "+request.RoleCode));
+            await cmd.ExecuteNonQueryAsync(ct);
+        }
         await identities.AuditAsync(request.TenantId,operatorId,"PLATFORM_USER_INVITED",ct);
         try
         {
@@ -114,6 +126,18 @@ public sealed class PlatformControlStore(string connectionString,IIdentityStore 
         catch(Exception ex) when(ex is not OperationCanceledException)
         {
             // Account remains created; do not hide failed email delivery from the operator.
+            await using(var db=Open())
+            {
+                await db.OpenAsync(ct);
+                await using var cmd=new MySqlCommand("""
+                    INSERT INTO platform_control_audit(operator_id,tenant_id,target_user_id,action_code)
+                    SELECT @operator,@tenant,u.id,'INVITE_EMAIL_FAILED'
+                    FROM identity_users u WHERE u.email_normalized=@email
+                    """,db);
+                Add(cmd,("@operator",operatorId.ToString("D")),
+                    ("@tenant",request.TenantId.ToString("D")),("@email",email.ToUpperInvariant()));
+                await cmd.ExecuteNonQueryAsync(ct);
+            }
             await identities.AuditAsync(request.TenantId,operatorId,"PLATFORM_INVITE_EMAIL_FAILED",ct);
             return new PlatformInviteReceipt(false);
         }
@@ -169,6 +193,15 @@ public sealed class PlatformControlStore(string connectionString,IIdentityStore 
         {
             Add(audit,("@tenant",tenant.ToString("D")),("@operator",operatorId.ToString("D")));
             await audit.ExecuteNonQueryAsync(ct);
+        }
+        await using(var detailed=new MySqlCommand("""
+          INSERT INTO platform_control_audit(operator_id,tenant_id,target_user_id,action_code,reason)
+          VALUES(@operator,@tenant,@target,'USER_DEACTIVATED',@reason)
+          """,db,tx))
+        {
+            Add(detailed,("@operator",operatorId.ToString("D")),("@tenant",tenant.ToString("D")),
+                ("@target",target.ToString("D")),("@reason",reason.Trim()));
+            await detailed.ExecuteNonQueryAsync(ct);
         }
         await tx.CommitAsync(ct);
         return true;
