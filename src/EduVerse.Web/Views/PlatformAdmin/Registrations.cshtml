@@ -1,0 +1,45 @@
+@model EduVerse.Web.Controllers.PlatformRegistrationPage
+@{ ViewData["Title"]="School registration approvals"; }
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div><h1 class="h3">Institution approval queue</h1>
+  <p class="text-secondary">All changes are authorized, validated, and audited by the EduVerse API.</p></div>
+  <form method="post" action="/platform/logout">@Html.AntiForgeryToken()<button class="btn btn-outline-secondary">Operator sign out</button></form>
+</div>
+@if (TempData["Info"] is string info) {<div class="alert alert-success" role="status">@info</div>}
+@if (TempData["Error"] is string err) {<div class="alert alert-danger" role="alert">@err</div>}
+<nav class="mb-3" aria-label="Registration status">
+ @foreach(var status in new[]{"PENDING","APPROVED","REJECTED"})
+ {<a class="btn btn-sm @(Model.Status==status?"btn-primary":"btn-outline-primary") me-2"
+    asp-action="Registrations" asp-route-status="@status">@status</a>}
+</nav>
+@if(!Model.Requests.Any()) {<div class="alert alert-info">No @Model.Status.ToLowerInvariant() registrations.</div>}
+@foreach(var r in Model.Requests)
+{
+ <section class="ev-card p-3 mb-3">
+  <div class="d-flex justify-content-between"><h2 class="h5">@r.Name</h2><span class="badge text-bg-secondary">@r.Status</span></div>
+  <p class="mb-2"><strong>Slug:</strong> @r.Slug &nbsp; <strong>Type:</strong> @r.Kind &nbsp;
+   <strong>Email:</strong> @r.Email &nbsp; <strong>Submitted:</strong> @r.CreatedUtc.ToString("u")</p>
+  @if(r.Status=="PENDING")
+  {
+   <div class="row g-2">
+    <div class="col-md-6">
+     <form method="post" action="/platform/registrations/@r.Id/approve">
+      @Html.AntiForgeryToken()
+      <label class="form-label" for="approve-@r.Id">Approval reason</label>
+      <input class="form-control mb-2" id="approve-@r.Id" name="reason" maxlength="500" required />
+      <button class="btn btn-success" type="submit">Approve school &amp; provision tenant</button>
+     </form>
+    </div>
+    <div class="col-md-6">
+     <form method="post" action="/platform/registrations/@r.Id/reject">
+      @Html.AntiForgeryToken()
+      <label class="form-label" for="reject-@r.Id">Rejection reason</label>
+      <input class="form-control mb-2" id="reject-@r.Id" name="reason" maxlength="500" required />
+      <button class="btn btn-outline-danger" type="submit">Reject request</button>
+     </form>
+    </div>
+   </div>
+  }
+  else {<p class="text-secondary mb-0">Reviewed: @r.ReviewedUtc · Reason: @r.Reason · Tenant: @r.TenantId</p>}
+ </section>
+}
