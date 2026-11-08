@@ -83,6 +83,25 @@
    userBox.append(line);
   }
  }
+ let systemActions=[];
+ function showActions(){
+  const q=el('platform-actions-search').value.trim().toLowerCase();
+  const host=el('platform-actions');host.replaceChildren();
+  const rows=systemActions.filter(x=>(x.module+' '+x.method+' '+x.route).toLowerCase().includes(q));
+  el('platform-actions-count').textContent=rows.length+' of '+systemActions.length+' registered API actions';
+  for(const x of rows){
+   const item=node('div','','border-bottom py-2 d-flex flex-wrap gap-2 align-items-center');
+   item.append(node('span',x.method,'badge text-bg-secondary'));
+   item.append(node('code',x.route,'small'));
+   item.append(node('span',x.platformManaged?'Platform-managed':'Tenant authorization required',
+    x.platformManaged?'badge text-bg-success':'small text-secondary'));
+   host.append(item);
+  }
+ }
+ el('platform-actions-search').addEventListener('input',showActions);
+ el('platform-load-actions').addEventListener('click',()=>safe(async()=>{
+  systemActions=await api('actions');showActions();message('API action inventory loaded.');
+ }));
  el('platform-search').addEventListener('input',showInstitutions);
  el('platform-refresh').addEventListener('click',()=>safe(refresh));
  el('platform-invite').addEventListener('submit',event=>{
