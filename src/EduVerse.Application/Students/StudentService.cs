@@ -5,7 +5,7 @@ using EduVerse.Domain;
 namespace EduVerse.Application.Students;
 
 /// <summary>Only the API performs student/admissions validation, sensitive reads, and role decisions.</summary>
-public sealed class StudentService(IStudentStore store,ITenantContext context)
+public sealed class StudentService(IStudentStore store,ITenantContext context, EduVerse.Application.Identity.TenantReadAuthorizer reader)
 {
     private async Task<TenantIdentity> Admin(CancellationToken ct)
     {
@@ -52,7 +52,7 @@ public sealed class StudentService(IStudentStore store,ITenantContext context)
     }
     public async Task<IReadOnlyList<AdmissionRecord>> ApplicationsAsync(Guid campus,CancellationToken ct)
     {
-        var actor=await Admin(ct);
+        var actor=await reader.RequireAsync("students.read",campus,ct);
         return await store.ApplicationsAsync(actor.TenantId,Campus(campus),ct);
     }
     public async Task DecideAsync(Guid campus,Guid id,string decision,CancellationToken ct)
@@ -71,12 +71,12 @@ public sealed class StudentService(IStudentStore store,ITenantContext context)
     }
     public async Task<IReadOnlyList<StudentRecord>> StudentsAsync(Guid campus,CancellationToken ct)
     {
-        var actor=await Admin(ct);
+        var actor=await reader.RequireAsync("students.read",campus,ct);
         return await store.StudentsAsync(actor.TenantId,Campus(campus),ct);
     }
     public async Task<StudentRecord> StudentAsync(Guid campus,Guid student,CancellationToken ct)
     {
-        var actor=await Admin(ct);
+        var actor=await reader.RequireAsync("students.read",campus,ct);
         return await store.StudentAsync(actor.TenantId,Campus(campus),student,ct)
             ?? throw new StudentScopeException();
     }
@@ -92,7 +92,7 @@ public sealed class StudentService(IStudentStore store,ITenantContext context)
     }
     public async Task<IReadOnlyList<GuardianRecord>> GuardiansAsync(Guid campus,Guid student,CancellationToken ct)
     {
-        var actor=await Admin(ct);
+        var actor=await reader.RequireAsync("students.read",campus,ct);
         return await store.GuardiansAsync(actor.TenantId,Campus(campus),student,ct);
     }
     public async Task<EnrollmentRecord> EnrollAsync(Guid campus,Guid student,EnrollmentCreate input,CancellationToken ct)
@@ -104,7 +104,7 @@ public sealed class StudentService(IStudentStore store,ITenantContext context)
     }
     public async Task<IReadOnlyList<EnrollmentRecord>> EnrollmentsAsync(Guid campus,Guid student,CancellationToken ct)
     {
-        var actor=await Admin(ct);
+        var actor=await reader.RequireAsync("students.read",campus,ct);
         return await store.EnrollmentsAsync(actor.TenantId,Campus(campus),student,ct);
     }
     public async Task LifecycleAsync(Guid campus,Guid student,LifecycleCommand input,CancellationToken ct)
