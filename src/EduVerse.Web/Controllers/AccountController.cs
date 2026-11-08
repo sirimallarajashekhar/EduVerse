@@ -14,7 +14,12 @@ namespace EduVerse.Web.Controllers;
 public sealed class AccountController(IHttpClientFactory clients) : Controller
 {
     [AllowAnonymous, HttpGet("login")]
-    public IActionResult Login(string? returnUrl = null) => View(new LoginForm { ReturnUrl = returnUrl });
+    public IActionResult Login(string? returnUrl = null)
+    {
+        if(User.Identity?.IsAuthenticated==true)
+            return User.IsInRole("PLATFORM_SUPER_ADMIN")?Redirect("/platform/console"):Redirect("/modules");
+        return View(new LoginForm { ReturnUrl = returnUrl });
+    }
 
     [AllowAnonymous, HttpPost("login"), ValidateAntiForgeryToken]
     public async Task<IActionResult> Login(LoginForm form, CancellationToken ct)
