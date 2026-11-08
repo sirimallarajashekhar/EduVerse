@@ -26,6 +26,10 @@ public static class PlatformApprovalEndpoints
         var group=app.MapGroup("/api/v1/platform-admin")
             .RequireAuthorization(policy => policy.RequireRole("PLATFORM_SUPER_ADMIN"));
 
+        // JWT middleware checks the live platform operator session before this handler runs.
+        // The Web SSO cookie must not validate a platform token against a tenant session.
+        group.MapGet("/session",()=>Results.NoContent());
+
         group.MapGet("/registrations",async (string? status,PlatformApprovalStore store,CancellationToken ct) =>
         {
             try { return Results.Ok(await store.ListAsync((status??"PENDING").ToUpperInvariant(),ct)); }

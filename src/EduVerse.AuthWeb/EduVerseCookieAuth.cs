@@ -5,6 +5,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Net.Http.Headers;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 
 namespace EduVerse.AuthWeb;
 
@@ -44,6 +46,26 @@ public static class EduVerseCookieAuth
                 ? Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest
                 : Microsoft.AspNetCore.Http.CookieSecurePolicy.Always;
             options.LoginPath = "/account/login";
+            options.Events.OnRedirectToLogin = context =>
+            {
+                var isPlatformPath=context.Request.Path.StartsWithSegments("/platform")
+                    || context.Request.Path.StartsWithSegments("/bff/platform-control");
+                var redirect=isPlatformPath?"/platform/login":"/account/login";
+                if(context.Request.Path.StartsWithSegments("/bff") ||
+                   context.Request.Path.Value?.Contains("/bff/",StringComparison.OrdinalIgnoreCase)==true)
+                {
+                    context.Response.StatusCode=StatusCodes.Status401Unauthorized;
+                    return Task.CompletedTask;
+                }
+                context.Response.Redirect(redirect+"?returnUrl="+Uri.EscapeDataString(
+                    context.Request.PathBase.ToString()+context.Request.Path.ToString()+context.Request.QueryString.ToString()));
+                return Task.CompletedTask;
+            };
+            options.Events.OnRedirectToAccessDenied = context =>
+            {
+                context.Response.StatusCode=StatusCodes.Status403Forbidden;
+                return Task.CompletedTask;
+            };
             options.AccessDeniedPath = "/account/denied";
             options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
             options.SlidingExpiration = false;
@@ -59,7 +81,11 @@ public static class EduVerseCookieAuth
                 {
                     var client = context.HttpContext.RequestServices
                         .GetRequiredService<IHttpClientFactory>().CreateClient("EduVerseIdentityApi");
-                    using var request = new HttpRequestMessage(HttpMethod.Get, "api/v1/identity/session");
+                    var isPlatformOperator=context.Principal?.IsInRole("PLATFORM_SUPER_ADMIN")==true;
+                    var sessionPath=isPlatformOperator
+                        ? "api/v1/platform-admin/session"
+                        : "api/v1/identity/session";
+                    using var request = new HttpRequestMessage(HttpMethod.Get, sessionPath);
                     request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", bearer);
                     using var response = await client.SendAsync(request, context.HttpContext.RequestAborted);
                     if (!response.IsSuccessStatusCode) context.RejectPrincipal();

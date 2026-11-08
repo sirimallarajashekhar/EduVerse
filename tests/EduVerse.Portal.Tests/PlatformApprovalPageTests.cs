@@ -25,7 +25,7 @@ public sealed class PlatformApprovalPageTests:IClassFixture<WebApplicationFactor
     {
         using var response=await client.GetAsync("/platform/registrations");
         Assert.Equal(HttpStatusCode.Redirect,response.StatusCode);
-        Assert.Contains("/account/login",response.Headers.Location?.ToString());
+        Assert.Contains("/platform/login",response.Headers.Location?.ToString());
     }
 
     [Fact]
@@ -33,7 +33,7 @@ public sealed class PlatformApprovalPageTests:IClassFixture<WebApplicationFactor
     {
         using var response=await client.GetAsync("/platform/console");
         Assert.Equal(HttpStatusCode.Redirect,response.StatusCode);
-        Assert.Contains("/account/login",response.Headers.Location?.ToString());
+        Assert.Contains("/platform/login",response.Headers.Location?.ToString());
     }
 
     [Fact]
@@ -41,6 +41,24 @@ public sealed class PlatformApprovalPageTests:IClassFixture<WebApplicationFactor
     {
         using var response=await client.GetAsync("/bff/platform-control/institutions");
         Assert.True(response.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Redirect);
+    }
+
+    [Fact]
+    public async Task PlatformLoginAndConsoleRenderCurrentLayout()
+    {
+        using var login=await client.GetAsync("/platform/login");
+        Assert.Equal(HttpStatusCode.OK,login.StatusCode);
+        var html=await login.Content.ReadAsStringAsync();
+        Assert.Contains("Super Admin login",html);
+        Assert.Contains("/js/site.js",html);
+        Assert.DoesNotContain("/_content/EduVerse.DesignSystem/js/navigation.js",html);
+    }
+
+    [Fact]
+    public async Task AnonymousPlatformApiUsesHttp401InsteadOfInstitutionLoginRedirect()
+    {
+        using var response=await client.GetAsync("/bff/platform-control/institutions");
+        Assert.Equal(HttpStatusCode.Unauthorized,response.StatusCode);
     }
 
     [Fact]
