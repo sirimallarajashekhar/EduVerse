@@ -225,6 +225,26 @@ public sealed class AdvancedRbacIntegrationTests:IAsyncLifetime
             var body=await mine.Content.ReadAsStringAsync();
             Assert.Contains(student.Id.ToString("D"),body,StringComparison.OrdinalIgnoreCase);
         }
+        // Switch an administrator-approved link from PARENT to SELF and verify role separation.
+        using(var self=await administrator.PostAsJsonAsync("/api/v1/ownership/links",
+            new {campusId=campus,studentId=student.Id,userId=member,relationship="SELF"}))
+            Assert.Equal(HttpStatusCode.NoContent,self.StatusCode);
+        using(var own=await normal.GetAsync("/api/v1/portals/student/me"))
+        {
+            Assert.Equal(HttpStatusCode.OK,own.StatusCode);
+            Assert.Contains(student.Id.ToString("D"),await own.Content.ReadAsStringAsync(),
+                StringComparison.OrdinalIgnoreCase);
+        }
+        foreach(var section in new[]{"attendance","results","timetable","assignments","notices"})
+        {
+            using var studentRead=await normal.GetAsync(
+                $"/api/v1/portals/student/{student.Id:D}/{section}?campusId={campus:D}");
+            Assert.Equal(HttpStatusCode.OK,studentRead.StatusCode);
+        }
+        using(var noLongerParent=await normal.GetAsync(
+            $"/api/v1/portals/parent/children/{student.Id:D}/attendance?campusId={campus:D}"))
+            Assert.Equal(HttpStatusCode.NotFound,noLongerParent.StatusCode);
+
     }
 
     [Fact]
