@@ -26,6 +26,14 @@
 <label class="form-check mb-2"><input class="form-check-input" type="checkbox" id="absent"/> Absent</label>
 <button class="btn btn-primary" type="submit">Save marks</button></form></section>
 <section class="ev-card p-4"><h2 class="h5">My lessons</h2><div id="lessons"></div>
-<p class="small text-secondary">Lesson publication remains an institution administrator operation.</p></section></div>
+<h3 class="h6 mt-3">Prepare a draft lesson</h3>
+<form id="lesson-form">
+<label class="form-label" for="lesson-year">Academic year UUID</label><input class="form-control mb-2" id="lesson-year" required/>
+<label class="form-label" for="lesson-class">Class UUID (your assigned class)</label><input class="form-control mb-2" id="lesson-class" required/>
+<label class="form-label" for="lesson-subject">Subject UUID (your assigned subject)</label><input class="form-control mb-2" id="lesson-subject" required/>
+<label class="form-label" for="lesson-title">Title</label><input class="form-control mb-2" id="lesson-title" maxlength="160" required/>
+<label class="form-label" for="lesson-body">Lesson content</label><textarea class="form-control mb-2" id="lesson-body" maxlength="8000" rows="4" required></textarea>
+<button type="submit" class="btn btn-primary">Create draft</button>
+</form><p class="small text-secondary mt-2">Lesson publication remains an institution administrator operation.</p></section></div>
 </div><p id="portal-message" role="status" class="mt-3"></p>
 @section Scripts {<script src="~/js/role-portals.js" asp-append-version="true"></script>}
