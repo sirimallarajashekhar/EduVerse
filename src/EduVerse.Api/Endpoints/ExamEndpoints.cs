@@ -1,3 +1,4 @@
+using EduVerse.Api.Security;
 using EduVerse.Application.Exams;
 using EduVerse.Contracts;
 using MySqlConnector;
@@ -7,7 +8,7 @@ public static class ExamEndpoints
 {
  public static IEndpointRouteBuilder MapExamEndpoints(this IEndpointRouteBuilder app)
  {
-  var g=app.MapGroup("/api/v1/exams").RequireAuthorization();
+  var g=app.MapGroup("/api/v1/exams").RequireAuthorization().RequireModuleActions("exams.read","exams.manage", "/api/v1/exams/schemes", "/api/v1/exams", "/api/v1/exams/assessments");
   g.MapPost("/schemes",async (GradingSchemeCreate r,ExamService s,CancellationToken ct)=>
    await Write(()=>s.CreateScheme(r,ct)));
   g.MapGet("/schemes",async (Guid campusId,ExamService s,CancellationToken ct)=>
