@@ -13,7 +13,7 @@ public sealed class RoleLearningProxyController(IHttpClientFactory clients):Cont
 {
     private static readonly HashSet<string> GetRoutes=new(StringComparer.Ordinal)
     {
-        "teacher/submissions","conversations","admin/reviews"
+        "teacher/submissions","conversations","admin/reviews","notifications"
     };
     private static readonly HashSet<string> PostRoutes=new(StringComparer.Ordinal)
     {
@@ -40,6 +40,10 @@ public sealed class RoleLearningProxyController(IHttpClientFactory clients):Cont
     public Task<IActionResult> Post(string path,[FromBody]System.Text.Json.JsonElement body,CancellationToken ct)
     {
         path=(path??"").Trim('/');
+        var segments=path.Split('/');
+        if(segments.Length==3 && segments[0]=="notifications" &&
+           Guid.TryParse(segments[1],out var notificationId) && segments[2]=="read")
+            return Forward(HttpMethod.Post,$"notifications/{notificationId:D}/read",null,body.GetRawText(),ct);
         if(!PostRoutes.Contains(path))return Task.FromResult<IActionResult>(NotFound());
         return Forward(HttpMethod.Post,path,null,body.GetRawText(),ct);
     }
