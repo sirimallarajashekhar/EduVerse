@@ -4,6 +4,9 @@ using MySqlConnector;
 
 namespace EduVerse.Api.Security;
 
+public sealed record WorkflowNotification(Guid Id,string Title,string Body,string Status,DateTime DeliveredUtc);
+public sealed record NotificationRead(Guid CampusId);
+
 public sealed partial class RoleLearningWorkflowStore
 {
     public async Task<WorkflowThread?> OpenConversation(ParentConversation request,CancellationToken ct)
@@ -224,4 +227,49 @@ public sealed partial class RoleLearningWorkflowStore
              ("@code",kind=="LESSON"?"LEARNING_LESSON_PUBLISHED":"LEARNING_ASSIGNMENT_PUBLISHED"));
         await tx.CommitAsync(ct);return true;
     }
+    public async Task<IReadOnlyList<WorkflowNotification>> Notifications(Guid campus,CancellationToken ct)
+    {
+        var actor=Actor();
+        if(campus==Guid.Empty)throw new ArgumentException("Campus required.");
+        var list=new List<WorkflowNotification>();
+        await using var db=Connect();await db.OpenAsync(ct);
+        await using var cmd=new MySqlCommand("""
+            SELECT n.id,n.title,n.body,n.status,n.delivered_utc
+            FROM learning_notifications n
+            JOIN campuses c ON c.tenant_id=n.tenant_id AND c.id=n.campus_id AND c.is_active=1
+            JOIN tenant_memberships m ON m.tenant_id=n.tenant_id AND m.subject_id=n.recipient_subject
+               AND m.is_active=1
+            JOIN identity_users u ON u.id=m.subject_id AND u.is_active=1
+            WHERE n.tenant_id=@t AND n.campus_id=@c AND n.recipient_subject=@actor
+            ORDER BY n.delivered_utc DESC LIMIT 100
+            """,db);
+        Add(cmd,("@t",Id(actor.TenantId)),("@c",Id(campus)),("@actor",actor.SubjectId));
+        await using var reader=await cmd.ExecuteReaderAsync(ct);
+        while(await reader.ReadAsync(ct))
+            list.Add(new WorkflowNotification(reader.GetGuid(0),reader.GetString(1),
+                reader.GetString(2),reader.GetString(3),
+                DateTime.SpecifyKind(reader.GetDateTime(4),DateTimeKind.Utc)));
+        return list;
+    }
+
+    public async Task<bool> MarkNotificationRead(Guid notification,NotificationRead request,CancellationToken ct)
+    {
+        var actor=Actor();
+        if(request.CampusId==Guid.Empty||notification==Guid.Empty)
+            throw new ArgumentException("Invalid notification.");
+        await using var db=Connect();await db.OpenAsync(ct);
+        await using var tx=await db.BeginTransactionAsync(ct);
+        var changed=await Exec(db,tx,"""
+            UPDATE learning_notifications n
+            JOIN campuses c ON c.tenant_id=n.tenant_id AND c.id=n.campus_id AND c.is_active=1
+            JOIN tenant_memberships m ON m.tenant_id=n.tenant_id AND m.subject_id=n.recipient_subject
+             AND m.is_active=1
+            SET n.status='READ',n.read_utc=UTC_TIMESTAMP(6)
+            WHERE n.tenant_id=@t AND n.campus_id=@c AND n.id=@id
+              AND n.recipient_subject=@actor AND n.status='DELIVERED'
+            """,ct,("@t",Id(actor.TenantId)),("@c",Id(request.CampusId)),
+             ("@id",Id(notification)),("@actor",actor.SubjectId));
+        await tx.CommitAsync(ct);return changed==1;
+    }
+
 }
