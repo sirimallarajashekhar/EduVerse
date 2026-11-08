@@ -178,6 +178,7 @@ builder.Services.AddScoped<IIdempotentCampusWriter>(provider =>
         .GetConnectionString("EduVerse")
         ?? throw new InvalidOperationException("ConnectionStrings:EduVerse is required.")));
 builder.Services.AddScoped<IdentityService>();
+builder.Services.AddScoped<TenantReadAuthorizer>();
 builder.Services.AddScoped<AdvancedRbacService>();
 builder.Services.AddScoped<IAdvancedRbacStore>(p =>
     new MySqlAdvancedRbacStore(p.GetRequiredService<IConfiguration>().GetConnectionString("EduVerse")
