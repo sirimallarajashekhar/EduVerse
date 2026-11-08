@@ -257,7 +257,7 @@ public sealed class AdvancedRbacIntegrationTests:IAsyncLifetime
             new CreateRbacRole("TEACHER","Assigned Teacher")))
             Assert.Equal(HttpStatusCode.NoContent,created.StatusCode);
         using(var granted=await administrator.PutAsJsonAsync("/api/v1/rbac/roles/TEACHER/permissions",
-            new SetRbacPermissions(new[]{"academic.read","students.read"})))
+            new SetRbacPermissions(new[]{"academic.read","students.read","attendance.manage","exams.manage","learning.read"})))
             Assert.Equal(HttpStatusCode.NoContent,granted.StatusCode);
         using(var assign=await administrator.PostAsJsonAsync("/api/v1/rbac/assignments",
             new SetRbacAssignment(member.ToString("D"),"TEACHER")))
@@ -293,6 +293,7 @@ public sealed class AdvancedRbacIntegrationTests:IAsyncLifetime
             ("@subject",subject.ToString("D")),("@period",period.ToString("D")),("@teacher",member.ToString("D")));
 
         var ownStudent=Guid.NewGuid();var otherStudent=Guid.NewGuid();
+        var enrollmentIds=new Dictionary<Guid,Guid>();
         foreach(var (student,number,schoolClass) in new[]{
             (ownStudent,"TEACHER-A-"+Guid.NewGuid().ToString("N")[..8],classA),
             (otherStudent,"TEACHER-B-"+Guid.NewGuid().ToString("N")[..8],classB)})
@@ -302,11 +303,12 @@ public sealed class AdvancedRbacIntegrationTests:IAsyncLifetime
                 VALUES(@id,@tid,@campus,@number,'Teacher','Test','2014-05-07')
                 """,("@id",student.ToString("D")),("@tid",tenant.ToString("D")),
                 ("@campus",campus.ToString("D")),("@number",number));
+            var enrollmentId=Guid.NewGuid();enrollmentIds[student]=enrollmentId;
             await Exec("""
                 INSERT INTO student_enrollments(
                  id,tenant_id,campus_id,student_id,academic_year_id,academic_item_id)
                 VALUES(@id,@tid,@campus,@student,@year,@class)
-                """,("@id",Guid.NewGuid().ToString("D")),("@tid",tenant.ToString("D")),
+                """,("@id",enrollmentId.ToString("D")),("@tid",tenant.ToString("D")),
                 ("@campus",campus.ToString("D")),("@student",student.ToString("D")),
                 ("@year",year.ToString("D")),("@class",schoolClass.ToString("D")));
         }
@@ -326,6 +328,23 @@ public sealed class AdvancedRbacIntegrationTests:IAsyncLifetime
             Assert.Contains(ownStudent.ToString("D"),json,StringComparison.OrdinalIgnoreCase);
             Assert.DoesNotContain(otherStudent.ToString("D"),json,StringComparison.OrdinalIgnoreCase);
         }
+        using(var teacherClasses=await refreshed.GetAsync(
+            $"/api/v1/portals/teacher/classes?campusId={campus:D}"))
+            Assert.Equal(HttpStatusCode.OK,teacherClasses.StatusCode);
+        using(var teacherLessons=await refreshed.GetAsync(
+            $"/api/v1/portals/teacher/lessons?campusId={campus:D}"))
+            Assert.Equal(HttpStatusCode.OK,teacherLessons.StatusCode);
+        // The write must be allowed only for the teacher's actual current enrollment class.
+        var day=new DateOnly(2026,11,9);
+        using(var allowed=await refreshed.PostAsJsonAsync("/api/v1/portals/teacher/attendance",
+            new StudentAttendanceMark(campus,enrollmentIds[ownStudent],day,null,"PRESENT",null)))
+            Assert.Equal(HttpStatusCode.OK,allowed.StatusCode);
+        using(var deniedOther=await refreshed.PostAsJsonAsync("/api/v1/portals/teacher/attendance",
+            new StudentAttendanceMark(campus,enrollmentIds[otherStudent],day,null,"PRESENT",null)))
+            Assert.Equal(HttpStatusCode.NotFound,deniedOther.StatusCode);
+        using(var deniedCampus=await refreshed.PostAsJsonAsync("/api/v1/portals/teacher/attendance",
+            new StudentAttendanceMark(otherCampus,enrollmentIds[ownStudent],day,null,"PRESENT",null)))
+            Assert.Equal(HttpStatusCode.Forbidden,deniedCampus.StatusCode);
         using(var wrongClass=await refreshed.GetAsync(
             $"/api/v1/ownership/my/teaching/classes/{classB:D}/students?campusId={campus:D}"))
         {
