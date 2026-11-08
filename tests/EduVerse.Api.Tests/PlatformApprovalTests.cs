@@ -229,6 +229,27 @@ public sealed class PlatformApprovalTests : IAsyncLifetime
             $"/api/v1/platform-control/institutions/{tenantId:D}/users/{newMember:D}/deactivate",
             new {tenantId,reason="Membership access closed"}))
             Assert.Equal(HttpStatusCode.NoContent,deactivated.StatusCode);
+        using(var approved=await platform.PostAsJsonAsync(
+            $"/api/v1/platform-control/institutions/{tenantId:D}/users/{newMember:D}/approve",
+            new {tenantId,reason="Identity verified by platform operator"}))
+            Assert.Equal(HttpStatusCode.NoContent,approved.StatusCode);
+        using(var again=await platform.PostAsJsonAsync(
+            $"/api/v1/platform-control/institutions/{tenantId:D}/users/{newMember:D}/approve",
+            new {tenantId,reason="Duplicate approval"}))
+            Assert.Equal(HttpStatusCode.NotFound,again.StatusCode);
+        await using(var db=new MySqlConnection(connection))
+        {
+            await db.OpenAsync();
+            await using var query=new MySqlCommand("""
+                SELECT COUNT(*) FROM platform_control_audit
+                WHERE tenant_id=@tenant AND operator_id=@operator AND target_user_id=@target
+                  AND action_code IN ('USER_INVITED','USER_DEACTIVATED','USER_ACTIVATED')
+                """,db);
+            query.Parameters.AddWithValue("@tenant",tenantId.ToString("D"));
+            query.Parameters.AddWithValue("@operator",operatorId.ToString("D"));
+            query.Parameters.AddWithValue("@target",newMember.ToString("D"));
+            Assert.Equal(3,Convert.ToInt32(await query.ExecuteScalarAsync()));
+        }
         // Last active institutional admin is protected even from platform operators.
         using(var blocked=await platform.PostAsJsonAsync(
             $"/api/v1/platform-control/institutions/{tenantId:D}/users/{operatorId:D}/deactivate",
