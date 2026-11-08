@@ -85,7 +85,7 @@ public sealed class ExamService(IExamStore store,ITenantContext context, EduVers
  }
  public async Task<MarkRecord> EnterMark(MarkCreate input,CancellationToken ct)
  {
-  var actor=await Admin(ct);Id(input.CampusId);Id(input.AssessmentId);Id(input.EnrollmentId);
+  var actor=await reader.RequireAsync("exams.manage",input.CampusId,ct);Id(input.CampusId);Id(input.AssessmentId);Id(input.EnrollmentId);
   if(input.IsAbsent&&input.Marks.HasValue||!input.IsAbsent&&!input.Marks.HasValue)
    throw new ArgumentException("Absent students have no numeric marks; present students require marks.");
   if(input.Marks.HasValue)Number(input.Marks.Value,999999.99m);

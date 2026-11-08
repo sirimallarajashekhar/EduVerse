@@ -1,0 +1,39 @@
+@{ViewData["Title"]="Teacher portal";}
+<header class="mb-4"><p class="ev-eyebrow">EduVerse · Teacher</p><h1 class="h3">My teaching workspace</h1>
+<p class="text-secondary">Only classes and subjects assigned to your account are accessible.</p></header>
+<form id="portal-token">@Html.AntiForgeryToken()</form>
+<div class="ev-card p-4 mb-3">
+<label class="form-label" for="campus">Your assigned campus ID</label>
+<div class="input-group"><input type="text" id="campus" class="form-control" placeholder="Campus UUID" required/>
+<button class="btn btn-primary" id="load-classes" type="button">Load my classes</button></div>
+<p class="form-text">Obtain your campus ID from your institution administrator.</p></div>
+<div class="row g-3">
+<div class="col-lg-6"><section class="ev-card p-4"><h2 class="h5">Assigned classes</h2><div id="classes" aria-live="polite"></div>
+<h3 class="h6 mt-4">Roster</h3><div id="roster"></div></section></div>
+<div class="col-lg-6"><section class="ev-card p-4 mb-3"><h2 class="h5">Mark attendance</h2>
+<form id="attendance-form">
+<label class="form-label" for="enrollment">Enrollment UUID (from assigned class)</label><input class="form-control mb-2" id="enrollment" required/>
+<label class="form-label" for="on">Date</label><input class="form-control mb-2" id="on" type="date" required/>
+<label class="form-label" for="attendance-status">Status</label><select class="form-select mb-2" id="attendance-status">
+<option>PRESENT</option><option>ABSENT</option><option>LATE</option><option>EXCUSED</option></select>
+<label class="form-label" for="period">Period UUID (optional)</label><input class="form-control mb-2" id="period"/>
+<button class="btn btn-primary" type="submit">Save attendance</button></form></section>
+<section class="ev-card p-4 mb-3"><h2 class="h5">Enter assessment marks</h2>
+<form id="marks-form">
+<label class="form-label" for="assessment">Assessment UUID</label><input class="form-control mb-2" id="assessment" required/>
+<label class="form-label" for="marks-enrollment">Enrollment UUID</label><input class="form-control mb-2" id="marks-enrollment" required/>
+<label class="form-label" for="marks">Marks</label><input class="form-control mb-2" id="marks" type="number" min="0" step="0.01"/>
+<label class="form-check mb-2"><input class="form-check-input" type="checkbox" id="absent"/> Absent</label>
+<button class="btn btn-primary" type="submit">Save marks</button></form></section>
+<section class="ev-card p-4"><h2 class="h5">My lessons</h2><div id="lessons"></div>
+<h3 class="h6 mt-3">Prepare a draft lesson</h3>
+<form id="lesson-form">
+<label class="form-label" for="lesson-year">Academic year UUID</label><input class="form-control mb-2" id="lesson-year" required/>
+<label class="form-label" for="lesson-class">Class UUID (your assigned class)</label><input class="form-control mb-2" id="lesson-class" required/>
+<label class="form-label" for="lesson-subject">Subject UUID (your assigned subject)</label><input class="form-control mb-2" id="lesson-subject" required/>
+<label class="form-label" for="lesson-title">Title</label><input class="form-control mb-2" id="lesson-title" maxlength="160" required/>
+<label class="form-label" for="lesson-body">Lesson content</label><textarea class="form-control mb-2" id="lesson-body" maxlength="8000" rows="4" required></textarea>
+<button type="submit" class="btn btn-primary">Create draft</button>
+</form><p class="small text-secondary mt-2">Lesson publication remains an institution administrator operation.</p></section></div>
+</div><p id="portal-message" role="status" class="mt-3"></p>
+@section Scripts {<script src="~/js/role-portals.js" asp-append-version="true"></script>}

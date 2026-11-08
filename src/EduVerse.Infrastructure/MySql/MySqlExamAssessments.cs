@@ -96,6 +96,31 @@ public sealed partial class MySqlExamStore
       AND en.status='ACTIVE' AND s.status='ACTIVE')
    """,ct,("@assessment",Id(req.AssessmentId)),("@enrollment",Id(req.EnrollmentId)),
     ("@t",Id(tenant)),("@c",Id(req.CampusId))))return null;
+  // Re-check teacher/class/subject ownership within the marks transaction.
+  // A delegated teacher may only grade an assessment matching an active assigned timetable slot.
+  await using(var guard=new MySqlCommand("""
+   SELECT EXISTS (
+    SELECT 1 FROM tenant_memberships m
+    WHERE m.tenant_id=@t AND m.subject_id=@actor AND m.is_active=1
+      AND (m.role_code='ADMIN' OR EXISTS (
+        SELECT 1 FROM exam_assessments a
+        JOIN examinations exam ON exam.tenant_id=a.tenant_id AND exam.campus_id=a.campus_id
+            AND exam.id=a.exam_id
+        JOIN student_enrollments en ON en.tenant_id=a.tenant_id AND en.campus_id=a.campus_id
+            AND en.id=@enrollment AND en.academic_item_id=a.academic_item_id
+            AND en.academic_year_id=exam.academic_year_id AND en.status='ACTIVE'
+        JOIN academic_timetable_slots slot ON slot.tenant_id=a.tenant_id AND slot.campus_id=a.campus_id
+            AND slot.class_item_id=en.academic_item_id AND slot.academic_year_id=en.academic_year_id
+            AND slot.subject_id=a.subject_id AND slot.teacher_subject_id=m.subject_id AND slot.is_active=1
+        WHERE a.id=@assessment AND a.tenant_id=@t AND a.campus_id=@c
+      ))
+   )
+   """,db,tx))
+  {
+   Add(guard,("@t",Id(tenant)),("@c",Id(req.CampusId)),("@actor",Id(actor)),
+       ("@assessment",Id(req.AssessmentId)),("@enrollment",Id(req.EnrollmentId)));
+   if(Convert.ToInt32(await guard.ExecuteScalarAsync(ct))!=1)return null;
+  }
   var id=Guid.NewGuid();
   await using(var cmd=new MySqlCommand("""
    INSERT INTO exam_student_marks(id,tenant_id,campus_id,assessment_id,enrollment_id,marks,is_absent,entered_by)

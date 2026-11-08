@@ -24,6 +24,18 @@ else if (User.IsInRole("ADMIN"))
     </div>
   </section>
 }
+else if (User.Identity?.IsAuthenticated == true)
+{
+  <section class="ev-card p-4 mb-4">
+    <h2 class="h4">Your EduVerse workspace</h2>
+    <p class="text-secondary">Choose the portal assigned to you by your institution. The API will verify your role, class and linked student records.</p>
+    <div class="d-flex flex-wrap gap-2">
+      <a href="/portal/teacher" class="btn btn-primary">Teacher</a>
+      <a href="/portal/parent" class="btn btn-outline-primary">Parent</a>
+      <a href="/portal/student" class="btn btn-outline-primary">Student</a>
+    </div>
+  </section>
+}
 else
 {
   <section class="ev-card p-4 mb-4">

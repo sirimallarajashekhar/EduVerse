@@ -64,7 +64,7 @@ public sealed partial class MySqlLearningStore(string connectionString):ILearnin
   r.GetString(3),Utc(r.GetDateTime(4)),r.GetDecimal(5),r.GetString(6));
  private static SubmissionRecord MapSubmission(MySqlDataReader r)=>new(r.GetGuid(0),r.GetGuid(1),r.GetGuid(2),
   r.GetString(3),r.GetString(4),r.IsDBNull(5)?null:r.GetDecimal(5),r.IsDBNull(6)?null:r.GetString(6));
- public async Task<LessonRecord?> CreateLesson(Guid tenant,LessonCreate r,CancellationToken ct)
+ public async Task<LessonRecord?> CreateLesson(Guid tenant,string actor,LessonCreate r,CancellationToken ct)
  {
   await using var db=Connect();await db.OpenAsync(ct);await using var tx=await db.BeginTransactionAsync(ct);
   if(!await Campus(db,tx,tenant,r.CampusId,ct)||!await Exists(db,tx,"""
@@ -76,6 +76,23 @@ public sealed partial class MySqlLearningStore(string connectionString):ILearnin
     WHERE y.tenant_id=@t AND y.campus_id=@c AND y.id=@year AND y.is_active=1)
    """,ct,("@t",Id(tenant)),("@c",Id(r.CampusId)),("@year",Id(r.AcademicYearId)),
    ("@class",Id(r.ClassId)),("@subject",Id(r.SubjectId))))return null;
+  // Enforce active subject/class/year assignment inside the lesson-creation transaction.
+  await using(var access=new MySqlCommand("""
+   SELECT EXISTS(SELECT 1 FROM tenant_memberships m
+    WHERE m.tenant_id=@t AND m.subject_id=@actor AND m.is_active=1
+      AND (m.role_code='ADMIN' OR EXISTS(
+        SELECT 1 FROM academic_timetable_slots slot
+        WHERE slot.tenant_id=m.tenant_id AND slot.campus_id=@c
+          AND slot.teacher_subject_id=m.subject_id
+          AND slot.class_item_id=@class AND slot.academic_year_id=@year
+          AND slot.subject_id=@subject AND slot.is_active=1))
+   )
+   """,db,tx))
+  {
+   Add(access,("@t",Id(tenant)),("@actor",actor),("@c",Id(r.CampusId)),
+       ("@class",Id(r.ClassId)),("@year",Id(r.AcademicYearId)),("@subject",Id(r.SubjectId)));
+   if(Convert.ToInt32(await access.ExecuteScalarAsync(ct))!=1)return null;
+  }
   var id=Guid.NewGuid();
   await Exec(db,tx,"""
    INSERT INTO learning_lessons(id,tenant_id,campus_id,academic_year_id,class_id,

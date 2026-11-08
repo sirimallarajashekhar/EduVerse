@@ -1,0 +1,12 @@
+@{ViewData["Title"]="Student portal";}
+<header class="mb-4"><p class="ev-eyebrow">EduVerse · Student</p><h1 class="h3">My learning dashboard</h1>
+<p class="text-secondary">Timetable, daily attendance, assignments and published results for your own linked student profile.</p></header>
+<div class="ev-card p-4 mb-3"><h2 class="h5">My student profiles</h2><div id="links" aria-live="polite"></div></div>
+<div class="row g-3">
+<div class="col-lg-6"><section class="ev-card p-4"><h2 class="h5">Timetable</h2><div id="timetable"></div></section></div>
+<div class="col-lg-6"><section class="ev-card p-4"><h2 class="h5">Attendance</h2><div id="attendance"></div></section></div>
+<div class="col-lg-6"><section class="ev-card p-4"><h2 class="h5">Published results</h2><div id="results"></div></section></div>
+<div class="col-lg-6"><section class="ev-card p-4"><h2 class="h5">Assignments</h2><div id="assignments"></div></section></div>
+<div class="col-12"><section class="ev-card p-4"><h2 class="h5">Announcements</h2><div id="notices"></div></section></div>
+</div><p id="portal-message" role="status" class="mt-3"></p>
+@section Scripts {<script src="~/js/role-portals.js" asp-append-version="true"></script>}

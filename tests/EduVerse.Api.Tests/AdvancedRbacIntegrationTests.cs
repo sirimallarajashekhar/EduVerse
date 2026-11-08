@@ -190,6 +190,27 @@ public sealed class AdvancedRbacIntegrationTests:IAsyncLifetime
             new {campusId=campus,studentId=student.Id,userId=member,relationship="PARENT"}))
             Assert.Equal(HttpStatusCode.NoContent,linked.StatusCode);
 
+        using(var parentList=await normal.GetAsync("/api/v1/portals/parent/children"))
+        {
+            Assert.Equal(HttpStatusCode.OK,parentList.StatusCode);
+            Assert.Contains(student.Id.ToString("D"),await parentList.Content.ReadAsStringAsync(),
+                StringComparison.OrdinalIgnoreCase);
+        }
+        foreach(var section in new[]{"attendance","results","notices"})
+        {
+            using var linkedRead=await normal.GetAsync(
+                $"/api/v1/portals/parent/children/{student.Id:D}/{section}?campusId={campus:D}");
+            Assert.Equal(HttpStatusCode.OK,linkedRead.StatusCode);
+            using var foreignRead=await foreignMember.GetAsync(
+                $"/api/v1/portals/parent/children/{student.Id:D}/{section}?campusId={campus:D}");
+            Assert.Equal(HttpStatusCode.NotFound,foreignRead.StatusCode);
+        }
+        using(var notSelf=await normal.GetAsync(
+            $"/api/v1/portals/student/{student.Id:D}/timetable?campusId={campus:D}"))
+            Assert.Equal(HttpStatusCode.NotFound,notSelf.StatusCode);
+        using(var notCrossCampus=await normal.GetAsync(
+            $"/api/v1/portals/parent/children/{student.Id:D}/results?campusId={otherCampus:D}"))
+            Assert.Equal(HttpStatusCode.NotFound,notCrossCampus.StatusCode);
         using(var accessible=await normal.GetAsync(path))
             Assert.Equal(HttpStatusCode.OK,accessible.StatusCode);
         using(var hidden=await foreignMember.GetAsync(
@@ -204,6 +225,26 @@ public sealed class AdvancedRbacIntegrationTests:IAsyncLifetime
             var body=await mine.Content.ReadAsStringAsync();
             Assert.Contains(student.Id.ToString("D"),body,StringComparison.OrdinalIgnoreCase);
         }
+        // Switch an administrator-approved link from PARENT to SELF and verify role separation.
+        using(var self=await administrator.PostAsJsonAsync("/api/v1/ownership/links",
+            new {campusId=campus,studentId=student.Id,userId=member,relationship="SELF"}))
+            Assert.Equal(HttpStatusCode.NoContent,self.StatusCode);
+        using(var own=await normal.GetAsync("/api/v1/portals/student/me"))
+        {
+            Assert.Equal(HttpStatusCode.OK,own.StatusCode);
+            Assert.Contains(student.Id.ToString("D"),await own.Content.ReadAsStringAsync(),
+                StringComparison.OrdinalIgnoreCase);
+        }
+        foreach(var section in new[]{"attendance","results","timetable","assignments","notices"})
+        {
+            using var studentRead=await normal.GetAsync(
+                $"/api/v1/portals/student/{student.Id:D}/{section}?campusId={campus:D}");
+            Assert.Equal(HttpStatusCode.OK,studentRead.StatusCode);
+        }
+        using(var noLongerParent=await normal.GetAsync(
+            $"/api/v1/portals/parent/children/{student.Id:D}/attendance?campusId={campus:D}"))
+            Assert.Equal(HttpStatusCode.NotFound,noLongerParent.StatusCode);
+
     }
 
     [Fact]
@@ -257,7 +298,7 @@ public sealed class AdvancedRbacIntegrationTests:IAsyncLifetime
             new CreateRbacRole("TEACHER","Assigned Teacher")))
             Assert.Equal(HttpStatusCode.NoContent,created.StatusCode);
         using(var granted=await administrator.PutAsJsonAsync("/api/v1/rbac/roles/TEACHER/permissions",
-            new SetRbacPermissions(new[]{"academic.read","students.read"})))
+            new SetRbacPermissions(new[]{"academic.read","students.read","attendance.manage","exams.manage","learning.read","learning.manage"})))
             Assert.Equal(HttpStatusCode.NoContent,granted.StatusCode);
         using(var assign=await administrator.PostAsJsonAsync("/api/v1/rbac/assignments",
             new SetRbacAssignment(member.ToString("D"),"TEACHER")))
@@ -293,6 +334,7 @@ public sealed class AdvancedRbacIntegrationTests:IAsyncLifetime
             ("@subject",subject.ToString("D")),("@period",period.ToString("D")),("@teacher",member.ToString("D")));
 
         var ownStudent=Guid.NewGuid();var otherStudent=Guid.NewGuid();
+        var enrollmentIds=new Dictionary<Guid,Guid>();
         foreach(var (student,number,schoolClass) in new[]{
             (ownStudent,"TEACHER-A-"+Guid.NewGuid().ToString("N")[..8],classA),
             (otherStudent,"TEACHER-B-"+Guid.NewGuid().ToString("N")[..8],classB)})
@@ -302,11 +344,12 @@ public sealed class AdvancedRbacIntegrationTests:IAsyncLifetime
                 VALUES(@id,@tid,@campus,@number,'Teacher','Test','2014-05-07')
                 """,("@id",student.ToString("D")),("@tid",tenant.ToString("D")),
                 ("@campus",campus.ToString("D")),("@number",number));
+            var enrollmentId=Guid.NewGuid();enrollmentIds[student]=enrollmentId;
             await Exec("""
                 INSERT INTO student_enrollments(
                  id,tenant_id,campus_id,student_id,academic_year_id,academic_item_id)
                 VALUES(@id,@tid,@campus,@student,@year,@class)
-                """,("@id",Guid.NewGuid().ToString("D")),("@tid",tenant.ToString("D")),
+                """,("@id",enrollmentId.ToString("D")),("@tid",tenant.ToString("D")),
                 ("@campus",campus.ToString("D")),("@student",student.ToString("D")),
                 ("@year",year.ToString("D")),("@class",schoolClass.ToString("D")));
         }
@@ -326,6 +369,67 @@ public sealed class AdvancedRbacIntegrationTests:IAsyncLifetime
             Assert.Contains(ownStudent.ToString("D"),json,StringComparison.OrdinalIgnoreCase);
             Assert.DoesNotContain(otherStudent.ToString("D"),json,StringComparison.OrdinalIgnoreCase);
         }
+        using(var teacherClasses=await refreshed.GetAsync(
+            $"/api/v1/portals/teacher/classes?campusId={campus:D}"))
+            Assert.Equal(HttpStatusCode.OK,teacherClasses.StatusCode);
+        using(var createdDraft=await refreshed.PostAsJsonAsync("/api/v1/portals/teacher/lessons",
+            new LessonCreate(campus,year,classA,subject,"Reading Lesson","Assigned teacher lesson draft",null)))
+        {
+            Assert.Equal(HttpStatusCode.Created,createdDraft.StatusCode);
+            var lesson=await createdDraft.Content.ReadFromJsonAsync<LessonRecord>();
+            Assert.Equal("DRAFT",lesson?.Status);
+        }
+        using(var rejectedDraft=await refreshed.PostAsJsonAsync("/api/v1/portals/teacher/lessons",
+            new LessonCreate(campus,year,classB,subject,"Other Class Lesson","Not assigned to this class",null)))
+            Assert.Equal(HttpStatusCode.NotFound,rejectedDraft.StatusCode);
+        using(var teacherLessons=await refreshed.GetAsync(
+            $"/api/v1/portals/teacher/lessons?campusId={campus:D}"))
+            Assert.Equal(HttpStatusCode.OK,teacherLessons.StatusCode);
+        // The write must be allowed only for the teacher's actual current enrollment class.
+        var day=new DateOnly(2026,11,9);
+        using(var allowed=await refreshed.PostAsJsonAsync("/api/v1/portals/teacher/attendance",
+            new StudentAttendanceMark(campus,enrollmentIds[ownStudent],day,null,"PRESENT",null)))
+            Assert.Equal(HttpStatusCode.OK,allowed.StatusCode);
+        using(var deniedOther=await refreshed.PostAsJsonAsync("/api/v1/portals/teacher/attendance",
+            new StudentAttendanceMark(campus,enrollmentIds[otherStudent],day,null,"PRESENT",null)))
+            Assert.Equal(HttpStatusCode.NotFound,deniedOther.StatusCode);
+        using(var deniedCampus=await refreshed.PostAsJsonAsync("/api/v1/portals/teacher/attendance",
+            new StudentAttendanceMark(otherCampus,enrollmentIds[ownStudent],day,null,"PRESENT",null)))
+            Assert.Equal(HttpStatusCode.Forbidden,deniedCampus.StatusCode);
+        // Exam marks must match an assigned class AND subject, not just campus permission.
+        var scheme=Guid.NewGuid();var exam=Guid.NewGuid();var ownAssessment=Guid.NewGuid();
+        var otherAssessment=Guid.NewGuid();
+        await Exec("""
+            INSERT INTO exam_grading_schemes(id,tenant_id,campus_id,code,name)
+            VALUES(@id,@tenant,@campus,'TEACHER-RBAC','RBAC Grading')
+            """,("@id",scheme.ToString("D")),("@tenant",tenant.ToString("D")),
+            ("@campus",campus.ToString("D")));
+        await Exec("""
+            INSERT INTO examinations(
+              id,tenant_id,campus_id,academic_year_id,scheme_id,code,title,exam_type)
+            VALUES(@id,@tenant,@campus,@year,@scheme,'TEACHER-RBAC','Class Assessment','UNIT')
+            """,("@id",exam.ToString("D")),("@tenant",tenant.ToString("D")),
+            ("@campus",campus.ToString("D")),("@year",year.ToString("D")),
+            ("@scheme",scheme.ToString("D")));
+        foreach(var (assessment,schoolClass) in new[]{
+            (ownAssessment,classA),(otherAssessment,classB)})
+            await Exec("""
+                INSERT INTO exam_assessments(
+                  id,tenant_id,campus_id,exam_id,academic_item_id,subject_id,
+                  scheduled_on,max_marks,pass_marks,credits)
+                VALUES(@id,@tenant,@campus,@exam,@class,@subject,'2026-11-09',100,35,1)
+                """,("@id",assessment.ToString("D")),("@tenant",tenant.ToString("D")),
+                ("@campus",campus.ToString("D")),("@exam",exam.ToString("D")),
+                ("@class",schoolClass.ToString("D")),("@subject",subject.ToString("D")));
+        using(var permittedMark=await refreshed.PostAsJsonAsync("/api/v1/portals/teacher/marks",
+            new MarkCreate(campus,ownAssessment,enrollmentIds[ownStudent],85m,false)))
+            Assert.Equal(HttpStatusCode.OK,permittedMark.StatusCode);
+        using(var rejectedMark=await refreshed.PostAsJsonAsync("/api/v1/portals/teacher/marks",
+            new MarkCreate(campus,otherAssessment,enrollmentIds[otherStudent],85m,false)))
+            Assert.Equal(HttpStatusCode.NotFound,rejectedMark.StatusCode);
+        using(var mismatchedMark=await refreshed.PostAsJsonAsync("/api/v1/portals/teacher/marks",
+            new MarkCreate(campus,ownAssessment,enrollmentIds[otherStudent],85m,false)))
+            Assert.Equal(HttpStatusCode.NotFound,mismatchedMark.StatusCode);
         using(var wrongClass=await refreshed.GetAsync(
             $"/api/v1/ownership/my/teaching/classes/{classB:D}/students?campusId={campus:D}"))
         {

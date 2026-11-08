@@ -34,6 +34,26 @@ public sealed partial class MySqlAttendanceStore
    if(!await reader.ReadAsync(ct))return null;
    student=reader.GetGuid(0);item=reader.GetGuid(1);year=reader.GetGuid(2);
   }
+  // Check assigned-class/period access inside this same transaction, not just at the API layer.
+  // Tenant ADMIN retains existing behavior; MEMBER must teach the exact enrollment class/year.
+  await using(var guard=new MySqlCommand("""
+   SELECT EXISTS(
+    SELECT 1 FROM tenant_memberships m
+    WHERE m.tenant_id=@tenant AND m.subject_id=@actor AND m.is_active=1
+      AND (m.role_code='ADMIN' OR EXISTS(
+       SELECT 1 FROM academic_timetable_slots t
+       WHERE t.tenant_id=m.tenant_id AND t.campus_id=@campus
+         AND t.class_item_id=@item AND t.academic_year_id=@year
+         AND t.teacher_subject_id=m.subject_id AND t.is_active=1
+         AND (@period IS NULL OR t.period_id=@period)
+      ))
+   )
+   """,db,tx))
+  {
+   Add(guard,("@tenant",Id(tenant)),("@actor",Id(actor)),("@campus",Id(req.CampusId)),
+       ("@item",Id(item)),("@year",Id(year)),("@period",req.PeriodId?.ToString("D")));
+   if(Convert.ToInt32(await guard.ExecuteScalarAsync(ct))!=1)return null;
+  }
   if(req.PeriodId is Guid period)
   {
    // Period attendance requires the exact class+year+weekday to have a scheduled slot.
