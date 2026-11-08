@@ -19,7 +19,7 @@ public static class TenantModuleEndpoints
             if(!await repository.IsTenantAdminAsync(identity,ct))return Results.Forbid();
             var subscription=await admin.SubscriptionAsync(identity.TenantId,ct);
             return Results.Ok(new TenantModuleDashboard(identity.TenantId,
-                institution.DisplayName,institution.Kind,"ADMIN",subscription.PlanCode,
+                institution.Name,institution.Kind,"ADMIN",subscription.PlanCode,
                 TenantModuleCatalog.ForAdmin(institution.Kind,subscription.Features)));
         }).RequireAuthorization();
         return app;
