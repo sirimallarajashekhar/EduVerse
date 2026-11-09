@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.RegularExpressions;
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
@@ -115,8 +116,12 @@ public sealed class InstitutionModuleLandingTests
         using var modulesApi=await client.GetAsync("/bff/tenant/modules");
         Assert.Equal(HttpStatusCode.OK,modulesApi.StatusCode);
         var modulesBody=await modulesApi.Content.ReadAsStringAsync();
-        Assert.Contains("Admissions & Students",modulesBody);
-        Assert.Contains("Not included in the active subscription",modulesBody);
+        using var parsedModules=JsonDocument.Parse(modulesBody);
+        var modulesArray=parsedModules.RootElement.GetProperty("modules");
+        Assert.Equal("students",modulesArray[0].GetProperty("id").GetString());
+        Assert.True(modulesArray[0].GetProperty("enabled").GetBoolean());
+        Assert.Equal("finance",modulesArray[1].GetProperty("id").GetString());
+        Assert.False(modulesArray[1].GetProperty("enabled").GetBoolean());
         using var overviewApi=await client.GetAsync("/bff/institution-admin/dashboard");
         Assert.Equal(HttpStatusCode.OK,overviewApi.StatusCode);
         var overviewBody=await overviewApi.Content.ReadAsStringAsync();
