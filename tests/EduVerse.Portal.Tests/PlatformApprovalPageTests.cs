@@ -51,6 +51,7 @@ public sealed class PlatformApprovalPageTests:IClassFixture<WebApplicationFactor
         var html=await login.Content.ReadAsStringAsync();
         Assert.Contains("Super Admin login",html);
         Assert.Contains("/js/site.js",html);
+        Assert.Contains("ev-public-topbar",html);
         Assert.DoesNotContain("/_content/EduVerse.DesignSystem/js/navigation.js",html);
     }
 
