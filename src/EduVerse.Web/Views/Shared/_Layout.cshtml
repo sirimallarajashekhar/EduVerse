@@ -31,7 +31,7 @@
         </div>
         <nav class="ev-sidebar-nav" aria-label="Main navigation">
           <div class="ev-nav-label">WORKSPACE</div>
-          <a href="@landing" class="ev-nav-item" @(currentPath == landing ? "aria-current=page" : "")>
+          <a href="@landing" class="ev-nav-item" aria-current="@(currentPath == landing ? "page" : null)">
             <span class="ev-nav-icon" aria-hidden="true">▦</span><span>Dashboard</span>
           </a>
           @if(platformAdmin)
@@ -40,7 +40,7 @@
             <a href="/platform/console#platform-institutions-section" class="ev-nav-item">
               <span class="ev-nav-icon" aria-hidden="true">▤</span><span>Institutions</span>
             </a>
-            <a href="/platform/registrations" class="ev-nav-item" @(currentPath.StartsWith("/platform/registrations",StringComparison.OrdinalIgnoreCase) ? "aria-current=page" : "")>
+            <a href="/platform/registrations" class="ev-nav-item" aria-current="@(currentPath.StartsWith("/platform/registrations",StringComparison.OrdinalIgnoreCase) ? "page" : null)">
               <span class="ev-nav-icon" aria-hidden="true">✓</span><span>Institution approvals</span>
             </a>
             <a href="/platform/console#platform-modules-section" class="ev-nav-item">
