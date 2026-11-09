@@ -115,7 +115,7 @@
                 <button id="reports-apply-dates" type="button" class="btn btn-outline-primary" disabled>Apply</button>
             </div>
         </div>
-        <p class="small text-secondary" id="reports-filter-description">Date filters apply only to the receipt listing and receipt-volume trend. The finance dashboard above remains the API's all-time campus snapshot.</p>
+        <p class="small text-secondary" id="reports-filter-description">Date filters apply only to the 250 most recent receipts supplied by the current Finance API, not all historical payments. The finance dashboard above remains the API's all-time campus snapshot.</p>
         <p id="reports-insights-status" class="small" role="status" aria-live="polite">Loading authorized report details…</p>
         <div class="row g-3 mb-3">
             <div class="col-lg-6">
@@ -136,7 +136,7 @@
             <thead><tr><th scope="col">Receipt</th><th scope="col">Collected date</th><th scope="col">Amount (INR)</th><th scope="col">Reconciliation</th></tr></thead>
             <tbody id="reports-receipt-rows"><tr><td colspan="4" class="text-secondary">Select a campus to load receipts.</td></tr></tbody>
         </table></div>
-        <p class="small text-secondary mb-0">Exports include only the currently visible, authorized receipt rows. CSV is compatible with Excel; Save as PDF uses the browser print dialog.</p>
+        <p class="small text-secondary mb-0">Exports include only authorized receipt records returned by the current API (maximum 250). CSV is compatible with Excel; Save as PDF uses the browser print dialog.</p>
     </section>
 
     <section class="ev-card p-4" aria-labelledby="reports-specialized-title">
