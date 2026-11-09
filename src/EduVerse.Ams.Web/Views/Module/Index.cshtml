@@ -1,7 +1,23 @@
 @{ViewData["Title"]="Assets & Inventory";}
+<div class="ev-module-workspace">
+<header class="ev-module-header">
+<div>
 <p class="ev-eyebrow">Independent micro frontend · AMS</p>
-<h1 class="h3">Asset &amp; Inventory Management</h1>
+<h1 class="h2">Asset &amp; Inventory Management</h1>
 <p class="text-secondary">Campus equipment, allocations, maintenance, inventory movements and purchasing.</p>
+</div>
+<a class="ev-module-home" href="/modules" aria-label="Return to institution dashboard">← Dashboard</a>
+</header>
+<nav class="ev-module-tabs" aria-label="Module sections">
+ <a class="ev-module-tab" href="#ev-categories">Asset categories</a>
+ <a class="ev-module-tab" href="#ev-assets">Register an asset</a>
+ <a class="ev-module-tab" href="#ev-allocations">Allocate, transfer or return assets</a>
+ <a class="ev-module-tab" href="#ev-maintenance">Maintenance schedules and work orders</a>
+ <a class="ev-module-tab" href="#ev-inventory">Inventory items</a>
+ <a class="ev-module-tab" href="#ev-movements">Stock movements</a>
+ <a class="ev-module-tab" href="#ev-vendors">Vendors</a>
+ <a class="ev-module-tab" href="#ev-purchasing">Purchase order foundation</a>
+</nav>
 <section class="ev-card p-4 mb-3">
  @Html.AntiForgeryToken()
  <label for="campus" class="form-label">Active campus</label>
@@ -11,7 +27,7 @@
 </section>
 <div class="row g-3 mb-3">
  <div class="col-lg-4"><section class="ev-card p-4 h-100">
-  <h2 class="h5">Asset categories</h2>
+  <h2 id="ev-categories" class="h5 ev-module-section">Asset categories</h2>
   <form id="category-form" class="row g-2">
    <div class="col-sm-5"><label for="category-code" class="form-label">Code</label><input id="category-code" class="form-control" maxlength="30" required/></div>
    <div class="col-sm-7"><label for="category-name" class="form-label">Category</label><input id="category-name" class="form-control" maxlength="120" required/></div>
@@ -20,7 +36,7 @@
   <ul id="category-list" class="small mt-2"></ul>
  </section></div>
  <div class="col-lg-8"><section class="ev-card p-4 h-100">
-  <h2 class="h5">Register an asset</h2>
+  <h2 id="ev-assets" class="h5 ev-module-section">Register an asset</h2>
   <form id="asset-form" class="row g-2">
    <div class="col-sm-6"><label for="asset-category" class="form-label">Category</label><select id="asset-category" class="form-select" required></select></div>
    <div class="col-sm-6"><label for="asset-name" class="form-label">Asset name</label><input id="asset-name" maxlength="160" class="form-control" required/></div>
@@ -33,7 +49,7 @@
 </div>
 <div class="row g-3 mb-3">
  <div class="col-lg-7"><section class="ev-card p-4 h-100">
-  <h2 class="h5">Allocate, transfer or return assets</h2>
+  <h2 id="ev-allocations" class="h5 ev-module-section">Allocate, transfer or return assets</h2>
   <label for="asset" class="form-label">Asset</label><select id="asset" class="form-select mb-2"></select>
   <form id="allocate-form" class="row g-2">
    <div class="col-sm-4"><label for="building" class="form-label">Building</label><select id="building" class="form-select"></select></div>
@@ -52,7 +68,7 @@
   <h3 class="h6 mt-3">Asset history</h3><ul id="asset-events" class="small"></ul>
  </section></div>
  <div class="col-lg-5"><section class="ev-card p-4 h-100">
-  <h2 class="h5">Maintenance schedules and work orders</h2>
+  <h2 id="ev-maintenance" class="h5 ev-module-section">Maintenance schedules and work orders</h2>
   <form id="maintenance-form" class="row g-2">
    <div class="col-12"><label for="work-title" class="form-label">Work order title</label><input id="work-title" maxlength="160" class="form-control" required/></div>
    <div class="col-12"><label for="work-due" class="form-label">Due date</label><input id="work-due" type="date" class="form-control" required/></div>
@@ -63,7 +79,7 @@
 </div>
 <div class="row g-3 mb-3">
  <div class="col-lg-5"><section class="ev-card p-4 h-100">
-  <h2 class="h5">Inventory items</h2>
+  <h2 id="ev-inventory" class="h5 ev-module-section">Inventory items</h2>
   <form id="stock-form" class="row g-2">
    <div class="col-sm-4"><label for="sku" class="form-label">SKU</label><input id="sku" maxlength="40" class="form-control" required/></div>
    <div class="col-sm-8"><label for="stock-name" class="form-label">Item</label><input id="stock-name" maxlength="160" class="form-control" required/></div>
@@ -74,7 +90,7 @@
   <ul id="stock-items" class="small mt-3"></ul>
  </section></div>
  <div class="col-lg-7"><section class="ev-card p-4 h-100">
-  <h2 class="h5">Stock movements</h2>
+  <h2 id="ev-movements" class="h5 ev-module-section">Stock movements</h2>
   <form id="movement-form" class="row g-2">
    <div class="col-12"><label for="movement-stock" class="form-label">Stock item</label><select id="movement-stock" class="form-select" required></select></div>
    <div class="col-sm-5"><label for="movement-type" class="form-label">Movement</label><select id="movement-type" class="form-select"><option value="IN">Receive</option><option value="OUT">Issue</option><option value="ADJUST">Positive adjustment</option></select></div>
@@ -87,7 +103,7 @@
 </div>
 <div class="row g-3">
  <div class="col-lg-5"><section class="ev-card p-4 h-100">
-  <h2 class="h5">Vendors</h2>
+  <h2 id="ev-vendors" class="h5 ev-module-section">Vendors</h2>
   <form id="vendor-form" class="row g-2">
    <div class="col-12"><label for="vendor-name" class="form-label">Vendor</label><input id="vendor-name" maxlength="160" class="form-control" required/></div>
    <div class="col-12"><label for="vendor-email" class="form-label">Contact email</label><input id="vendor-email" type="email" maxlength="254" class="form-control"/></div>
@@ -96,7 +112,7 @@
   <ul id="vendor-list" class="small mt-3"></ul>
  </section></div>
  <div class="col-lg-7"><section class="ev-card p-4 h-100">
-  <h2 class="h5">Purchase order foundation</h2>
+  <h2 id="ev-purchasing" class="h5 ev-module-section">Purchase order foundation</h2>
   <form id="purchase-form" class="row g-2">
    <div class="col-sm-6"><label for="purchase-vendor" class="form-label">Vendor</label><select id="purchase-vendor" class="form-select" required></select></div>
    <div class="col-sm-6"><label for="purchase-stock" class="form-label">Item</label><select id="purchase-stock" class="form-select" required></select></div>
@@ -107,4 +123,5 @@
   <ul id="purchases" class="small mt-3"></ul>
  </section></div>
 </div>
-@section Scripts {<script src="/ams/js/ams-admin.js" asp-append-version="true"></script>}
+</div>
+@section Scripts {<script src="/ams/js/ams-admin.js" asp-append-version="true"></script><script src="/_content/EduVerse.DesignSystem/js/operational-workspace.js" defer></script>}

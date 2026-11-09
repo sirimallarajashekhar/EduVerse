@@ -1,9 +1,21 @@
 @{ViewData["Title"]="Admissions & Students";}
-<div class="mb-4">
+<div class="ev-module-workspace">
+<header class="ev-module-header"><div>
   <p class="ev-eyebrow">EduVerse · Student lifecycle</p>
-  <h1 class="h3">Admissions &amp; Student Management</h1>
+  <h1 class="h2">Admissions &amp; Student Management</h1>
   <p class="text-secondary">Sensitive student information is managed by tenant-secured REST APIs.</p>
 </div>
+<a class="ev-module-home" href="/modules" aria-label="Return to institution dashboard">← Dashboard</a>
+</header>
+
+<nav class="ev-module-tabs" aria-label="Module sections">
+ <a class="ev-module-tab" href="#ev-admission">New admission application</a>
+ <a class="ev-module-tab" href="#ev-review">Application review</a>
+ <a class="ev-module-tab" href="#ev-registration">Register approved student</a>
+ <a class="ev-module-tab" href="#ev-guardians">Parent / guardian</a>
+ <a class="ev-module-tab" href="#ev-enrollment">Academic enrollment</a>
+ <a class="ev-module-tab" href="#ev-documents">Documents &amp; verification</a>
+</nav>
 <section class="ev-card p-4 mb-3">
   @Html.AntiForgeryToken()
   <label class="form-label" for="campus">Active campus</label>
@@ -13,7 +25,7 @@
 <div class="row g-3 mb-3">
   <div class="col-xl-5">
     <section class="ev-card p-4 h-100">
-      <h2 class="h5">New admission application</h2>
+      <h2 id="ev-admission" class="h5 ev-module-section">New admission application</h2>
       <form id="application-form" class="row g-2">
         <div class="col-sm-6"><label class="form-label" for="given">Given name</label><input id="given" class="form-control" maxlength="100" required /></div>
         <div class="col-sm-6"><label class="form-label" for="family">Family name</label><input id="family" class="form-control" maxlength="100" /></div>
@@ -26,7 +38,8 @@
   </div>
   <div class="col-xl-7">
     <section class="ev-card p-4 h-100">
-      <h2 class="h5">Application review</h2>
+      <h2 id="ev-review" class="h5 ev-module-section">Application review</h2>
+      <div class="mb-3"><label class="form-label" for="ev-search-applications">Search applications</label><input id="ev-search-applications" class="form-control ev-record-search" type="search" data-ev-filter-target="applications" placeholder="Search applications" autocomplete="off" /></div>
       <div class="table-responsive">
         <table class="table table-sm align-middle">
           <thead><tr><th>Application</th><th>Applicant</th><th>Status</th><th>Action</th></tr></thead>
@@ -39,7 +52,7 @@
 <div class="row g-3 mb-3">
   <div class="col-lg-6">
     <section class="ev-card p-4">
-      <h2 class="h5">Register approved student</h2>
+      <h2 id="ev-registration" class="h5 ev-module-section">Register approved student</h2>
       <form id="student-form" class="row g-2">
         <div class="col-12"><label for="approved" class="form-label">Approved admission</label><select id="approved" class="form-select" required></select></div>
         <div class="col-12"><button class="btn btn-primary" type="submit">Register student</button></div>
@@ -52,7 +65,7 @@
   </div>
   <div class="col-lg-6">
     <section class="ev-card p-4">
-      <h2 class="h5">Parent / guardian</h2>
+      <h2 id="ev-guardians" class="h5 ev-module-section">Parent / guardian</h2>
       <form id="guardian-form" class="row g-2">
         <div class="col-sm-6"><label for="guardian-name" class="form-label">Name</label><input id="guardian-name" class="form-control" maxlength="160" required /></div>
         <div class="col-sm-6"><label for="guardian-relation" class="form-label">Relationship</label>
@@ -69,7 +82,7 @@
 <div class="row g-3">
   <div class="col-lg-6">
     <section class="ev-card p-4 h-100">
-      <h2 class="h5">Academic enrollment</h2>
+      <h2 id="ev-enrollment" class="h5 ev-module-section">Academic enrollment</h2>
       <form id="enroll-form" class="row g-2">
         <div class="col-sm-6"><label for="enroll-year" class="form-label">Academic year</label><select id="enroll-year" class="form-select" required></select></div>
         <div class="col-sm-6"><label for="enroll-item" class="form-label">Class / section / course / batch</label><select id="enroll-item" class="form-select" required></select></div>
@@ -89,7 +102,7 @@
   </div>
   <div class="col-lg-6">
     <section class="ev-card p-4 h-100">
-      <h2 class="h5">Documents &amp; verification</h2>
+      <h2 id="ev-documents" class="h5 ev-module-section">Documents &amp; verification</h2>
       <p class="small text-secondary">Private PDF, PNG or JPEG. Maximum 1 MiB. Only authorized staff can download.</p>
       <form id="document-form" class="row g-2" enctype="multipart/form-data">
         <div class="col-sm-6"><label for="document-category" class="form-label">Category</label>
@@ -107,4 +120,5 @@
     </section>
   </div>
 </div>
-@section Scripts {<script src="~/js/student-admin.js" asp-append-version="true"></script>}
+</div>
+@section Scripts {<script src="~/js/student-admin.js" asp-append-version="true"></script><script src="/_content/EduVerse.DesignSystem/js/operational-workspace.js" defer></script>}

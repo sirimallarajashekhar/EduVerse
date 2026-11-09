@@ -1,6 +1,18 @@
 @{ViewData["Title"]="Fees & Finance";}
-<div class="mb-4"><p class="ev-eyebrow">EduVerse · Finance</p><h1 class="h3">Fees &amp; Finance</h1>
+<div class="ev-module-workspace">
+<header class="ev-module-header"><div><p class="ev-eyebrow">EduVerse · Finance</p><h1 class="h2">Fees &amp; Finance</h1>
 <p class="text-secondary">Manual/offline finance recording with API-owned calculations and tenant authorization.</p></div>
+<a class="ev-module-home" href="/modules" aria-label="Return to institution dashboard">← Dashboard</a>
+</header>
+
+<nav class="ev-module-tabs" aria-label="Module sections">
+ <a class="ev-module-tab" href="#ev-structures">Fee structure</a>
+ <a class="ev-module-tab" href="#ev-assignments">Student fee assignment</a>
+ <a class="ev-module-tab" href="#ev-concessions">Scholarship / concession / discount</a>
+ <a class="ev-module-tab" href="#ev-collections">Record manual collection</a>
+ <a class="ev-module-tab" href="#ev-refunds">Refund &amp; reconciliation</a>
+ <a class="ev-module-tab" href="#ev-overview">Finance dashboard</a>
+</nav>
 <section class="ev-card p-4 mb-3">
  @Html.AntiForgeryToken()
  <label class="form-label" for="campus">Active campus</label>
@@ -9,7 +21,7 @@
 </section>
 <div class="row g-3 mb-3">
  <div class="col-lg-4"><section class="ev-card p-4 h-100">
-  <h2 class="h5">Fee structure</h2>
+  <h2 id="ev-structures" class="h5 ev-module-section">Fee structure</h2>
   <form id="fee-form" class="row g-2">
    <div class="col-12"><label for="year" class="form-label">Academic year</label><select id="year" class="form-select" required></select></div>
    <div class="col-sm-4"><label for="fee-code" class="form-label">Code</label><input id="fee-code" class="form-control" maxlength="30" required/></div>
@@ -20,7 +32,7 @@
   <ul id="fee-list" class="small mt-3"></ul>
  </section></div>
  <div class="col-lg-4"><section class="ev-card p-4 h-100">
-  <h2 class="h5">Student fee assignment</h2>
+  <h2 id="ev-assignments" class="h5 ev-module-section">Student fee assignment</h2>
   <form id="charge-form" class="row g-2">
    <div class="col-12"><label for="enrollment" class="form-label">Active student enrollment</label><select id="enrollment" class="form-select" required></select></div>
    <div class="col-12"><label for="fee" class="form-label">Fee structure</label><select id="fee" class="form-select" required></select></div>
@@ -30,7 +42,7 @@
   </form>
  </section></div>
  <div class="col-lg-4"><section class="ev-card p-4 h-100">
-  <h2 class="h5">Scholarship / concession / discount</h2>
+  <h2 id="ev-concessions" class="h5 ev-module-section">Scholarship / concession / discount</h2>
   <form id="concession-form" class="row g-2">
    <div class="col-12"><label for="concession-charge" class="form-label">Fee assignment</label><select id="concession-charge" class="form-select" required></select></div>
    <div class="col-sm-6"><label for="concession-category" class="form-label">Category</label><select id="concession-category" class="form-select"><option>SCHOLARSHIP</option><option>CONCESSION</option><option>DISCOUNT</option></select></div>
@@ -42,7 +54,7 @@
 </div>
 <div class="row g-3 mb-3">
  <div class="col-lg-6"><section class="ev-card p-4 h-100">
-  <h2 class="h5">Record manual collection</h2>
+  <h2 id="ev-collections" class="h5 ev-module-section">Record manual collection</h2>
   <form id="payment-form" class="row g-2">
    <div class="col-12"><label for="payment-charge" class="form-label">Fee assignment</label><select id="payment-charge" class="form-select" required></select></div>
    <div class="col-12"><label for="installment" class="form-label">Installment</label><select id="installment" class="form-select" required></select></div>
@@ -53,7 +65,7 @@
   </form>
  </section></div>
  <div class="col-lg-6"><section class="ev-card p-4 h-100">
-  <h2 class="h5">Refund &amp; reconciliation</h2>
+  <h2 id="ev-refunds" class="h5 ev-module-section">Refund &amp; reconciliation</h2>
   <form id="refund-form" class="row g-2 mb-3">
    <div class="col-12"><label for="refund-payment" class="form-label">Recorded payment</label><select id="refund-payment" class="form-select" required></select></div>
    <div class="col-sm-4"><label for="refund-amount" class="form-label">Refund (INR)</label><input id="refund-amount" class="form-control" type="number" step="0.01" min="0.01" required /></div>
@@ -69,9 +81,11 @@
  </section></div>
 </div>
 <section class="ev-card p-4">
- <h2 class="h5">Finance dashboard</h2><p id="dashboard" class="small"></p>
+ <h2 id="ev-overview" class="h5 ev-module-section">Finance dashboard</h2><p id="dashboard" class="small"></p>
  <h3 class="h6">Recent payments and receipts</h3>
- <div class="table-responsive"><table class="table table-sm"><thead><tr><th>Receipt</th><th>Amount</th><th>Reconciliation</th><th>Action</th></tr></thead><tbody id="payments"></tbody></table></div>
+ <div class="mb-3"><label class="form-label" for="ev-search-payments">Search receipts</label><input id="ev-search-payments" class="form-control ev-record-search" type="search" data-ev-filter-target="payments" placeholder="Search receipts" autocomplete="off" /></div>
+      <div class="table-responsive"><table class="table table-sm"><thead><tr><th>Receipt</th><th>Amount</th><th>Reconciliation</th><th>Action</th></tr></thead><tbody id="payments"></tbody></table></div>
  <p class="small text-secondary">Receipts show manually recorded transactions; they are not confirmation from a payment gateway.</p>
 </section>
-@section Scripts {<script src="~/js/finance-admin.js" asp-append-version="true"></script>}
+</div>
+@section Scripts {<script src="~/js/finance-admin.js" asp-append-version="true"></script><script src="/_content/EduVerse.DesignSystem/js/operational-workspace.js" defer></script>}

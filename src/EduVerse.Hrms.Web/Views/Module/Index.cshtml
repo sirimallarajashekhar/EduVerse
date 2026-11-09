@@ -1,7 +1,21 @@
 @{ViewData["Title"]="Human Resources";}
+<div class="ev-module-workspace">
+<header class="ev-module-header">
+<div>
 <p class="ev-eyebrow">Independent micro frontend · HRMS</p>
-<h1 class="h3">Human Resource Management</h1>
+<h1 class="h2">Human Resource Management</h1>
 <p class="text-secondary">Employee onboarding, leave and payroll administration. All rules and records are protected by EduVerse REST APIs.</p>
+</div>
+<a class="ev-module-home" href="/modules" aria-label="Return to institution dashboard">← Dashboard</a>
+</header>
+<nav class="ev-module-tabs" aria-label="Module sections">
+ <a class="ev-module-tab" href="#ev-designations">Departments &amp; designations</a>
+ <a class="ev-module-tab" href="#ev-employees">Employee / faculty onboarding</a>
+ <a class="ev-module-tab" href="#ev-documents">Private employee documents</a>
+ <a class="ev-module-tab" href="#ev-leave">Leave types &amp; balances</a>
+ <a class="ev-module-tab" href="#ev-payroll">Salary structure (INR)</a>
+ <a class="ev-module-tab" href="#ev-attendance">Staff attendance integration</a>
+</nav>
 <section class="ev-card p-4 mb-3">
  @Html.AntiForgeryToken()
  <label class="form-label" for="campus">Campus</label>
@@ -11,7 +25,7 @@
 </section>
 <div class="row g-3 mb-3">
  <div class="col-lg-5"><section class="ev-card p-4 h-100">
-  <h2 class="h5">Departments &amp; designations</h2>
+  <h2 id="ev-designations" class="h5 ev-module-section">Departments &amp; designations</h2>
   <p class="small text-secondary">Departments are managed in the Institution Administration module. Choose one when onboarding employees.</p>
   <form id="designation-form" class="row g-2">
    <div class="col-sm-4"><label for="des-code" class="form-label">Code</label><input id="des-code" class="form-control" maxlength="30" required/></div>
@@ -21,7 +35,7 @@
   <ul id="designations" class="small mt-3"></ul>
  </section></div>
  <div class="col-lg-7"><section class="ev-card p-4 h-100">
-  <h2 class="h5">Employee / faculty onboarding</h2>
+  <h2 id="ev-employees" class="h5 ev-module-section">Employee / faculty onboarding</h2>
   <form id="employee-form" class="row g-2">
    <div class="col-sm-6"><label for="first" class="form-label">Given name</label><input id="first" maxlength="100" class="form-control" required/></div>
    <div class="col-sm-6"><label for="last" class="form-label">Family name</label><input id="last" maxlength="100" class="form-control" required/></div>
@@ -45,7 +59,7 @@
 </div>
 <div class="row g-3 mb-3">
  <div class="col-lg-5"><section class="ev-card p-4 h-100">
-  <h2 class="h5">Private employee documents</h2>
+  <h2 id="ev-documents" class="h5 ev-module-section">Private employee documents</h2>
   <p class="small text-secondary">PDF, PNG or JPEG, maximum 1 MiB. Only HR administrators can retrieve documents.</p>
   <form id="document-form" class="row g-2" enctype="multipart/form-data">
    <div class="col-sm-6"><label for="document-type" class="form-label">Document type</label>
@@ -56,7 +70,7 @@
   <ul id="documents" class="small mt-3"></ul>
  </section></div>
  <div class="col-lg-7"><section class="ev-card p-4 h-100">
-  <h2 class="h5">Leave types &amp; balances</h2>
+  <h2 id="ev-leave" class="h5 ev-module-section">Leave types &amp; balances</h2>
   <form id="leave-type-form" class="row g-2">
    <div class="col-sm-4"><label for="leave-code" class="form-label">Code</label><input id="leave-code" maxlength="30" class="form-control" required/></div>
    <div class="col-sm-5"><label for="leave-title" class="form-label">Leave title</label><input id="leave-title" maxlength="120" class="form-control" required/></div>
@@ -77,7 +91,7 @@
 </div>
 <div class="row g-3 mb-3">
  <div class="col-lg-6"><section class="ev-card p-4 h-100">
-  <h2 class="h5">Salary structure (INR)</h2>
+  <h2 id="ev-payroll" class="h5 ev-module-section">Salary structure (INR)</h2>
   <form id="salary-form" class="row g-2">
    <div class="col-sm-6"><label for="salary-date" class="form-label">Effective date</label><input id="salary-date" type="date" class="form-control" required/></div>
    <div class="col-sm-6"><label for="base" class="form-label">Monthly base</label><input id="base" type="number" min="0" step=".01" class="form-control" required/></div>
@@ -93,7 +107,7 @@
   <p id="payroll-result" class="small mt-2"></p>
  </section></div>
  <div class="col-lg-6"><section class="ev-card p-4 h-100">
-  <h2 class="h5">Staff attendance integration</h2>
+  <h2 id="ev-attendance" class="h5 ev-module-section">Staff attendance integration</h2>
   <p class="text-secondary small">Reads existing attendance for employees associated with EduVerse accounts. Attendance entry remains in the Attendance module.</p>
   <label for="attendance-date" class="form-label">Attendance date</label>
   <input id="attendance-date" type="date" class="form-control mb-2"/>
@@ -101,4 +115,5 @@
   <ul id="attendance" class="small mt-3"></ul>
  </section></div>
 </div>
-@section Scripts {<script src="/hrms/js/hrms.js" asp-append-version="true"></script>}
+</div>
+@section Scripts {<script src="/hrms/js/hrms.js" asp-append-version="true"></script><script src="/_content/EduVerse.DesignSystem/js/operational-workspace.js" defer></script>}

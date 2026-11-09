@@ -132,6 +132,25 @@ public sealed class InstitutionModuleLandingTests
         var institutionHtml=await institutionPage.Content.ReadAsStringAsync();
         Assert.Contains("campus-form",institutionHtml);
         Assert.Contains("campuses-list",institutionHtml);
+        foreach (var page in new[]
+        {
+            (Route:"/admin/students",Section:"ev-admission",Script:"student-admin.js"),
+            (Route:"/admin/academics",Section:"ev-catalog",Script:"academic-admin.js"),
+            (Route:"/admin/attendance",Section:"ev-timetable",Script:"attendance-admin.js"),
+            (Route:"/admin/finance",Section:"ev-collections",Script:"finance-admin.js"),
+            (Route:"/admin/exams",Section:"ev-results",Script:"exam-admin.js")
+        })
+        {
+            using var sectionResponse=await client.GetAsync(page.Route);
+            Assert.Equal(HttpStatusCode.OK,sectionResponse.StatusCode);
+            var sectionHtml=await sectionResponse.Content.ReadAsStringAsync();
+            Assert.Contains("ev-module-workspace",sectionHtml);
+            Assert.Contains("ev-module-tabs",sectionHtml);
+            Assert.Contains("id=\"" + page.Section + "\"",sectionHtml);
+            Assert.Contains(page.Script,sectionHtml);
+            Assert.Contains("operational-workspace.js",sectionHtml);
+            Assert.Contains("__RequestVerificationToken",sectionHtml);
+        }
         var institutionTokenInput=Regex.Match(institutionHtml,
             @"<input[^>]*name=""__RequestVerificationToken""[^>]*>");
         Assert.True(institutionTokenInput.Success);

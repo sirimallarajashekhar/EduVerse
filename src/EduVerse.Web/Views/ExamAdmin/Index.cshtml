@@ -1,9 +1,20 @@
 @{ViewData["Title"]="Exams & Results";}
-<div class="mb-4">
+<div class="ev-module-workspace">
+<header class="ev-module-header"><div>
  <p class="ev-eyebrow">EduVerse · School &amp; college assessment</p>
- <h1 class="h3">Exams &amp; Results</h1>
+ <h1 class="h2">Exams &amp; Results</h1>
  <p class="text-secondary">Create exams, enter validated subject marks, approve and publish report cards.</p>
 </div>
+<a class="ev-module-home" href="/modules" aria-label="Return to institution dashboard">← Dashboard</a>
+</header>
+
+<nav class="ev-module-tabs" aria-label="Module sections">
+ <a class="ev-module-tab" href="#ev-schemes">Grading scheme</a>
+ <a class="ev-module-tab" href="#ev-examinations">New examination</a>
+ <a class="ev-module-tab" href="#ev-assessments">Subject assessments &amp; schedule</a>
+ <a class="ev-module-tab" href="#ev-marks">Student marks entry</a>
+ <a class="ev-module-tab" href="#ev-results">Published results &amp; performance</a>
+</nav>
 <section class="ev-card p-4 mb-3">
  @Html.AntiForgeryToken()
  <label for="campus" class="form-label">Active campus</label>
@@ -12,7 +23,7 @@
 </section>
 <div class="row g-3 mb-3">
  <div class="col-lg-5"><section class="ev-card p-4 h-100">
-  <h2 class="h5">Grading scheme</h2>
+  <h2 id="ev-schemes" class="h5 ev-module-section">Grading scheme</h2>
   <p class="small text-secondary">Define contiguous grade ranges from 0.00 to 100.00. Points are on a 0–10 scale.</p>
   <form id="scheme-form" class="row g-2">
    <div class="col-sm-4"><label for="scheme-code" class="form-label">Code</label><input id="scheme-code" maxlength="30" class="form-control" required /></div>
@@ -26,7 +37,7 @@ F,0.00,34.99,0</textarea></div>
   </form>
  </section></div>
  <div class="col-lg-7"><section class="ev-card p-4 h-100">
-  <h2 class="h5">New examination</h2>
+  <h2 id="ev-examinations" class="h5 ev-module-section">New examination</h2>
   <form id="exam-form" class="row g-2">
    <div class="col-sm-6"><label for="year" class="form-label">Academic year</label><select id="year" class="form-select" required></select></div>
    <div class="col-sm-6"><label for="scheme" class="form-label">Grading scheme</label><select id="scheme" class="form-select" required></select></div>
@@ -46,7 +57,7 @@ F,0.00,34.99,0</textarea></div>
 </div>
 <div class="row g-3 mb-3">
  <div class="col-lg-6"><section class="ev-card p-4 h-100">
-  <h2 class="h5">Subject assessments &amp; schedule</h2>
+  <h2 id="ev-assessments" class="h5 ev-module-section">Subject assessments &amp; schedule</h2>
   <form id="assessment-form" class="row g-2">
    <div class="col-sm-6"><label for="item" class="form-label">Class / section / course</label><select id="item" class="form-select" required></select></div>
    <div class="col-sm-6"><label for="subject" class="form-label">Subject</label><select id="subject" class="form-select" required></select></div>
@@ -60,7 +71,7 @@ F,0.00,34.99,0</textarea></div>
   <ul id="assessments" class="small mt-3"></ul>
  </section></div>
  <div class="col-lg-6"><section class="ev-card p-4 h-100">
-  <h2 class="h5">Student marks entry</h2>
+  <h2 id="ev-marks" class="h5 ev-module-section">Student marks entry</h2>
   <form id="mark-form" class="row g-2">
    <div class="col-12"><label for="assessment" class="form-label">Assessment</label><select id="assessment" class="form-select" required></select></div>
    <div class="col-12"><label for="enrollment" class="form-label">Student enrollment</label><select id="enrollment" class="form-select" required></select></div>
@@ -72,7 +83,7 @@ F,0.00,34.99,0</textarea></div>
  </section></div>
 </div>
 <section class="ev-card p-4">
- <h2 class="h5">Published results &amp; performance</h2>
+ <h2 id="ev-results" class="h5 ev-module-section">Published results &amp; performance</h2>
  <p id="analytics" class="small"></p>
  <label for="result-enrollment" class="form-label">Student enrollment</label><select id="result-enrollment" class="form-select mb-2"></select>
  <div class="d-flex flex-wrap gap-2">
@@ -82,4 +93,5 @@ F,0.00,34.99,0</textarea></div>
  <pre id="result-output" class="small mt-3" style="white-space:pre-wrap"></pre>
  <p class="small text-secondary mb-0">Published results are immutable in this phase. GPA is credit-weighted within an exam; CGPA is a simple mean across published exam GPAs.</p>
 </section>
-@section Scripts {<script src="~/js/exam-admin.js" asp-append-version="true"></script>}
+</div>
+@section Scripts {<script src="~/js/exam-admin.js" asp-append-version="true"></script><script src="/_content/EduVerse.DesignSystem/js/operational-workspace.js" defer></script>}
