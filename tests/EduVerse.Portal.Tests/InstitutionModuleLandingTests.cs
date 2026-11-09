@@ -14,6 +14,7 @@ public sealed class InstitutionModuleLandingTests
     private sealed class StubTenantIdentityApi:HttpMessageHandler
     {
         public int TenantSessions;
+        public string? LastCampusRequestBody;
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,CancellationToken ct)
         {
             var path=request.RequestUri!.AbsolutePath;
@@ -54,6 +55,14 @@ public sealed class InstitutionModuleLandingTests
                         }
                     })
                 });
+            if(path=="/api/v1/institutions/campuses" && request.Method==HttpMethod.Post)
+            {
+                LastCampusRequestBody=request.Content?.ReadAsStringAsync(ct).GetAwaiter().GetResult();
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.Created)
+                {
+                    Content=JsonContent.Create(new {id=Guid.NewGuid(),code="NORTH",name="North Campus"})
+                });
+            }
             if(path=="/api/v1/institution-admin/dashboard")
                 return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
                 {
@@ -118,6 +127,18 @@ public sealed class InstitutionModuleLandingTests
         var institutionHtml=await institutionPage.Content.ReadAsStringAsync();
         Assert.Contains("campus-form",institutionHtml);
         Assert.Contains("campuses-list",institutionHtml);
+        var institutionTokenInput=Regex.Match(institutionHtml,
+            @"<input[^>]*name=""__RequestVerificationToken""[^>]*>");
+        Assert.True(institutionTokenInput.Success);
+        var institutionToken=Regex.Match(institutionTokenInput.Value,
+            @"value=""([^""]+)""").Groups[1].Value;
+        using var campusRequest=new HttpRequestMessage(HttpMethod.Post,"/bff/institution-admin/campuses");
+        campusRequest.Headers.Add("RequestVerificationToken",institutionToken);
+        campusRequest.Content=JsonContent.Create(new {code="NORTH",name="North Campus"});
+        using var campusResponse=await client.SendAsync(campusRequest);
+        Assert.Equal(HttpStatusCode.Created,campusResponse.StatusCode);
+        Assert.Contains("\"NORTH\"",api.LastCampusRequestBody);
+
         using var root=await client.GetAsync("/");
         Assert.Equal(HttpStatusCode.Redirect,root.StatusCode);
         Assert.Equal("/modules",root.Headers.Location?.ToString());
