@@ -9,7 +9,7 @@ public sealed record InstallmentRecord(Guid Id,Guid ChargeId,int Number,DateOnly
 public sealed record ConcessionCreate(Guid CampusId,Guid ChargeId,string Category,string Reason,decimal Amount);
 public sealed record ConcessionRecord(Guid Id,Guid ChargeId,string Category,string Reason,decimal Amount);
 public sealed record PaymentCreate(Guid CampusId,Guid InstallmentId,decimal Amount,string Method,string? Reference);
-public sealed record PaymentRecord(Guid Id,Guid CampusId,Guid ChargeId,Guid InstallmentId,decimal Amount,string Method,string ReceiptNumber,string ReconciliationStatus);
+public sealed record PaymentRecord(Guid Id,Guid CampusId,Guid ChargeId,Guid InstallmentId,decimal Amount,string Method,string ReceiptNumber,string ReconciliationStatus,DateTime? CollectedUtc=null);
 public sealed record RefundCreate(Guid CampusId,Guid PaymentId,decimal Amount,string Reason,string Reference);
 public sealed record RefundRecord(Guid Id,Guid PaymentId,decimal Amount,string Reference);
 public sealed record ReconcileRequest(Guid CampusId,Guid PaymentId,string Status,string? Reference);
