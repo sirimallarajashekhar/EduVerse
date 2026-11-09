@@ -51,7 +51,7 @@ public sealed class InstitutionModuleLandingTests
                                 unavailableReason=(string?)null },
                             new { id="finance",name="Fees & Finance",route="/admin/finance",
                                 description="Fee collections",feature="finance",enabled=false,
-                                unavailableReason="Not included in the active subscription" }
+                                unavailableReason=(string?)"Not included in the active subscription" }
                         }
                     })
                 });
