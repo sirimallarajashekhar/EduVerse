@@ -146,7 +146,7 @@ public sealed class InstitutionModuleLandingTests
             var sectionHtml=await sectionResponse.Content.ReadAsStringAsync();
             Assert.Contains("ev-module-workspace",sectionHtml);
             Assert.Contains("ev-module-tabs",sectionHtml);
-            Assert.Contains("id=\\\"" + page.Section + "\\\"",sectionHtml);
+            Assert.Contains("id=\"" + page.Section + "\"",sectionHtml);
             Assert.Contains(page.Script,sectionHtml);
             Assert.Contains("operational-workspace.js",sectionHtml);
             Assert.Contains("__RequestVerificationToken",sectionHtml);
