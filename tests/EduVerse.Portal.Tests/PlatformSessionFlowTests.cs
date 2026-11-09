@@ -75,6 +75,13 @@ public sealed class PlatformSessionFlowTests
         Assert.Contains("Platform control center",consoleHtml);
         Assert.Contains("All EduVerse modules",consoleHtml);
         Assert.Contains("platform-all-modules",consoleHtml);
+        Assert.Contains("ev-workspace-sidebar",consoleHtml);
+        Assert.Contains("ev-nav-toggle",consoleHtml);
+        Assert.Contains("/_content/EduVerse.DesignSystem/js/workspace-shell.js",consoleHtml);
+        Assert.Contains("platform-institutions-section",consoleHtml);
+        Assert.Contains("platform-actions-section",consoleHtml);
+        Assert.Contains("Review institution approvals",consoleHtml);
+        Assert.DoesNotContain("Institution login",consoleHtml);
         using var root=await client.GetAsync("/");
         Assert.Equal(HttpStatusCode.Redirect,root.StatusCode);
         Assert.Equal("/platform/console",root.Headers.Location?.ToString());
