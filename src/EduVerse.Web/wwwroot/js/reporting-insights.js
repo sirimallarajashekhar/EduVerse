@@ -95,7 +95,7 @@
         chartReceipts();
         message(state.visible.length + ' matching receipt(s).' +
             (ignored ? ' ' + ignored + ' receipt(s) lacked a valid collection date and were excluded.' : '') +
-            (truncated ? ' Table display limited to 500 rows; CSV export includes all matching rows.' : ''));
+            (truncated ? ' Table display limited to 500 rows; CSV export includes all matching API-returned rows.' : ''));
         const allowed = state.ready && state.finance;
         el('reports-export-csv').disabled = !allowed || !state.visible.length;
         el('reports-print').disabled = !state.ready;
