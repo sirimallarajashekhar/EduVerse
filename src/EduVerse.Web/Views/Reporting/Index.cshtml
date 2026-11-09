@@ -1,0 +1,102 @@
+@{
+    ViewData["Title"] = "Reports & Analytics";
+}
+<div class="ev-module-workspace">
+    <header class="ev-module-header">
+        <div>
+            <p class="ev-eyebrow">EduVerse · Institution intelligence</p>
+            <h1 class="h2">Reports &amp; Analytics</h1>
+            <p class="text-secondary">Campus-specific operational snapshots from authorized EduVerse REST APIs. Values are not sample data.</p>
+        </div>
+        <a class="ev-module-home" href="/modules">← Dashboard</a>
+    </header>
+
+    <section class="ev-card p-4 mb-3">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-6">
+                <label for="reports-campus" class="form-label">Campus</label>
+                <select id="reports-campus" class="form-select" aria-describedby="reports-scope"></select>
+            </div>
+            <div class="col-md-6 d-flex gap-2 align-items-end">
+                <button id="reports-refresh" type="button" class="btn btn-primary">Refresh reports</button>
+                <span id="reports-updated" class="small text-secondary" aria-live="polite"></span>
+            </div>
+        </div>
+        <p id="reports-scope" class="small text-secondary mt-2 mb-0">Campus-filtered figures are shown separately from institution-wide totals.</p>
+        <p id="reports-status" role="status" aria-live="polite" class="small mt-2 mb-0">Loading reporting access…</p>
+    </section>
+
+    <div class="row g-3 mb-3">
+        <div class="col-lg-4"><section class="ev-card p-4 h-100" aria-labelledby="reports-institution-title">
+            <h2 id="reports-institution-title" class="h5">Institution overview</h2>
+            <p class="small text-secondary">Institution-wide, not filtered by campus</p>
+            <dl class="row mb-0">
+                <dt class="col-8">Campuses</dt><dd class="col-4 text-end" id="reports-campuses">—</dd>
+                <dt class="col-8">Departments</dt><dd class="col-4 text-end" id="reports-departments">—</dd>
+                <dt class="col-8">Buildings</dt><dd class="col-4 text-end" id="reports-buildings">—</dd>
+                <dt class="col-8">Members</dt><dd class="col-4 text-end" id="reports-members">—</dd>
+            </dl>
+        </section></div>
+        <div class="col-lg-4"><section class="ev-card p-4 h-100" aria-labelledby="reports-attendance-title">
+            <h2 id="reports-attendance-title" class="h5">Attendance operations</h2>
+            <p class="small text-secondary">Selected campus · record volumes</p>
+            <dl class="row mb-0">
+                <dt class="col-8">Academic periods</dt><dd class="col-4 text-end" id="reports-periods">—</dd>
+                <dt class="col-8">Timetable slots</dt><dd class="col-4 text-end" id="reports-slots">—</dd>
+                <dt class="col-8">Student marks</dt><dd class="col-4 text-end" id="reports-student-marks">—</dd>
+                <dt class="col-8">Staff marks</dt><dd class="col-4 text-end" id="reports-staff-marks">—</dd>
+            </dl>
+            <a href="/admin/attendance" class="small">Open attendance workspace</a>
+            <p class="small text-secondary mt-2 mb-0" id="reports-attendance-note"></p>
+        </section></div>
+        <div class="col-lg-4"><section class="ev-card p-4 h-100" aria-labelledby="reports-admissions-title">
+            <h2 id="reports-admissions-title" class="h5">Admissions</h2>
+            <p class="small text-secondary">Selected campus · current records</p>
+            <dl class="row mb-0">
+                <dt class="col-8">Applications</dt><dd class="col-4 text-end" id="reports-applications">—</dd>
+                <dt class="col-8">Registered students</dt><dd class="col-4 text-end" id="reports-students">—</dd>
+            </dl>
+            <p class="small text-secondary">Counts reflect records returned by the existing campus-scoped APIs, not historical trends.</p>
+            <a href="/admin/students" class="small">Open admissions workspace</a>
+            <p class="small text-secondary mt-2 mb-0" id="reports-admissions-note"></p>
+        </section></div>
+    </div>
+
+    <section class="ev-card p-4 mb-3" aria-labelledby="reports-finance-title">
+        <div class="d-flex flex-wrap justify-content-between gap-2 align-items-center mb-3">
+            <div><h2 id="reports-finance-title" class="h5 mb-1">Fees &amp; Finance</h2><p class="text-secondary small mb-0">Selected campus · API-calculated amounts in INR</p></div>
+            <a href="/admin/finance" class="btn btn-sm btn-outline-primary">Finance workspace</a>
+        </div>
+        <div class="row g-3" id="reports-finance-metrics">
+            <div class="col-6 col-xl-3"><div class="border rounded p-3 h-100"><div class="small text-secondary">Gross</div><strong id="reports-gross">—</strong></div></div>
+            <div class="col-6 col-xl-3"><div class="border rounded p-3 h-100"><div class="small text-secondary">Collected</div><strong id="reports-collected">—</strong></div></div>
+            <div class="col-6 col-xl-3"><div class="border rounded p-3 h-100"><div class="small text-secondary">Outstanding</div><strong id="reports-outstanding">—</strong></div></div>
+            <div class="col-6 col-xl-3"><div class="border rounded p-3 h-100"><div class="small text-secondary">Estimated overdue</div><strong id="reports-overdue">—</strong></div></div>
+            <div class="col-6 col-xl-3"><div class="border rounded p-3 h-100"><div class="small text-secondary">Concessions</div><strong id="reports-concessions">—</strong></div></div>
+            <div class="col-6 col-xl-3"><div class="border rounded p-3 h-100"><div class="small text-secondary">Refunded</div><strong id="reports-refunded">—</strong></div></div>
+            <div class="col-6 col-xl-3"><div class="border rounded p-3 h-100"><div class="small text-secondary">Fee structures</div><strong id="reports-fees">—</strong></div></div>
+            <div class="col-6 col-xl-3"><div class="border rounded p-3 h-100"><div class="small text-secondary">Assignments</div><strong id="reports-charges">—</strong></div></div>
+        </div>
+        <p id="reports-finance-note" class="small text-secondary mt-3 mb-0"></p>
+    </section>
+
+    <section class="ev-card p-4 mb-3" aria-labelledby="reports-exams-title">
+        <h2 id="reports-exams-title" class="h5">Published exam analytics</h2>
+        <p class="text-secondary small">Results are only shown for exams whose analytics have been published by the Exam API.</p>
+        <div class="table-responsive"><table class="table table-sm align-middle">
+            <thead><tr><th scope="col">Exam</th><th scope="col">Students</th><th scope="col">Average</th><th scope="col">Pass rate</th><th scope="col">Highest</th><th scope="col">Lowest</th></tr></thead>
+            <tbody id="reports-exam-rows"><tr><td colspan="6" class="text-secondary">Select a campus to load published exams.</td></tr></tbody>
+        </table></div>
+        <p id="reports-exams-note" class="small text-secondary mb-0"></p>
+        <a href="/admin/exams" class="small">Open exams workspace</a>
+    </section>
+
+    <section class="ev-card p-4" aria-labelledby="reports-specialized-title">
+        <h2 id="reports-specialized-title" class="h5">Specialized reporting</h2>
+        <p class="small text-secondary">HRMS and AMS maintain their own tenant-secured reporting workflows. Consolidated cross-module trends require dedicated API reporting contracts.</p>
+        <div id="reports-specialized-links" class="d-flex gap-2 flex-wrap" aria-live="polite"></div>
+    </section>
+</div>
+@section Scripts {
+    <script src="~/js/reporting.js" asp-append-version="true"></script>
+}

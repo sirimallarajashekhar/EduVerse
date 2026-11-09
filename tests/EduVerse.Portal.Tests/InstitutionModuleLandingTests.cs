@@ -110,6 +110,15 @@ public sealed class InstitutionModuleLandingTests
         Assert.Contains("Available modules",dashboard);
         Assert.Contains("tenant-module-cards",dashboard);
         Assert.Contains("institution-quick-actions",dashboard);
+        Assert.Contains("/admin/reports",dashboard);
+        using var reportsResponse = await client.GetAsync("/admin/reports");
+        Assert.Equal(HttpStatusCode.OK, reportsResponse.StatusCode);
+        var reportsHtml = await reportsResponse.Content.ReadAsStringAsync();
+        Assert.Contains("Reports &amp; Analytics", reportsHtml);
+        Assert.Contains("reports-campus", reportsHtml);
+        Assert.Contains("reports-finance-metrics", reportsHtml);
+        Assert.Contains("reports-exam-rows", reportsHtml);
+        Assert.Contains("reporting.js", reportsHtml);
         Assert.Contains("institution-module-filter",dashboard);
         Assert.Contains("overview-campus-count",dashboard);
         Assert.Contains("overview-member-count",dashboard);
