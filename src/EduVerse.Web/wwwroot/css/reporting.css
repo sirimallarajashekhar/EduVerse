@@ -1,0 +1,23 @@
+/* Phase 5 reporting visualizations; display of API-authorized values only. */
+.ev-report-chart { display: grid; gap: .6rem; min-height: 3rem; }
+.ev-report-chart-row { display: grid; grid-template-columns: minmax(7rem, 35%) minmax(4rem,1fr) 4.5rem; gap: .5rem; align-items: center; font-size: .85rem; }
+.ev-report-chart-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ev-report-chart-track { background: #e6ebf3; height: .85rem; overflow: hidden; border-radius: .4rem; }
+.ev-report-chart-bar { display: block; height: 100%; border-radius: .4rem; background: #3058a8; }
+.ev-report-chart-value { text-align: right; font-variant-numeric: tabular-nums; }
+@media (max-width: 480px) {
+ .ev-report-chart-row { grid-template-columns: minmax(5rem,30%) 1fr 3.5rem; font-size: .75rem; }
+}
+@media print {
+ @page { size: A4; margin: 12mm; }
+ .ev-workspace-sidebar, .ev-workspace-topbar, .ev-nav-backdrop,
+ .ev-report-actions, .ev-module-home, .ev-module-tabs, .ev-signout-button,
+ #reports-refresh, #reports-specialized-links, #reports-status { display: none !important; }
+ .ev-workspace, .ev-workspace-body, .ev-workspace-content, .ev-module-workspace {
+  display: block !important; width: 100% !important; margin: 0 !important; padding: 0 !important;
+ }
+ .ev-card, .ev-report-chart-row { break-inside: avoid; box-shadow: none !important; }
+ .ev-card { border: 1px solid #ddd !important; margin-bottom: 10px; }
+ body { color: #111 !important; background: #fff !important; }
+ #reports-receipts-table { font-size: 9pt; }
+}
