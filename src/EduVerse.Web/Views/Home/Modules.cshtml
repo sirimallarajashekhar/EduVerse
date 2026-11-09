@@ -1,32 +1,82 @@
 @{
-    ViewData["Title"] = "My modules";
+    ViewData["Title"] = "Institution dashboard";
 }
-<header class="mb-4">
-    <p class="ev-eyebrow">EduVerse · Institution workspace</p>
-    <h1 class="h3">Available modules</h1>
-    <p class="text-secondary">Your available school and college modules are loaded from the API according to your institution and subscription.</p>
-</header>
 @if(User.IsInRole("ADMIN"))
 {
-    <section>
-        <div class="ev-card p-4 mb-3">
-            <h2 class="h5" id="institution-name">Loading institution…</h2>
-            <p id="institution-plan" class="text-secondary">Checking subscription…</p>
+    <header class="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-4">
+        <div>
+            <p class="ev-eyebrow mb-2">INSTITUTION / OVERVIEW</p>
+            <h1 class="h2 fw-bold mb-2" id="institution-name">Institution dashboard</h1>
+            <p class="text-secondary mb-0">Manage your school or college from one workspace. Only subscribed modules are available.</p>
         </div>
-        <div id="tenant-module-cards" class="row g-3" aria-live="polite">
-            <p class="text-secondary">Loading modules…</p>
+        <a class="btn btn-outline-primary" href="/admin/institution">Institution settings</a>
+    </header>
+    <section class="ev-card p-4 mb-4" aria-labelledby="institution-identity-heading">
+        <div class="d-flex align-items-start justify-content-between flex-wrap gap-3">
+            <div>
+                <h2 class="h6 fw-semibold mb-2" id="institution-identity-heading">Institution at a glance</h2>
+                <p id="institution-plan" class="text-secondary mb-1">Checking subscription…</p>
+                <p id="institution-onboarding" class="ev-micro-label mb-0">Checking onboarding status…</p>
+            </div>
+            <span class="badge rounded-pill text-bg-light border" id="institution-type">Loading type…</span>
         </div>
     </section>
+    <section class="mb-4" aria-labelledby="institution-metrics-heading">
+        <h2 class="ev-section-heading mb-3" id="institution-metrics-heading">Institution metrics</h2>
+        <div class="row g-3" id="institution-overview-metrics" aria-live="polite">
+            <div class="col-sm-6 col-xl-3"><article class="ev-card p-4 h-100"><p class="ev-stat-label">Campuses</p><h3 class="ev-stat-value" id="overview-campus-count">—</h3></article></div>
+            <div class="col-sm-6 col-xl-3"><article class="ev-card p-4 h-100"><p class="ev-stat-label">Departments</p><h3 class="ev-stat-value" id="overview-department-count">—</h3></article></div>
+            <div class="col-sm-6 col-xl-3"><article class="ev-card p-4 h-100"><p class="ev-stat-label">Buildings</p><h3 class="ev-stat-value" id="overview-building-count">—</h3></article></div>
+            <div class="col-sm-6 col-xl-3"><article class="ev-card p-4 h-100"><p class="ev-stat-label">Active members</p><h3 class="ev-stat-value" id="overview-member-count">—</h3></article></div>
+        </div>
+        <p class="small text-secondary mt-2 mb-0">Live institution administration figures from your tenant-secured EduVerse REST API.</p>
+    </section>
+    <section class="ev-card p-4 mb-4" aria-labelledby="institution-actions-heading">
+        <div class="d-flex justify-content-between gap-2 flex-wrap align-items-start mb-3">
+            <div>
+                <h2 class="ev-section-heading" id="institution-actions-heading">Quick actions</h2>
+                <p class="small text-secondary mb-0">Shortcuts only to modules your subscription enables.</p>
+            </div>
+            <span class="badge rounded-pill text-bg-light border" id="institution-enabled-count">Loading…</span>
+        </div>
+        <div id="institution-quick-actions" class="d-flex flex-wrap gap-2" aria-live="polite">
+            <span class="text-secondary small">Loading available actions…</span>
+        </div>
+    </section>
+    <section class="ev-card p-4" aria-labelledby="institution-modules-heading">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+            <div>
+                <h2 class="ev-section-heading" id="institution-modules-heading">Available modules</h2>
+                <p class="small text-secondary mb-0">School and college modules, filtered by institution type and subscription.</p>
+            </div>
+            <label class="small text-secondary" for="institution-module-filter">Module filter
+                <select class="form-select form-select-sm mt-1" id="institution-module-filter">
+                    <option value="all">All modules</option>
+                    <option value="enabled">Available</option>
+                    <option value="disabled">Subscription required</option>
+                </select>
+            </label>
+        </div>
+        <div class="row g-3" id="tenant-module-cards" aria-live="polite">
+            <p class="text-secondary">Loading school or college modules…</p>
+        </div>
+    </section>
+    <p id="institution-dashboard-message" class="small mt-3" role="status" aria-live="polite"></p>
 }
 else
 {
+    <header class="mb-4">
+        <p class="ev-eyebrow mb-2">INSTITUTION / MY WORKSPACE</p>
+        <h1 class="h2 fw-bold mb-2">Your EduVerse workspace</h1>
+        <p class="text-secondary">Choose your assigned portal. EduVerse verifies your access and linked records through the API.</p>
+    </header>
     <section class="ev-card p-4">
-        <h2 class="h5">Choose your workspace</h2>
-        <p class="text-secondary">The API checks your campus assignment and linked records for each portal.</p>
-        <div class="d-flex flex-wrap gap-2">
-            <a class="btn btn-primary" href="/portal/teacher">Teacher</a>
-            <a class="btn btn-outline-primary" href="/portal/parent">Parent</a>
-            <a class="btn btn-outline-primary" href="/portal/student">Student</a>
+        <h2 class="ev-section-heading mb-3">Workspaces</h2>
+        <div class="row g-3">
+            <div class="col-md-4"><a href="/portal/teacher" class="btn btn-outline-primary w-100 py-3">Teacher workspace</a></div>
+            <div class="col-md-4"><a href="/portal/parent" class="btn btn-outline-primary w-100 py-3">Parent workspace</a></div>
+            <div class="col-md-4"><a href="/portal/student" class="btn btn-outline-primary w-100 py-3">Student workspace</a></div>
         </div>
+        <p class="small text-secondary mt-3 mb-0">Only the portal corresponding to your approved role and records will return authorized data.</p>
     </section>
 }

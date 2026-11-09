@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace EduVerse.Web.Controllers;
 
 /// <summary>Thin same-origin BFF. Whitelisted paths; API owns validation and tenant authorization.</summary>
-[Authorize]
+[Authorize(Roles="ADMIN")]
 [AutoValidateAntiforgeryToken]
 [ApiController]
 [Route("bff/institution-admin")]
@@ -31,6 +31,10 @@ public sealed class InstitutionAdminProxyController(IHttpClientFactory clients):
     [HttpPut("{**path}")]
     public Task<IActionResult> Put(string path,[FromBody] System.Text.Json.JsonElement body,CancellationToken ct)
         => Forward(HttpMethod.Put,path,body.GetRawText(),ct);
+
+    [HttpPost("campuses")]
+    public Task<IActionResult> CreateCampus([FromBody] System.Text.Json.JsonElement body,CancellationToken ct)
+        => Forward(HttpMethod.Post,"campuses",body.GetRawText(),ct);
 
     [HttpPost("{**path}")]
     public Task<IActionResult> Post(string path,CancellationToken ct)
