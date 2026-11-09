@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace EduVerse.Web.Controllers;
 
 /// <summary>Thin same-origin BFF. Whitelisted paths; API owns validation and tenant authorization.</summary>
-[Authorize]
+[Authorize(Roles="ADMIN")]
 [AutoValidateAntiforgeryToken]
 [ApiController]
 [Route("bff/institution-admin")]
