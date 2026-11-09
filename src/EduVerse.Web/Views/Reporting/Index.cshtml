@@ -91,6 +91,54 @@
         <a href="/admin/exams" class="small">Open exams workspace</a>
     </section>
 
+    <section class="ev-card p-4 mb-3" aria-labelledby="reports-trends-title">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+            <div>
+                <h2 id="reports-trends-title" class="h5 mb-1">Trends &amp; exports</h2>
+                <p class="small text-secondary mb-0">Receipt counts by month and published exam average percentages. All displayed payment amounts originate from the secured Finance API.</p>
+            </div>
+            <div class="d-flex gap-2 flex-wrap ev-report-actions">
+                <button type="button" id="reports-export-csv" class="btn btn-sm btn-outline-primary" disabled>Export Excel-compatible CSV</button>
+                <button type="button" id="reports-print" class="btn btn-sm btn-outline-secondary" disabled>Print / Save as PDF</button>
+            </div>
+        </div>
+        <div class="row g-3 align-items-end mb-3 ev-report-actions">
+            <div class="col-sm-5 col-md-4">
+                <label for="reports-from" class="form-label">Receipt date from</label>
+                <input id="reports-from" type="date" class="form-control" />
+            </div>
+            <div class="col-sm-5 col-md-4">
+                <label for="reports-to" class="form-label">Receipt date to</label>
+                <input id="reports-to" type="date" class="form-control" />
+            </div>
+            <div class="col-sm-2 col-md-4">
+                <button id="reports-apply-dates" type="button" class="btn btn-outline-primary" disabled>Apply</button>
+            </div>
+        </div>
+        <p class="small text-secondary" id="reports-filter-description">Date filters apply only to the receipt listing and receipt-volume trend. The finance dashboard above remains the API's all-time campus snapshot.</p>
+        <p id="reports-insights-status" class="small" role="status" aria-live="polite">Loading authorized report details…</p>
+        <div class="row g-3 mb-3">
+            <div class="col-lg-6">
+                <section class="border rounded p-3 h-100" aria-labelledby="reports-receipt-chart-title">
+                    <h3 id="reports-receipt-chart-title" class="h6">Monthly receipt volume</h3>
+                    <div id="reports-receipt-chart" role="img" aria-label="Monthly receipt counts" class="ev-report-chart"></div>
+                </section>
+            </div>
+            <div class="col-lg-6">
+                <section class="border rounded p-3 h-100" aria-labelledby="reports-exam-chart-title">
+                    <h3 id="reports-exam-chart-title" class="h6">Published exam averages</h3>
+                    <div id="reports-exam-chart" role="img" aria-label="Average percentage by published exam" class="ev-report-chart"></div>
+                </section>
+            </div>
+        </div>
+        <h3 class="h6">Receipts in selected date range</h3>
+        <div class="table-responsive"><table class="table table-sm align-middle" id="reports-receipts-table">
+            <thead><tr><th scope="col">Receipt</th><th scope="col">Collected date</th><th scope="col">Amount (INR)</th><th scope="col">Reconciliation</th></tr></thead>
+            <tbody id="reports-receipt-rows"><tr><td colspan="4" class="text-secondary">Select a campus to load receipts.</td></tr></tbody>
+        </table></div>
+        <p class="small text-secondary mb-0">Exports include only the currently visible, authorized receipt rows. CSV is compatible with Excel; Save as PDF uses the browser print dialog.</p>
+    </section>
+
     <section class="ev-card p-4" aria-labelledby="reports-specialized-title">
         <h2 id="reports-specialized-title" class="h5">Specialized reporting</h2>
         <p class="small text-secondary">HRMS and AMS maintain their own tenant-secured reporting workflows. Consolidated cross-module trends require dedicated API reporting contracts.</p>
@@ -98,5 +146,6 @@
     </section>
 </div>
 @section Scripts {
+    <script src="~/js/reporting-insights.js" asp-append-version="true"></script>
     <script src="~/js/reporting.js" asp-append-version="true"></script>
 }
