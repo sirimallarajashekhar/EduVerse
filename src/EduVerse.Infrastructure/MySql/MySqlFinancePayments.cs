@@ -134,7 +134,7 @@ public sealed partial class MySqlFinanceStore
   var list=new List<PaymentRecord>();
   await using var db=Connect();await db.OpenAsync(ct);
   await using var cmd=new MySqlCommand("""
-   SELECT id,campus_id,charge_id,installment_id,amount,method,receipt_number,reconciliation_status
+   SELECT id,campus_id,charge_id,installment_id,amount,method,receipt_number,reconciliation_status,collected_utc
    FROM finance_payments WHERE tenant_id=@tenant AND campus_id=@campus
    ORDER BY collected_utc DESC LIMIT 250
    """,db);
@@ -142,7 +142,8 @@ public sealed partial class MySqlFinanceStore
   await using var reader=await cmd.ExecuteReaderAsync(ct);
   while(await reader.ReadAsync(ct))
    list.Add(new PaymentRecord(reader.GetGuid(0),reader.GetGuid(1),reader.GetGuid(2),reader.GetGuid(3),
-    reader.GetDecimal(4),reader.GetString(5),reader.GetString(6),reader.GetString(7)));
+    reader.GetDecimal(4),reader.GetString(5),reader.GetString(6),reader.GetString(7),
+    DateTime.SpecifyKind(reader.GetDateTime(8),DateTimeKind.Utc)));
   return list;
  }
 
