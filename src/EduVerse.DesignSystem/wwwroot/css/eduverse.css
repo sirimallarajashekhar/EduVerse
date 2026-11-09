@@ -12,3 +12,86 @@ body { background:var(--ev-bg); color:#263247; font-family:system-ui,-apple-syst
 .ev-card { border:1px solid #e5ebf3; border-radius:.85rem; background:white; }
 .ev-eyebrow { text-transform:uppercase; letter-spacing:.07em; font-size:.75rem; color:#64748b; font-weight:650; }
 @media(max-width:800px) { .d-flex.min-vh-100 { flex-direction:column; }.ev-sidebar { width:100%; min-width:0; } .ev-sidebar-footer { display:none; } }
+
+/* Modern workspace shell. Scoped so the independent AMS/HRMS layouts keep their styling. */
+:root { --ev-ink:#172844; --ev-muted:#64748b; --ev-stroke:#e2e9f2; --ev-surface:#fff; --ev-accent:#2563eb; --ev-sidebar-bg:#12223b; }
+.ev-app-shell { background:#f3f6fb; color:var(--ev-ink); }
+.ev-app-shell .ev-workspace { min-height:100vh; display:flex; }
+.ev-app-shell .ev-workspace-sidebar { position:sticky; top:0; height:100vh; width:264px; flex:0 0 264px; display:flex; flex-direction:column; background:var(--ev-sidebar-bg); color:#d7e4f8; z-index:101; overflow-y:auto; }
+.ev-app-shell .ev-sidebar-brand { min-height:86px; display:flex; align-items:center; padding:1.2rem 1.35rem; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,.08); }
+.ev-app-shell .ev-sidebar-brand-link { display:flex; align-items:center; gap:.75rem; color:white; text-decoration:none; font-size:1.36rem; font-weight:760; letter-spacing:-.035em; }
+.ev-app-shell .ev-brand-emblem { display:grid; place-items:center; width:39px; height:39px; background:#3979f5; border-radius:11px; color:#fff; font-size:1.3rem; }
+.ev-app-shell .ev-brand-accent { color:#99bcff; }
+.ev-app-shell .ev-sidebar-brand-link small { display:block; letter-spacing:.14em; font-size:.58rem; color:#afc3de; font-weight:600; }
+.ev-app-shell .ev-sidebar-nav { padding:1.4rem .85rem; flex:1; }
+.ev-app-shell .ev-nav-label { color:#8fa9ce; padding:.8rem .8rem .55rem; font-size:.66rem; font-weight:700; letter-spacing:.13em; }
+.ev-app-shell .ev-sidebar-nav .ev-nav-item { display:flex; align-items:center; gap:.75rem; padding:.77rem .88rem; margin-bottom:.15rem; font-size:.9rem; font-weight:500; color:#d5e2f5; background:transparent; border:0; text-decoration:none; }
+.ev-app-shell .ev-sidebar-nav .ev-nav-item:hover, .ev-app-shell .ev-sidebar-nav .ev-nav-item:focus-visible { color:white; background:#263f64; }
+.ev-app-shell .ev-sidebar-nav .ev-nav-item[aria-current="page"] { background:#294d7c; color:#fff; box-shadow:inset 3px 0 #8ab5ff; }
+.ev-app-shell .ev-nav-icon { display:inline-flex; align-items:center; justify-content:center; font-size:1.18rem; width:1.25rem; flex:none; color:#a3c4f5; }
+.ev-app-shell .ev-sidebar-hint { display:block; font-size:.79rem; padding:.7rem .9rem; color:#b8c8e0; }
+.ev-app-shell .ev-sidebar-footer { border-top:1px solid rgba(255,255,255,.09); color:#b4c7e0; padding:1rem 1.5rem; font-size:.74rem; margin-top:auto; }
+.ev-app-shell .ev-sidebar-status { display:inline-block; width:7px; height:7px; border-radius:50%; background:#65d4a1; margin-right:.5rem; }
+.ev-app-shell .ev-workspace-body { flex:1; min-width:0; }
+.ev-app-shell .ev-workspace-topbar { min-height:84px; padding:1rem 2rem; background:#fff; border-bottom:1px solid var(--ev-stroke); display:flex; align-items:center; justify-content:space-between; gap:1rem; }
+.ev-app-shell .ev-topbar-leading, .ev-app-shell .ev-topbar-actions { display:flex; align-items:center; gap:.8rem; min-width:0; }
+.ev-app-shell .ev-page-context { display:flex; flex-direction:column; gap:.15rem; min-width:0; }
+.ev-app-shell .ev-context-eyebrow { font-size:.7rem; letter-spacing:.04em; color:#7a8ba3; }
+.ev-app-shell .ev-page-context strong { font-size:1rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.ev-app-shell .ev-role-chip { font-size:.7rem; border:1px solid #dbe8fb; background:#edf4ff; color:#285492; padding:.4rem .65rem; border-radius:999px; white-space:nowrap; }
+.ev-app-shell .ev-user-avatar { width:35px; height:35px; border-radius:50%; background:#ddeafa; color:#285492; font-weight:700; display:grid; place-items:center; }
+.ev-app-shell .ev-user-label { display:flex; flex-direction:column; max-width:170px; line-height:1.4; }
+.ev-app-shell .ev-user-label strong { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:.78rem; }
+.ev-app-shell .ev-user-label small { font-size:.67rem; color:var(--ev-muted); }
+.ev-app-shell .ev-signout-button { background:white; border:1px solid #d5dfed; border-radius:.5rem; color:#33465f; font-size:.78rem; padding:.48rem .75rem; white-space:nowrap; }
+.ev-app-shell .ev-signout-button:hover { background:#eef3fa; }
+.ev-app-shell .ev-workspace-content { max-width:1660px; margin:auto; padding:2rem; }
+.ev-app-shell .ev-card { background:#fff; border:1px solid #e1e8f1; border-radius:1rem; box-shadow:0 3px 14px rgba(24,49,83,.025); }
+.ev-app-shell .ev-card:hover { border-color:#d6e2f1; }
+.ev-app-shell .ev-eyebrow { font-size:.7rem; color:#4c6d9e; }
+.ev-app-shell .btn-primary { background:#2463e8; border-color:#2463e8; }
+.ev-app-shell .btn-primary:hover { background:#164dc2; border-color:#164dc2; }
+.ev-app-shell .ev-stat-label { color:#64748b; font-size:.84rem; font-weight:500; margin:0 0 .5rem; }
+.ev-app-shell .ev-stat-value { font-weight:750; font-size:2rem; line-height:1.1; margin:0; letter-spacing:-.04em; }
+.ev-app-shell .ev-section-heading { font-size:1.1rem; font-weight:700; margin-bottom:.4rem; }
+.ev-app-shell .ev-module-tile { transition:border-color .15s ease,transform .15s ease; }
+.ev-app-shell .ev-module-tile:hover { border-color:#9dbced; transform:translateY(-1px); }
+.ev-app-shell .ev-module-tile .ev-module-symbol { width:38px; height:38px; border-radius:10px; background:#eaf1ff; color:#2e65b6; display:grid; place-items:center; font-size:1.2rem; margin-bottom:1rem; }
+.ev-app-shell .ev-institution-choice { display:block; text-align:left; width:100%; background:#fff; border:1px solid #e1e8f1; padding:1rem; border-radius:.85rem; color:#223752; }
+.ev-app-shell .ev-institution-choice:hover,.ev-app-shell .ev-institution-choice[aria-pressed="true"] { border-color:#3172df; background:#f5f9ff; }
+.ev-app-shell .ev-micro-label { color:#718198; font-size:.75rem; }
+.ev-app-shell .ev-section-anchor { scroll-margin-top:1rem; }
+.ev-app-shell .ev-module-nav .ev-nav-item { font-size:.83rem; }
+.ev-app-shell .ev-module-nav .ev-nav-item.text-white-50 { color:#8da0b9 !important; }
+.ev-skip-link { position:absolute; left:12px; top:-60px; background:white; color:#15223c; padding:10px 14px; z-index:9999; }
+.ev-skip-link:focus { top:10px; }
+.ev-public-topbar { background:#15243b; color:#fff; padding:1.1rem max(1.3rem,calc((100vw - 1300px)/2)); display:flex; align-items:center; justify-content:space-between; gap:1rem; }
+.ev-public-brand { color:#fff; text-decoration:none; font-weight:750; font-size:1.2rem; }
+.ev-public-brand:hover { color:#c5ddff; }
+.ev-app-shell .ev-sidebar-close,.ev-app-shell .ev-mobile-nav-toggle { display:none; }
+.ev-app-shell .ev-nav-backdrop { display:none; }
+@media (max-width:1100px) {
+  .ev-app-shell .ev-workspace-sidebar { width:228px; flex-basis:228px; }
+  .ev-app-shell .ev-workspace-topbar,.ev-app-shell .ev-workspace-content { padding:1.4rem; }
+  .ev-app-shell .ev-user-label { display:none; }
+}
+@media (max-width:820px) {
+  .ev-app-shell .ev-workspace-sidebar { position:fixed; transform:translateX(-101%); transition:transform .18s ease; width:min(285px,85vw); height:100dvh; box-shadow:6px 0 26px rgba(6,16,34,.15); }
+  .ev-app-shell.ev-nav-open .ev-workspace-sidebar { transform:translateX(0); }
+  .ev-app-shell.ev-nav-open .ev-nav-backdrop { display:block; position:fixed; inset:0; background:rgba(15,30,53,.5); z-index:100; }
+  .ev-app-shell .ev-sidebar-close,.ev-app-shell .ev-mobile-nav-toggle { display:inline-flex; align-items:center; justify-content:center; background:transparent; border:1px solid currentColor; border-radius:.5rem; width:38px; height:38px; font-size:1.1rem; }
+  .ev-app-shell .ev-sidebar-close { color:#d5e4fa; }
+  .ev-app-shell .ev-mobile-nav-toggle { color:#263b5c; border-color:#dbe3ef; }
+  .ev-app-shell .ev-workspace-topbar,.ev-app-shell .ev-workspace-content { padding:1rem; }
+  .ev-app-shell .ev-role-chip { display:none; }
+  .ev-app-shell .ev-stat-value { font-size:1.65rem; }
+}
+@media (max-width:480px) {
+  .ev-app-shell .ev-user-avatar { display:none; }
+  .ev-app-shell .ev-topbar-actions { gap:.35rem; }
+  .ev-app-shell .ev-workspace-topbar { min-height:68px; }
+  .ev-public-topbar { flex-wrap:wrap; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .ev-app-shell .ev-workspace-sidebar,.ev-app-shell .ev-module-tile { transition:none; }
+}
