@@ -161,6 +161,12 @@
             ? 'Some reports could not be loaded: ' + errors.join(', ') + '. No unavailable values are estimated.'
             : 'Reporting data loaded from authorized APIs.');
         if (!errors.length) set('reports-updated', 'Refreshed ' + new Date().toLocaleTimeString());
+        // The insights module consumes only authorized BFF data and rendered API exam results.
+        // Keep this call after the published-exam table has finished rendering.
+        if (window.EduVerseInsights && sequence === generation && !signal.aborted)
+            await window.EduVerseInsights.load(selected, signal, {
+                finance: hasModule('finance'), exams: hasModule('exams')
+            });
     }
 
     let lastController;
