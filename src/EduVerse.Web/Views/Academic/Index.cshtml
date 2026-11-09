@@ -1,9 +1,17 @@
 @{ViewData["Title"]="Academic Management";}
+<div class="ev-module-workspace">
 <div class="mb-4">
   <p class="ev-eyebrow">School &amp; college academics</p>
-  <h1 class="h3">Academic administration</h1>
+  <h1 class="h2">Academic administration</h1>
   <p class="text-secondary">Academic structures and faculty allocations are managed by tenant-secured REST APIs.</p>
 </div>
+<nav class="ev-module-tabs" aria-label="Module sections">
+ <a class="ev-module-tab" href="#ev-years">Academic year</a>
+ <a class="ev-module-tab" href="#ev-catalog">Academic catalog</a>
+ <a class="ev-module-tab" href="#ev-faculty">Faculty assignment</a>
+ <a class="ev-module-tab" href="#ev-calendar">Academic calendar</a>
+ <a class="ev-module-tab" href="#ev-overview">Academic overview</a>
+</nav>
 <section class="ev-card p-4 mb-3">
   @Html.AntiForgeryToken()
   <label class="form-label" for="academic-campus">Active campus</label>
@@ -13,7 +21,7 @@
 <div class="row g-3 mb-3">
   <div class="col-lg-4">
     <section class="ev-card p-4 h-100">
-      <h2 class="h5">Academic year</h2>
+      <h2 id="ev-years" class="h5 ev-module-section">Academic year</h2>
       <form id="year-form">
         <label class="form-label" for="year-code">Code</label><input id="year-code" class="form-control mb-2" required maxlength="30" placeholder="2026-27" />
         <label class="form-label" for="year-name">Name</label><input id="year-name" class="form-control mb-2" required maxlength="160" placeholder="Academic Year 2026–27" />
@@ -25,7 +33,7 @@
   </div>
   <div class="col-lg-8">
     <section class="ev-card p-4 h-100">
-      <h2 class="h5">Academic catalog</h2>
+      <h2 id="ev-catalog" class="h5 ev-module-section">Academic catalog</h2>
       <p class="text-secondary small">Manage terms, semesters, grades, classes, sections, programs, courses, batches and subjects.</p>
       <form id="catalog-form" class="row g-2">
         <div class="col-sm-4"><label class="form-label" for="item-kind">Type</label>
@@ -51,7 +59,7 @@
 <div class="row g-3">
   <div class="col-lg-6">
     <section class="ev-card p-4">
-      <h2 class="h5">Faculty assignment</h2>
+      <h2 id="ev-faculty" class="h5 ev-module-section">Faculty assignment</h2>
       <form id="faculty-form" class="row g-2">
         <div class="col-sm-6"><label class="form-label" for="faculty-subject">Subject</label><select id="faculty-subject" class="form-select" required></select></div>
         <div class="col-sm-6"><label class="form-label" for="faculty-year">Academic year</label><select id="faculty-year" class="form-select" required></select></div>
@@ -62,7 +70,7 @@
   </div>
   <div class="col-lg-6">
     <section class="ev-card p-4">
-      <h2 class="h5">Academic calendar</h2>
+      <h2 id="ev-calendar" class="h5 ev-module-section">Academic calendar</h2>
       <form id="calendar-form" class="row g-2">
         <div class="col-sm-6"><label for="event-kind" class="form-label">Event type</label>
           <select id="event-kind" class="form-select"><option>HOLIDAY</option><option>EVENT</option><option>EXAM</option><option>ACADEMIC</option></select></div>
@@ -76,7 +84,7 @@
   </div>
   <div class="col-12">
     <section class="ev-card p-4">
-      <h2 class="h5">Academic overview</h2>
+      <h2 id="ev-overview" class="h5 ev-module-section">Academic overview</h2>
       <p id="academic-overview" class="text-secondary small"></p>
       <div class="row g-3">
         <div class="col-md-4"><h3 class="h6">Years</h3><ul id="academic-years"></ul></div>
@@ -86,4 +94,5 @@
     </section>
   </div>
 </div>
-@section Scripts {<script src="~/js/academic-admin.js" asp-append-version="true"></script>}
+</div>
+@section Scripts {<script src="~/js/academic-admin.js" asp-append-version="true"></script><script src="/_content/EduVerse.DesignSystem/js/operational-workspace.js" defer></script>}
