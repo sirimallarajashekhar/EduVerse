@@ -1,55 +1,79 @@
-@{ViewData["Title"]="Platform Super Admin console";}
-<header class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
- <div><p class="ev-eyebrow mb-1">EduVerse · Platform Super Admin</p><h1 class="h3">Platform control center</h1>
- <p class="text-secondary mb-0">Central oversight of all institutions, modules, users and approvals.</p></div>
- <div class="d-flex gap-2"><a href="/platform/registrations" class="btn btn-primary">Institution approvals</a>
- <form method="post" action="/platform/logout">@Html.AntiForgeryToken()
-  <button class="btn btn-outline-secondary" type="submit">Sign out</button></form></div>
+@{ ViewData["Title"] = "Platform Super Admin console"; }
+<header class="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-4">
+  <div>
+    <p class="ev-eyebrow mb-2">PLATFORM / OVERVIEW</p>
+    <h1 class="h2 fw-bold mb-2">Platform control center</h1>
+    <p class="text-secondary mb-0">Manage institutions, discover modules and review access across EduVerse.</p>
+  </div>
+  <a href="/platform/registrations?status=PENDING" class="btn btn-primary">Review institution approvals</a>
 </header>
 <form id="platform-token">@Html.AntiForgeryToken()</form>
-<div class="row g-3 mb-3">
- <div class="col-md-4"><section class="ev-card p-3"><p class="text-secondary mb-1">Institutions</p><h2 id="platform-total" class="h3">—</h2></section></div>
- <div class="col-md-4"><section class="ev-card p-3"><p class="text-secondary mb-1">Active institutions</p><h2 id="platform-active" class="h3">—</h2></section></div>
- <div class="col-md-4"><section class="ev-card p-3"><p class="text-secondary mb-1">Active memberships</p><h2 id="platform-members" class="h3">—</h2></section></div>
+<div class="row g-3 mb-4" aria-label="Platform statistics">
+  <div class="col-sm-6 col-xl-4"><section class="ev-card p-4 h-100">
+    <p class="ev-stat-label">Registered institutions</p><h2 id="platform-total" class="ev-stat-value" aria-live="polite">—</h2>
+    <p class="ev-micro-label mt-2 mb-0">Schools and colleges</p>
+  </section></div>
+  <div class="col-sm-6 col-xl-4"><section class="ev-card p-4 h-100">
+    <p class="ev-stat-label">Active institutions</p><h2 id="platform-active" class="ev-stat-value" aria-live="polite">—</h2>
+    <p class="ev-micro-label mt-2 mb-0">Currently enabled</p>
+  </section></div>
+  <div class="col-sm-6 col-xl-4"><section class="ev-card p-4 h-100">
+    <p class="ev-stat-label">Active memberships</p><h2 id="platform-members" class="ev-stat-value" aria-live="polite">—</h2>
+    <p class="ev-micro-label mt-2 mb-0">Across institutions</p>
+  </section></div>
 </div>
-<section class="ev-card p-4 mb-3">
- <h2 class="h5">All EduVerse modules</h2>
- <p class="text-secondary">Full school and college module catalog. Select an institution below to inspect its enabled modules and manage its users. Tenant-level module actions still require tenant authorization.</p>
- <div id="platform-all-modules" class="row g-3" aria-live="polite"><p>Loading system modules…</p></div>
+<section class="ev-card p-4 mb-4 ev-section-anchor" id="platform-modules-section" aria-labelledby="platform-modules-title">
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <div>
+      <h2 class="ev-section-heading" id="platform-modules-title">All EduVerse modules</h2>
+      <p class="text-secondary small mb-0">Catalog overview. Module access depends on the selected institution and its subscription.</p>
+    </div>
+    <span class="badge rounded-pill text-bg-light border" id="platform-module-count" aria-live="polite">Loading…</span>
+  </div>
+  <div id="platform-all-modules" class="row g-3" aria-live="polite"><p class="text-secondary">Loading system modules…</p></div>
 </section>
-<section class="ev-card p-4 mb-3">
- <div class="d-flex flex-wrap justify-content-between gap-2"><h2 class="h5">All institutions</h2>
- <button class="btn btn-outline-primary btn-sm" id="platform-refresh" type="button">Refresh</button></div>
- <label class="form-label" for="platform-search">Search institution</label>
- <input class="form-control mb-3" id="platform-search" placeholder="Institution name or code"/>
- <div id="platform-institutions" class="row g-2" aria-live="polite"></div>
+<section class="ev-card p-4 mb-4 ev-section-anchor" id="platform-institutions-section" aria-labelledby="platform-institutions-title">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+      <h2 class="ev-section-heading" id="platform-institutions-title">Institutions</h2>
+      <p class="text-secondary small mb-0">Select an institution to inspect enabled modules and administer its members.</p>
+    </div>
+    <button class="btn btn-outline-primary btn-sm" id="platform-refresh" type="button">Refresh</button>
+  </div>
+  <label class="form-label" for="platform-search">Find an institution</label>
+  <input class="form-control mb-3" id="platform-search" type="search" placeholder="Search name or institution code" autocomplete="off"/>
+  <div id="platform-institutions" class="row g-3" aria-live="polite"><p class="text-secondary">Loading institutions…</p></div>
 </section>
-<section class="ev-card p-4 mb-3" id="platform-selected" hidden>
- <h2 class="h5" id="platform-selected-name">Institution details</h2>
- <p id="platform-selected-scope" class="text-secondary"></p>
- <div class="row g-3">
- <div class="col-lg-6"><h3 class="h6">Available modules</h3><div id="platform-modules"></div></div>
- <div class="col-lg-6"><h3 class="h6">Institution users</h3><div id="platform-users"></div></div>
- </div>
- <hr/>
- <h3 class="h6">Invite institution user</h3>
- <form id="platform-invite" class="row g-2">
-  <div class="col-lg-4"><label class="form-label" for="invite-email">Email</label><input type="email" class="form-control" id="invite-email" maxlength="254" required/></div>
-  <div class="col-lg-4"><label class="form-label" for="invite-name">Display name</label><input class="form-control" id="invite-name" maxlength="160" required/></div>
-  <div class="col-lg-2"><label class="form-label" for="invite-role">Role</label><select class="form-select" id="invite-role"><option value="MEMBER">Member</option><option value="ADMIN">Admin</option></select></div>
-  <div class="col-lg-2 d-flex align-items-end"><button class="btn btn-primary" type="submit">Invite</button></div>
- </form>
- <p class="small text-secondary mt-2">Invited users activate their accounts through the existing password-reset flow. No passwords are displayed.</p>
+<section class="ev-card p-4 mb-4 ev-section-anchor" id="platform-selected" hidden aria-labelledby="platform-selected-name">
+  <div class="d-flex flex-wrap gap-2 justify-content-between align-items-start mb-3">
+    <div><p class="ev-eyebrow mb-1">INSTITUTION DETAILS</p><h2 class="ev-section-heading" id="platform-selected-name">Institution details</h2>
+      <p id="platform-selected-scope" class="text-secondary small mb-0"></p></div>
+    <a href="/platform/registrations" class="btn btn-outline-secondary btn-sm">Approval queue</a>
+  </div>
+  <div class="row g-4 mb-4">
+    <div class="col-lg-6"><h3 class="h6 fw-semibold">Subscribed modules</h3><div id="platform-modules" aria-live="polite"></div></div>
+    <div class="col-lg-6"><h3 class="h6 fw-semibold">Institution users</h3><div id="platform-users" aria-live="polite"></div></div>
+  </div>
+  <hr/>
+  <h3 class="h6 fw-semibold mb-3">Invite an institution user</h3>
+  <form id="platform-invite" class="row g-3">
+    <div class="col-md-6 col-lg-4"><label class="form-label" for="invite-email">Email</label><input type="email" class="form-control" id="invite-email" maxlength="254" required autocomplete="off"/></div>
+    <div class="col-md-6 col-lg-4"><label class="form-label" for="invite-name">Display name</label><input class="form-control" id="invite-name" maxlength="160" required/></div>
+    <div class="col-md-6 col-lg-2"><label class="form-label" for="invite-role">Role</label><select class="form-select" id="invite-role"><option value="MEMBER">Member</option><option value="ADMIN">Admin</option></select></div>
+    <div class="col-md-6 col-lg-2 d-flex align-items-end"><button class="btn btn-primary w-100" type="submit">Send invite</button></div>
+  </form>
+  <p class="small text-secondary mt-3 mb-0">Activation uses the password-reset flow; passwords are never displayed.</p>
 </section>
-<section class="ev-card p-4 mb-3">
- <div class="d-flex align-items-center gap-2 justify-content-between"><div>
-  <h2 class="h5">All registered system actions</h2>
-  <p class="small text-secondary">System-wide API inventory. Platform-managed actions are executable here; institution actions remain tenant-authorized.</p>
-  </div><button type="button" class="btn btn-outline-primary btn-sm" id="platform-load-actions">Show API actions</button></div>
- <label class="form-label" for="platform-actions-search">Filter action</label>
- <input class="form-control mb-3" id="platform-actions-search" placeholder="Module, method or route"/>
- <div id="platform-actions-count" class="small text-secondary mb-2"></div>
- <div id="platform-actions" class="overflow-auto" style="max-height:420px" aria-live="polite"></div>
+<section class="ev-card p-4 mb-3 ev-section-anchor" id="platform-actions-section" aria-labelledby="platform-actions-title">
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <div><h2 class="ev-section-heading" id="platform-actions-title">API action directory</h2>
+      <p class="text-secondary small mb-0">Inventory only. Tenant actions continue to require tenant authorization.</p></div>
+    <button type="button" class="btn btn-outline-primary btn-sm" id="platform-load-actions">Load API actions</button>
+  </div>
+  <label class="form-label" for="platform-actions-search">Filter by module, method or route</label>
+  <input class="form-control mb-2" id="platform-actions-search" type="search" placeholder="Search API actions"/>
+  <p id="platform-actions-count" class="ev-micro-label"></p>
+  <div id="platform-actions" class="overflow-auto" style="max-height:420px" aria-live="polite"></div>
 </section>
-<p id="platform-message" role="status"></p>
+<p id="platform-message" role="status" aria-live="polite" class="small"></p>
 @section Scripts {<script src="~/js/platform-console.js" asp-append-version="true"></script>}

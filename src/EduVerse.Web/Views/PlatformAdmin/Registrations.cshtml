@@ -1,46 +1,71 @@
 @model EduVerse.Web.Controllers.PlatformRegistrationPage
-@{ ViewData["Title"]="School registration approvals"; }
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <div><h1 class="h3">Institution approval queue</h1>
-  <p class="text-secondary">All changes are authorized, validated, and audited by the EduVerse API.</p></div>
-  <form method="post" action="/platform/logout">@Html.AntiForgeryToken()<button class="btn btn-outline-secondary">Operator sign out</button></form>
-</div>
+@{ ViewData["Title"] = "Institution approvals"; }
+<header class="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-4">
+  <div>
+    <p class="ev-eyebrow mb-2">PLATFORM / ONBOARDING</p>
+    <h1 class="h2 fw-bold mb-2">Institution approval queue</h1>
+    <p class="text-secondary mb-0">Review school and college registrations before tenant provisioning. Decisions are validated and audited by the API.</p>
+  </div>
+  <a class="btn btn-outline-primary" href="/platform/console">Back to control center</a>
+</header>
 @if (TempData["Info"] is string info) {<div class="alert alert-success" role="status">@info</div>}
 @if (TempData["Error"] is string err) {<div class="alert alert-danger" role="alert">@err</div>}
-<nav class="mb-3" aria-label="Platform navigation"><a href="/platform/console" class="btn btn-outline-primary btn-sm">Control center</a></nav>
-<nav class="mb-3" aria-label="Registration status">
- @foreach(var status in new[]{"PENDING","APPROVED","REJECTED"})
- {<a class="btn btn-sm @(Model.Status==status?"btn-primary":"btn-outline-primary") me-2"
-    asp-action="Registrations" asp-route-status="@status">@status</a>}
-</nav>
-@if(!Model.Requests.Any()) {<div class="alert alert-info">No @Model.Status.ToLowerInvariant() registrations.</div>}
+<section class="ev-card p-4 mb-4" aria-labelledby="approval-status-heading">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <div><h2 class="ev-section-heading" id="approval-status-heading">Registration status</h2>
+      <p class="text-secondary small mb-0">Showing @Model.Requests.Count @Model.Status.ToLowerInvariant() applications.</p></div>
+    <nav aria-label="Registration status" class="d-flex flex-wrap gap-2">
+      @foreach(var status in new[]{"PENDING","APPROVED","REJECTED"})
+      {
+        <a class="btn btn-sm @(Model.Status==status?"btn-primary":"btn-outline-primary")"
+           asp-action="Registrations" asp-route-status="@status"
+           aria-current="@(Model.Status==status?"page":null)">@status</a>
+      }
+    </nav>
+  </div>
+</section>
+@if(!Model.Requests.Any())
+{
+  <section class="ev-card p-5 text-center" role="status">
+    <h2 class="h5">No @Model.Status.ToLowerInvariant() registrations</h2>
+    <p class="text-secondary mb-0">New applications will appear in the pending queue after submission.</p>
+  </section>
+}
 @foreach(var r in Model.Requests)
 {
- <section class="ev-card p-3 mb-3">
-  <div class="d-flex justify-content-between"><h2 class="h5">@r.Name</h2><span class="badge text-bg-secondary">@r.Status</span></div>
-  <p class="mb-2"><strong>Slug:</strong> @r.Slug &nbsp; <strong>Type:</strong> @r.Kind &nbsp;
-   <strong>Email:</strong> @r.Email &nbsp; <strong>Submitted:</strong> @r.CreatedUtc.ToString("u")</p>
-  @if(r.Status=="PENDING")
-  {
-   <div class="row g-2">
-    <div class="col-md-6">
-     <form method="post" action="/platform/registrations/@r.Id/approve">
-      @Html.AntiForgeryToken()
-      <label class="form-label" for="approve-@r.Id">Approval reason</label>
-      <input class="form-control mb-2" id="approve-@r.Id" name="reason" maxlength="500" required />
-      <button class="btn btn-success" type="submit">Approve school &amp; provision tenant</button>
-     </form>
+  <section class="ev-card p-4 mb-3" aria-labelledby="registration-@r.Id">
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+      <div><p class="ev-eyebrow mb-1">@r.Kind · @r.Slug</p><h2 class="h5 fw-bold mb-0" id="registration-@r.Id">@r.Name</h2></div>
+      <span class="badge @(r.Status=="APPROVED"?"text-bg-success":r.Status=="REJECTED"?"text-bg-danger":"text-bg-warning")">@r.Status</span>
     </div>
-    <div class="col-md-6">
-     <form method="post" action="/platform/registrations/@r.Id/reject">
-      @Html.AntiForgeryToken()
-      <label class="form-label" for="reject-@r.Id">Rejection reason</label>
-      <input class="form-control mb-2" id="reject-@r.Id" name="reason" maxlength="500" required />
-      <button class="btn btn-outline-danger" type="submit">Reject request</button>
-     </form>
+    <div class="row gy-2 small text-secondary mb-4">
+      <div class="col-md-6"><strong class="text-dark">Contact:</strong> @r.Email</div>
+      <div class="col-md-6"><strong class="text-dark">Submitted:</strong> @r.CreatedUtc.ToString("u")</div>
     </div>
-   </div>
-  }
-  else {<p class="text-secondary mb-0">Reviewed: @r.ReviewedUtc · Reason: @r.Reason · Tenant: @r.TenantId</p>}
- </section>
+    @if(r.Status=="PENDING")
+    {
+      <div class="row g-3">
+        <div class="col-lg-6">
+          <form method="post" action="/platform/registrations/@r.Id/approve" class="p-3 rounded border h-100">
+            @Html.AntiForgeryToken()
+            <label class="form-label fw-semibold" for="approve-@r.Id">Approval reason</label>
+            <input class="form-control mb-3" id="approve-@r.Id" name="reason" maxlength="500" required placeholder="Document the approval decision"/>
+            <button class="btn btn-success" type="submit">Approve and provision institution</button>
+          </form>
+        </div>
+        <div class="col-lg-6">
+          <form method="post" action="/platform/registrations/@r.Id/reject" class="p-3 rounded border h-100">
+            @Html.AntiForgeryToken()
+            <label class="form-label fw-semibold" for="reject-@r.Id">Rejection reason</label>
+            <input class="form-control mb-3" id="reject-@r.Id" name="reason" maxlength="500" required placeholder="Document the rejection reason"/>
+            <button class="btn btn-outline-danger" type="submit">Reject application</button>
+          </form>
+        </div>
+      </div>
+    }
+    else
+    {
+      <p class="small text-secondary mb-0"><strong>Reviewed:</strong> @r.ReviewedUtc · <strong>Reason:</strong> @r.Reason · <strong>Tenant:</strong> @r.TenantId</p>
+    }
+  </section>
 }

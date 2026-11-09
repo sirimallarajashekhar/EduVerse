@@ -21,10 +21,16 @@
   const filtered=all.filter(x=>(x.name+' '+x.slug).toLowerCase().includes(search));
   if(!filtered.length)host.append(node('p','No matching institutions.','text-secondary'));
   for(const x of filtered){
-   const col=node('div','','col-md-6 col-xl-4');const btn=node('button',
-    x.name+' · '+x.kind+' · '+x.slug+' · '+(x.active?'Active':'Inactive'),
-    'btn btn-outline-primary text-start w-100 h-100');
-   btn.type='button';btn.addEventListener('click',()=>safe(()=>selectInstitution(x)));col.append(btn);host.append(col);
+   const col=node('div','','col-md-6 col-xl-4');
+   const btn=node('button','','ev-institution-choice h-100');
+   btn.type='button';
+   btn.setAttribute('aria-pressed',String(current?.id===x.id));
+   const heading=node('span',x.name,'d-block fw-semibold mb-1');
+   const subtitle=node('span',x.kind+' · '+x.slug,'d-block small text-secondary mb-3');
+   const foot=node('span',x.active?'Active':'Inactive',x.active?'badge text-bg-success':'badge text-bg-secondary');
+   btn.append(heading,subtitle,foot);
+   btn.addEventListener('click',()=>safe(()=>selectInstitution(x)));
+   col.append(btn);host.append(col);
   }
  }
  async function loadModuleCatalog(){
@@ -32,18 +38,19 @@
   if(!host)return;
   host.replaceChildren();
   const modules=await api('modules');
+  if(el('platform-module-count'))el('platform-module-count').textContent=modules.length+' modules';
   if(!modules.length){
    host.append(node('p','No modules registered.','text-secondary'));
    return;
   }
   for(const module of modules){
    const col=node('div','','col-md-6 col-xl-4');
-   const card=node('article','','ev-card p-3 h-100');
-   card.append(node('h3',module.name,'h6'));
-   card.append(node('p',module.description,'text-secondary small'));
-   card.append(node('p','Select an institution to check access.','small'));
-   col.append(card);
-   host.append(col);
+   const card=node('article','','ev-card ev-module-tile p-4 h-100');
+   card.append(node('span','▦','ev-module-symbol'));
+   card.append(node('h3',module.name,'h6 fw-semibold mb-2'));
+   card.append(node('p',module.description,'text-secondary small mb-3'));
+   card.append(node('span','Select an institution to check access','ev-micro-label'));
+   col.append(card);host.append(col);
   }
  }
  async function refresh(){
@@ -62,6 +69,7 @@
   const [moduleInfo,users]=await Promise.all([
    api('institutions/'+institution.id+'/modules'),
    api('institutions/'+institution.id+'/users')]);
+  showInstitutions();
   const modules=el('platform-modules');modules.replaceChildren();
   for(const x of moduleInfo.modules){
    const item=node('div','','py-2 border-bottom');

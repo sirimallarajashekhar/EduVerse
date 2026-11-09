@@ -21,6 +21,9 @@ public sealed class PortalSmokeTests : IClassFixture<WebApplicationFactory<Progr
         var html = await response.Content.ReadAsStringAsync();
         Assert.Contains("Institution command center", html);
         Assert.Contains("Super Admin login", html);
+        Assert.Contains("ev-public-topbar", html);
+        Assert.Contains("Skip to main content", html);
+        Assert.Contains("/_content/EduVerse.DesignSystem/css/eduverse.css", html);
         Assert.Contains("/js/site.js", html);
         Assert.DoesNotContain("id=\"module-navigation\"", html);
         Assert.Contains("Register school", html);
