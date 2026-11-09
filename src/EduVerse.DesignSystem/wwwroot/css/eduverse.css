@@ -95,3 +95,39 @@ body { background:var(--ev-bg); color:#263247; font-family:system-ui,-apple-syst
 @media (prefers-reduced-motion:reduce) {
   .ev-app-shell .ev-workspace-sidebar,.ev-app-shell .ev-module-tile { transition:none; }
 }
+
+
+/* Phase 3: reusable operational workspace design. Shared by portal and micro-frontends. */
+.ev-module-header { display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1.2rem; margin-bottom:1.4rem; }
+.ev-module-header h1 { letter-spacing:-.035em; font-weight:760; color:#172844; margin:.2rem 0 .4rem; }
+.ev-module-header p { max-width:72ch; }
+.ev-module-home { border:1px solid #dbe5f3; border-radius:.6rem; background:white; color:#24559a; text-decoration:none; padding:.55rem .85rem; font-weight:600; font-size:.86rem; }
+.ev-module-home:hover,.ev-module-home:focus-visible { background:#edf4ff; }
+.ev-module-tabs { position:relative; display:flex; align-items:center; gap:.5rem; overflow-x:auto; padding:.8rem; margin:0 0 1.35rem; background:white; border:1px solid #e2e9f2; border-radius:.95rem; scrollbar-width:thin; }
+.ev-module-tab { display:inline-flex; white-space:nowrap; text-decoration:none; color:#475b75; border-radius:.55rem; padding:.55rem .85rem; font-weight:600; font-size:.83rem; }
+.ev-module-tab:hover,.ev-module-tab:focus-visible,.ev-module-tab[aria-current="location"] { background:#eaf2ff; color:#174d9c; }
+.ev-module-section { scroll-margin-top:1.5rem; }
+.ev-module-section h2 { color:#1e3452; font-weight:690; letter-spacing:-.018em; }
+.ev-module-workspace .ev-card { border:1px solid #e0e8f2; border-radius:1rem; background:#fff; box-shadow:0 3px 13px rgba(29,55,90,.025); }
+.ev-module-workspace .form-label { font-size:.83rem; font-weight:600; color:#344963; margin-bottom:.4rem; }
+.ev-module-workspace .form-control,.ev-module-workspace .form-select { border-color:#d6e0ec; border-radius:.55rem; min-height:39px; }
+.ev-module-workspace .form-control:focus,.ev-module-workspace .form-select:focus { border-color:#7caef3; box-shadow:0 0 0 .2rem rgba(37,99,235,.10); }
+.ev-module-workspace .table { --bs-table-bg:transparent; vertical-align:middle; font-size:.86rem; }
+.ev-module-workspace .table thead th { text-transform:uppercase; font-size:.68rem; color:#64748b; letter-spacing:.07em; padding:.85rem .65rem; background:#f6f8fc; white-space:nowrap; border-bottom-color:#e2e8f1; }
+.ev-module-workspace .table tbody td { padding:.8rem .65rem; border-color:#eef1f5; }
+.ev-module-workspace .table-responsive { border:1px solid #e9eef5; border-radius:.65rem; }
+.ev-module-workspace .ev-section-note { font-size:.79rem; color:#657892; }
+.ev-module-workspace [role="status"]:not(:empty) { overflow-wrap:anywhere; }
+.ev-module-workspace .ev-record-search { max-width:300px; min-height:36px; }
+.ev-module-workspace .ev-filter-empty { color:#64748b; font-size:.85rem; margin:.75rem 0; }
+.ev-module-workspace .ev-list-panel { margin-top:.8rem; padding-left:1.15rem; }
+.ev-module-workspace .ev-list-panel li { padding:.38rem 0; border-bottom:1px solid #f0f3f7; }
+.ev-module-workspace .ev-list-panel li:last-child { border-bottom:0; }
+.ev-module-workspace .ev-campus-context { display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:1rem; }
+.ev-module-workspace .ev-campus-context .form-select { min-width:min(350px,75vw); }
+@media(max-width:600px) {
+  .ev-module-workspace .ev-card { padding:1.1rem !important; }
+  .ev-module-tabs { border-radius:.75rem; }
+  .ev-module-header h1 { font-size:1.55rem; }
+  .ev-module-workspace .ev-record-search { max-width:none; width:100%; }
+}
