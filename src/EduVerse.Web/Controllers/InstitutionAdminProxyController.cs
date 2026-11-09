@@ -32,6 +32,10 @@ public sealed class InstitutionAdminProxyController(IHttpClientFactory clients):
     public Task<IActionResult> Put(string path,[FromBody] System.Text.Json.JsonElement body,CancellationToken ct)
         => Forward(HttpMethod.Put,path,body.GetRawText(),ct);
 
+    [HttpPost("campuses")]
+    public Task<IActionResult> CreateCampus([FromBody] System.Text.Json.JsonElement body,CancellationToken ct)
+        => Forward(HttpMethod.Post,"campuses",body.GetRawText(),ct);
+
     [HttpPost("{**path}")]
     public Task<IActionResult> Post(string path,CancellationToken ct)
         => Forward(HttpMethod.Post,path,null,ct);
