@@ -1,9 +1,17 @@
 @{ViewData["Title"]="Attendance & Timetables";}
+<div class="ev-module-workspace">
 <div class="mb-4">
  <p class="ev-eyebrow">EduVerse · Academic operations</p>
- <h1 class="h3">Attendance &amp; Timetables</h1>
+ <h1 class="h2">Attendance &amp; Timetables</h1>
  <p class="text-secondary">Manage teaching periods, teacher allocation and school/college attendance.</p>
 </div>
+<nav class="ev-module-tabs" aria-label="Module sections">
+ <a class="ev-module-tab" href="#ev-periods">Academic periods</a>
+ <a class="ev-module-tab" href="#ev-timetable">Timetable &amp; teacher allocation</a>
+ <a class="ev-module-tab" href="#ev-students">Student daily / period attendance</a>
+ <a class="ev-module-tab" href="#ev-staff">Faculty / staff attendance</a>
+ <a class="ev-module-tab" href="#ev-overview">Campus attendance overview</a>
+</nav>
 <section class="ev-card p-4 mb-3">
  @Html.AntiForgeryToken()
  <label for="campus" class="form-label">Active campus</label>
@@ -13,7 +21,7 @@
 <div class="row g-3 mb-3">
  <div class="col-lg-5">
   <section class="ev-card p-4 h-100">
-   <h2 class="h5">Academic periods</h2>
+   <h2 id="ev-periods" class="h5 ev-module-section">Academic periods</h2>
    <form id="period-form" class="row g-2">
     <div class="col-sm-4"><label for="period-code" class="form-label">Code</label><input id="period-code" class="form-control" required maxlength="30" /></div>
     <div class="col-sm-8"><label for="period-name" class="form-label">Period name</label><input id="period-name" class="form-control" required maxlength="100" /></div>
@@ -26,7 +34,7 @@
  </div>
  <div class="col-lg-7">
   <section class="ev-card p-4 h-100">
-   <h2 class="h5">Timetable &amp; teacher allocation</h2>
+   <h2 id="ev-timetable" class="h5 ev-module-section">Timetable &amp; teacher allocation</h2>
    <form id="timetable-form" class="row g-2">
     <div class="col-sm-6"><label for="year" class="form-label">Academic year</label><select id="year" class="form-select" required></select></div>
     <div class="col-sm-6"><label for="weekday" class="form-label">Weekday</label>
@@ -44,7 +52,7 @@
 <div class="row g-3 mb-3">
  <div class="col-lg-6">
   <section class="ev-card p-4 h-100">
-   <h2 class="h5">Student daily / period attendance</h2>
+   <h2 id="ev-students" class="h5 ev-module-section">Student daily / period attendance</h2>
    <form id="student-mark-form" class="row g-2">
     <div class="col-sm-12"><label for="enrollment" class="form-label">Student enrollment</label><select id="enrollment" class="form-select" required></select></div>
     <div class="col-sm-6"><label for="student-date" class="form-label">Date</label><input id="student-date" type="date" class="form-control" required /></div>
@@ -59,7 +67,7 @@
  </div>
  <div class="col-lg-6">
   <section class="ev-card p-4 h-100">
-   <h2 class="h5">Faculty / staff attendance</h2>
+   <h2 id="ev-staff" class="h5 ev-module-section">Faculty / staff attendance</h2>
    <form id="staff-mark-form" class="row g-2">
     <div class="col-sm-12"><label for="staff" class="form-label">Institution member</label><select id="staff" class="form-select" required></select></div>
     <div class="col-sm-6"><label for="staff-date" class="form-label">Date</label><input id="staff-date" type="date" class="form-control" required /></div>
@@ -72,8 +80,9 @@
  </div>
 </div>
 <section class="ev-card p-4">
- <h2 class="h5">Campus attendance overview</h2>
+ <h2 id="ev-overview" class="h5 ev-module-section">Campus attendance overview</h2>
  <p id="dashboard" class="text-secondary small"></p>
  <p class="text-secondary small mb-0">School holidays are checked server-side. Teacher and class overlaps are rejected by the API.</p>
 </section>
-@section Scripts {<script src="~/js/attendance-admin.js" asp-append-version="true"></script>}
+</div>
+@section Scripts {<script src="~/js/attendance-admin.js" asp-append-version="true"></script><script src="/_content/EduVerse.DesignSystem/js/operational-workspace.js" defer></script>}
