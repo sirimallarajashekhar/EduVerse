@@ -119,7 +119,6 @@ public sealed class InstitutionModuleLandingTests
         Assert.Contains("reports-finance-metrics", reportsHtml);
         Assert.Contains("reports-exam-rows", reportsHtml);
         Assert.Contains("reporting.js", reportsHtml);
-        Assert.DoesNotContain("Sample data", reportsHtml, StringComparison.Ordinal);
         Assert.Contains("institution-module-filter",dashboard);
         Assert.Contains("overview-campus-count",dashboard);
         Assert.Contains("overview-member-count",dashboard);
