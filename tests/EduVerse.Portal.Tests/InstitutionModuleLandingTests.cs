@@ -128,6 +128,16 @@ public sealed class InstitutionModuleLandingTests
         Assert.Contains("reports-receipt-chart", reportsHtml);
         Assert.Contains("reports-exam-chart", reportsHtml);
         Assert.Contains("reports-receipt-rows", reportsHtml);
+        Assert.Contains("reports-api-filter", reportsHtml);
+        Assert.Contains("reports-api-months", reportsHtml);
+        Assert.Contains("reports-api-xlsx", reportsHtml);
+        Assert.Contains("reports-api-pdf", reportsHtml);
+        Assert.Contains("reporting-backend.js", reportsHtml);
+        using var historyScript = await client.GetAsync("/js/reporting-backend.js");
+        Assert.Equal(HttpStatusCode.OK, historyScript.StatusCode);
+        var historyJs = await historyScript.Content.ReadAsStringAsync();
+        Assert.Contains("/bff/reporting/dashboard", historyJs);
+        Assert.Contains("/bff/reporting/monthly.", historyJs);
         using var insightsScript = await client.GetAsync("/js/reporting-insights.js");
         Assert.Equal(HttpStatusCode.OK, insightsScript.StatusCode);
         var insightsJs = await insightsScript.Content.ReadAsStringAsync();

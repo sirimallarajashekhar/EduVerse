@@ -139,6 +139,28 @@
         <p class="small text-secondary mb-0">Exports include only authorized receipt records returned by the current API (maximum 250). CSV is compatible with Excel; Save as PDF uses the browser print dialog.</p>
     </section>
 
+    <section class="ev-card p-4 mb-3" aria-labelledby="reports-api-title">
+        <h2 id="reports-api-title" class="h5">Advanced historical reporting</h2>
+        <p class="small text-secondary">Server-generated campus analytics across a selected UTC date range (maximum 366 days). Finance totals are API-calculated as-of the end date; student, staff and asset counts reflect current state.</p>
+        <form id="reports-api-filter" class="row g-3 mb-3">
+            <div class="col-sm-4"><label for="reports-api-from" class="form-label">From (UTC)</label><input id="reports-api-from" class="form-control" type="date" required /></div>
+            <div class="col-sm-4"><label for="reports-api-to" class="form-label">To (UTC)</label><input id="reports-api-to" class="form-control" type="date" required /></div>
+            <div class="col-sm-4 d-flex align-items-end"><button class="btn btn-primary" type="submit">Generate historical report</button></div>
+        </form>
+        <div class="d-flex gap-2 flex-wrap mb-3" id="reports-api-downloads">
+            <a id="reports-api-csv" class="btn btn-sm btn-outline-primary disabled" href="#" aria-disabled="true">Download CSV</a>
+            <a id="reports-api-xlsx" class="btn btn-sm btn-outline-primary disabled" href="#" aria-disabled="true">Download native Excel</a>
+            <a id="reports-api-pdf" class="btn btn-sm btn-outline-primary disabled" href="#" aria-disabled="true">Download PDF</a>
+        </div>
+        <p id="reports-api-status" role="status" aria-live="polite" class="small">Select a campus to generate an authorized report.</p>
+        <div class="row g-3 mb-3" id="reports-api-kpis" aria-live="polite"></div>
+        <h3 class="h6">Monthly enrollments and collections</h3>
+        <div class="table-responsive"><table class="table table-sm">
+            <thead><tr><th scope="col">Month (UTC)</th><th scope="col">Enrollments</th><th scope="col">Payments</th><th scope="col">Collected (INR)</th></tr></thead>
+            <tbody id="reports-api-months"></tbody>
+        </table></div>
+    </section>
+
     <section class="ev-card p-4" aria-labelledby="reports-specialized-title">
         <h2 id="reports-specialized-title" class="h5">Specialized reporting</h2>
         <p class="small text-secondary">HRMS and AMS maintain their own tenant-secured reporting workflows. Consolidated cross-module trends require dedicated API reporting contracts.</p>
@@ -148,4 +170,5 @@
 @section Scripts {
     <script src="~/js/reporting-insights.js" asp-append-version="true"></script>
     <script src="~/js/reporting.js" asp-append-version="true"></script>
+    <script src="~/js/reporting-backend.js" asp-append-version="true"></script>
 }
