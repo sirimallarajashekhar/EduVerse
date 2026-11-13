@@ -26,7 +26,7 @@
   <div class="col-xl-5">
     <section class="ev-card p-4 h-100">
       <h2 id="ev-admission" class="h5 ev-module-section">New admission application</h2>
-      <form id="application-form" class="row g-2">
+      <form data-ev-action="Submit application" data-ev-action-key="application-form" id="application-form" class="row g-2">
         <div class="col-sm-6"><label class="form-label" for="given">Given name</label><input id="given" class="form-control" maxlength="100" required /></div>
         <div class="col-sm-6"><label class="form-label" for="family">Family name</label><input id="family" class="form-control" maxlength="100" /></div>
         <div class="col-sm-6"><label class="form-label" for="dob">Date of birth</label><input id="dob" type="date" class="form-control" required /></div>
@@ -40,7 +40,7 @@
     <section class="ev-card p-4 h-100">
       <h2 id="ev-review" class="h5 ev-module-section">Application review</h2>
       <div class="mb-3"><label class="form-label" for="ev-search-applications">Search applications</label><input id="ev-search-applications" class="form-control ev-record-search" type="search" data-ev-filter-target="applications" placeholder="Search applications" autocomplete="off" /></div>
-      <div class="table-responsive">
+      <div data-ev-action="View Application review" data-ev-action-key="applications" id="ev-action-applications" class="table-responsive">
         <table class="table table-sm align-middle">
           <thead><tr><th>Application</th><th>Applicant</th><th>Status</th><th>Action</th></tr></thead>
           <tbody id="applications"></tbody>
@@ -53,20 +53,20 @@
   <div class="col-lg-6">
     <section class="ev-card p-4">
       <h2 id="ev-registration" class="h5 ev-module-section">Register approved student</h2>
-      <form id="student-form" class="row g-2">
+      <form data-ev-action="Register student" data-ev-action-key="student-form" id="student-form" class="row g-2">
         <div class="col-12"><label for="approved" class="form-label">Approved admission</label><select id="approved" class="form-select" required></select></div>
         <div class="col-12"><button class="btn btn-primary" type="submit">Register student</button></div>
       </form>
       <h3 class="h6 mt-4">Students</h3>
       <label for="student" class="form-label">Selected student</label>
       <select id="student" class="form-select"></select>
-      <div id="student-detail" class="small text-secondary mt-2"></div>
+      <div data-ev-action="View Students" data-ev-action-key="student-detail" id="student-detail" class="small text-secondary mt-2"></div>
     </section>
   </div>
   <div class="col-lg-6">
     <section class="ev-card p-4">
       <h2 id="ev-guardians" class="h5 ev-module-section">Parent / guardian</h2>
-      <form id="guardian-form" class="row g-2">
+      <form data-ev-action="Save guardian" data-ev-action-key="guardian-form" id="guardian-form" class="row g-2">
         <div class="col-sm-6"><label for="guardian-name" class="form-label">Name</label><input id="guardian-name" class="form-control" maxlength="160" required /></div>
         <div class="col-sm-6"><label for="guardian-relation" class="form-label">Relationship</label>
           <select id="guardian-relation" class="form-select"><option>MOTHER</option><option>FATHER</option><option>GUARDIAN</option><option>OTHER</option></select></div>
@@ -75,7 +75,7 @@
         <div class="col-12"><label><input id="guardian-primary" type="checkbox" /> Primary guardian</label></div>
         <div class="col-12"><button class="btn btn-outline-primary" type="submit">Save guardian</button></div>
       </form>
-      <ul id="guardians" class="small mt-3"></ul>
+      <ul data-ev-action="View Parent / guardian" data-ev-action-key="guardians" id="guardians" class="small mt-3"></ul>
     </section>
   </div>
 </div>
@@ -83,15 +83,15 @@
   <div class="col-lg-6">
     <section class="ev-card p-4 h-100">
       <h2 id="ev-enrollment" class="h5 ev-module-section">Academic enrollment</h2>
-      <form id="enroll-form" class="row g-2">
+      <form data-ev-action="Enroll student" data-ev-action-key="enroll-form" id="enroll-form" class="row g-2">
         <div class="col-sm-6"><label for="enroll-year" class="form-label">Academic year</label><select id="enroll-year" class="form-select" required></select></div>
         <div class="col-sm-6"><label for="enroll-item" class="form-label">Class / section / course / batch</label><select id="enroll-item" class="form-select" required></select></div>
         <div class="col-12"><button class="btn btn-outline-primary" type="submit">Enroll student</button></div>
       </form>
-      <ul id="enrollments" class="small mt-3"></ul>
+      <ul data-ev-action="View Academic enrollment" data-ev-action-key="enrollments" id="enrollments" class="small mt-3"></ul>
       <hr />
       <h2 class="h5">Student lifecycle</h2>
-      <form id="lifecycle-form" class="row g-2">
+      <form data-ev-action="Change student status" data-ev-action-key="lifecycle-form" id="lifecycle-form" class="row g-2">
         <div class="col-sm-6"><label for="lifecycle-action" class="form-label">Action</label>
           <select id="lifecycle-action" class="form-select"><option value="PROMOTE">Promote</option><option value="TRANSFER">Transfer</option><option value="WITHDRAW">Withdraw</option></select></div>
         <div class="col-sm-6"><label for="target-campus" class="form-label">Transfer destination</label><select id="target-campus" class="form-select"></select></div>
@@ -104,14 +104,14 @@
     <section class="ev-card p-4 h-100">
       <h2 id="ev-documents" class="h5 ev-module-section">Documents &amp; verification</h2>
       <p class="small text-secondary">Private PDF, PNG or JPEG. Maximum 1 MiB. Only authorized staff can download.</p>
-      <form id="document-form" class="row g-2" enctype="multipart/form-data">
+      <form data-ev-action="Upload document" data-ev-action-key="document-form" id="document-form" class="row g-2" enctype="multipart/form-data">
         <div class="col-sm-6"><label for="document-category" class="form-label">Category</label>
           <select id="document-category" class="form-select"><option>IDENTITY</option><option>BIRTH_CERTIFICATE</option><option>TRANSFER_CERTIFICATE</option><option>OTHER</option></select></div>
         <div class="col-sm-6"><label for="document-file" class="form-label">File</label>
           <input id="document-file" type="file" class="form-control" accept=".pdf,.png,.jpg,.jpeg" required /></div>
         <div class="col-12"><button type="submit" class="btn btn-outline-primary">Upload document</button></div>
       </form>
-      <div class="table-responsive mt-3">
+      <div data-ev-action="View Documents &amp; verification" data-ev-action-key="documents" id="ev-action-documents" class="table-responsive mt-3">
         <table class="table table-sm">
           <thead><tr><th>Document</th><th>Status</th><th>Actions</th></tr></thead>
           <tbody id="documents"></tbody>
@@ -120,5 +120,6 @@
     </section>
   </div>
 </div>
-</div>
 @section Scripts {<script src="~/js/student-admin.js" asp-append-version="true"></script>}
+
+</div>

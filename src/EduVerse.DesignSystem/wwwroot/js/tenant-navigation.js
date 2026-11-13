@@ -42,6 +42,7 @@
     for (const module of selected) {
       const column = make('div', undefined, 'col-md-6 col-xl-4');
       const card = make('article', undefined, 'ev-card ev-module-tile p-4 h-100 d-flex flex-column');
+      card.dataset.evColor = ({finance:'green',reporting:'green',students:'purple',hrms:'purple',operations:'amber',ams:'amber',learning:'rose'})[module.id] || 'blue';
       const emblem = make('span', '▦', 'ev-module-symbol');
       emblem.setAttribute('aria-hidden', 'true');
       card.append(emblem);

@@ -27,16 +27,16 @@
  <div class="col-lg-5"><section class="ev-card p-4 h-100">
   <h2 id="ev-designations" class="h5 ev-module-section">Departments &amp; designations</h2>
   <p class="small text-secondary">Departments are managed in the Institution Administration module. Choose one when onboarding employees.</p>
-  <form id="designation-form" class="row g-2">
+  <form data-ev-action="Create designation" data-ev-action-key="designation-form" id="designation-form" class="row g-2">
    <div class="col-sm-4"><label for="des-code" class="form-label">Code</label><input id="des-code" class="form-control" maxlength="30" required/></div>
    <div class="col-sm-8"><label for="des-title" class="form-label">Title</label><input id="des-title" class="form-control" maxlength="120" required/></div>
    <div class="col-12"><button class="btn btn-outline-primary" type="submit">Create designation</button></div>
   </form>
-  <ul id="designations" class="small mt-3"></ul>
+  <ul data-ev-action="View Departments &amp; designations" data-ev-action-key="designations" id="designations" class="small mt-3"></ul>
  </section></div>
  <div class="col-lg-7"><section class="ev-card p-4 h-100">
   <h2 id="ev-employees" class="h5 ev-module-section">Employee / faculty onboarding</h2>
-  <form id="employee-form" class="row g-2">
+  <form data-ev-action="Register employee" data-ev-action-key="employee-form" id="employee-form" class="row g-2">
    <div class="col-sm-6"><label for="first" class="form-label">Given name</label><input id="first" maxlength="100" class="form-control" required/></div>
    <div class="col-sm-6"><label for="last" class="form-label">Family name</label><input id="last" maxlength="100" class="form-control" required/></div>
    <div class="col-sm-6"><label for="type" class="form-label">Employee type</label><select id="type" class="form-select"><option>FACULTY</option><option>STAFF</option><option>CONTRACT</option></select></div>
@@ -49,7 +49,7 @@
   </form>
   <hr/>
   <label for="employee" class="form-label">Selected employee</label><select id="employee" class="form-select"></select>
-  <form id="lifecycle-form" class="row g-2 mt-1">
+  <form data-ev-action="Apply lifecycle transition" data-ev-action-key="lifecycle-form" id="lifecycle-form" class="row g-2 mt-1">
    <div class="col-sm-6"><label for="lifecycle" class="form-label">Employment action</label>
     <select id="lifecycle" class="form-select"><option value="ACTIVE">Activate / return</option><option value="ON_LEAVE">Mark on leave</option><option value="EXITED">Exit employment</option></select></div>
    <div class="col-sm-6"><label for="lifecycle-note" class="form-label">Note</label><input id="lifecycle-note" maxlength="400" class="form-control"/></div>
@@ -61,24 +61,24 @@
  <div class="col-lg-5"><section class="ev-card p-4 h-100">
   <h2 id="ev-documents" class="h5 ev-module-section">Private employee documents</h2>
   <p class="small text-secondary">PDF, PNG or JPEG, maximum 1 MiB. Only HR administrators can retrieve documents.</p>
-  <form id="document-form" class="row g-2" enctype="multipart/form-data">
+  <form data-ev-action="Upload securely" data-ev-action-key="document-form" id="document-form" class="row g-2" enctype="multipart/form-data">
    <div class="col-sm-6"><label for="document-type" class="form-label">Document type</label>
     <select id="document-type" class="form-select"><option>CONTRACT</option><option>QUALIFICATION</option><option>IDENTITY</option><option>OTHER</option></select></div>
    <div class="col-sm-6"><label for="document-file" class="form-label">Document</label><input id="document-file" type="file" accept=".pdf,.png,.jpg,.jpeg" class="form-control" required/></div>
    <div class="col-12"><button class="btn btn-outline-primary" type="submit">Upload securely</button></div>
   </form>
-  <ul id="documents" class="small mt-3"></ul>
+  <ul data-ev-action="View Private employee documents" data-ev-action-key="documents" id="documents" class="small mt-3"></ul>
  </section></div>
  <div class="col-lg-7"><section class="ev-card p-4 h-100">
   <h2 id="ev-leave" class="h5 ev-module-section">Leave types &amp; balances</h2>
-  <form id="leave-type-form" class="row g-2">
+  <form data-ev-action="Create leave type" data-ev-action-key="leave-type-form" id="leave-type-form" class="row g-2">
    <div class="col-sm-4"><label for="leave-code" class="form-label">Code</label><input id="leave-code" maxlength="30" class="form-control" required/></div>
    <div class="col-sm-5"><label for="leave-title" class="form-label">Leave title</label><input id="leave-title" maxlength="120" class="form-control" required/></div>
    <div class="col-sm-3"><label for="leave-days" class="form-label">Annual days</label><input id="leave-days" type="number" min="0" max="366" step=".01" class="form-control" required/></div>
    <div class="col-12"><button class="btn btn-outline-primary" type="submit">Create leave type</button></div>
   </form>
   <hr/>
-  <form id="leave-form" class="row g-2">
+  <form data-ev-action="Submit leave request" data-ev-action-key="leave-form" id="leave-form" class="row g-2">
    <div class="col-sm-6"><label for="leave-type" class="form-label">Leave category</label><select id="leave-type" class="form-select" required></select></div>
    <div class="col-sm-6"><label for="leave-reason" class="form-label">Reason</label><input id="leave-reason" maxlength="300" class="form-control" required/></div>
    <div class="col-sm-6"><label for="leave-start" class="form-label">From</label><input id="leave-start" type="date" class="form-control" required/></div>
@@ -86,13 +86,13 @@
    <div class="col-12"><button class="btn btn-outline-primary" type="submit">Submit leave request</button></div>
   </form>
   <p id="leave-balance" class="small mt-2"></p>
-  <h3 class="h6 mt-3">Leave approvals</h3><ul id="leaves" class="small"></ul>
+  <h3 class="h6 mt-3">Leave approvals</h3><ul data-ev-action="View Leave approvals" data-ev-action-key="leaves" id="leaves" class="small"></ul>
  </section></div>
 </div>
 <div class="row g-3 mb-3">
  <div class="col-lg-6"><section class="ev-card p-4 h-100">
   <h2 id="ev-payroll" class="h5 ev-module-section">Salary structure (INR)</h2>
-  <form id="salary-form" class="row g-2">
+  <form data-ev-action="Save salary structure" data-ev-action-key="salary-form" id="salary-form" class="row g-2">
    <div class="col-sm-6"><label for="salary-date" class="form-label">Effective date</label><input id="salary-date" type="date" class="form-control" required/></div>
    <div class="col-sm-6"><label for="base" class="form-label">Monthly base</label><input id="base" type="number" min="0" step=".01" class="form-control" required/></div>
    <div class="col-sm-6"><label for="allowance" class="form-label">Monthly allowances</label><input id="allowance" type="number" min="0" step=".01" class="form-control" value="0" required/></div>
@@ -100,7 +100,7 @@
    <div class="col-12"><button class="btn btn-outline-primary" type="submit">Save salary structure</button></div>
   </form>
   <hr/><h3 class="h6">Payroll preview only</h3>
-  <form id="payroll-form" class="row g-2">
+  <form data-ev-action="Calculate preview" data-ev-action-key="payroll-form" id="payroll-form" class="row g-2">
    <div class="col-sm-7"><label for="pay-month" class="form-label">Payroll month</label><input id="pay-month" type="month" class="form-control" required/></div>
    <div class="col-sm-5 d-flex align-items-end"><button class="btn btn-outline-primary" type="submit">Calculate preview</button></div>
   </form>
@@ -111,9 +111,10 @@
   <p class="text-secondary small">Reads existing attendance for employees associated with EduVerse accounts. Attendance entry remains in the Attendance module.</p>
   <label for="attendance-date" class="form-label">Attendance date</label>
   <input id="attendance-date" type="date" class="form-control mb-2"/>
-  <button type="button" id="load-attendance" class="btn btn-outline-primary">Load attendance</button>
-  <ul id="attendance" class="small mt-3"></ul>
+  <button data-ev-action="Load attendance" data-ev-action-key="load-attendance" type="button" id="load-attendance" class="btn btn-outline-primary">Load attendance</button>
+  <ul data-ev-action="Load attendance" data-ev-action-key="load-attendance" id="attendance" class="small mt-3"></ul>
  </section></div>
 </div>
-</div>
 @section Scripts {<script src="/hrms/js/hrms.js" asp-append-version="true"></script>}
+
+</div>

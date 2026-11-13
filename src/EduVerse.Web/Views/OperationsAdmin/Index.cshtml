@@ -13,7 +13,7 @@
 <div class="row g-3 mb-3">
  <div class="col-lg-4"><section class="ev-card p-4 h-100">
   <h2 class="h5">Library catalog</h2>
-  <form id="title-form" class="row g-2">
+  <form data-ev-action="Add title" data-ev-action-key="title-form" id="title-form" class="row g-2">
    <div class="col-12"><label for="title" class="form-label">Book title</label><input id="title" class="form-control" maxlength="180" required/></div>
    <div class="col-12"><label for="author" class="form-label">Author</label><input id="author" class="form-control" maxlength="160" required/></div>
    <div class="col-12"><label for="isbn" class="form-label">ISBN (optional)</label><input id="isbn" class="form-control" maxlength="20"/></div>
@@ -21,7 +21,7 @@
   </form>
   <hr/>
   <h3 class="h6">Register a copy</h3>
-  <form id="copy-form" class="row g-2">
+  <form data-ev-action="Register copy" data-ev-action-key="copy-form" id="copy-form" class="row g-2">
    <div class="col-12"><label for="copy-title" class="form-label">Title</label><select id="copy-title" class="form-select" required></select></div>
    <div class="col-12"><label for="barcode" class="form-label">Barcode</label><input id="barcode" class="form-control" maxlength="64" required/></div>
    <div class="col-12"><button class="btn btn-outline-primary" type="submit">Register copy</button></div>
@@ -29,27 +29,27 @@
  </section></div>
  <div class="col-lg-8"><section class="ev-card p-4 h-100">
   <h2 class="h5">Circulation, reservations and fines</h2>
-  <form id="loan-form" class="row g-2">
+  <form data-ev-action="Lend copy" data-ev-action-key="loan-form" id="loan-form" class="row g-2">
    <div class="col-sm-6"><label for="loan-copy" class="form-label">Available copy</label><select id="loan-copy" class="form-select" required></select></div>
    <div class="col-sm-6"><label for="loan-student" class="form-label">Student</label><select id="loan-student" class="form-select" required></select></div>
    <div class="col-sm-6"><label for="loan-due" class="form-label">Due date</label><input id="loan-due" type="date" class="form-control" required/></div>
    <div class="col-sm-6 d-flex align-items-end"><button class="btn btn-primary" type="submit">Lend copy</button></div>
   </form>
   <hr/>
-  <form id="reservation-form" class="row g-2">
+  <form data-ev-action="Reserve" data-ev-action-key="reservation-form" id="reservation-form" class="row g-2">
    <div class="col-sm-5"><label for="reserve-title" class="form-label">Reserve title</label><select id="reserve-title" class="form-select" required></select></div>
    <div class="col-sm-5"><label for="reserve-student" class="form-label">Student</label><select id="reserve-student" class="form-select" required></select></div>
    <div class="col-sm-2 d-flex align-items-end"><button class="btn btn-outline-primary" type="submit">Reserve</button></div>
   </form>
-  <h3 class="h6 mt-3">Loans and returns</h3><ul id="loan-list" class="small"></ul>
-  <h3 class="h6 mt-3">Reservations</h3><ul id="reservation-list" class="small"></ul>
+  <h3 class="h6 mt-3">Loans and returns</h3><ul data-ev-action="View Loans and returns" data-ev-action-key="loan-list" id="loan-list" class="small"></ul>
+  <h3 class="h6 mt-3">Reservations</h3><ul data-ev-action="View Reservations" data-ev-action-key="reservation-list" id="reservation-list" class="small"></ul>
   <p class="small text-secondary">Overdue fines are calculated at return (₹2 per overdue calendar day, capped at ₹500). No payment is collected here.</p>
  </section></div>
 </div>
 <div class="row g-3 mb-3">
  <div class="col-lg-4"><section class="ev-card p-4 h-100">
   <h2 class="h5">Transport vehicles &amp; drivers</h2>
-  <form id="vehicle-form" class="row g-2">
+  <form data-ev-action="Add vehicle" data-ev-action-key="vehicle-form" id="vehicle-form" class="row g-2">
    <div class="col-sm-7"><label for="registration" class="form-label">Registration</label><input id="registration" maxlength="32" class="form-control" required/></div>
    <div class="col-sm-5"><label for="capacity" class="form-label">Seats</label><input id="capacity" type="number" min="1" max="100" class="form-control" required/></div>
    <div class="col-12"><label for="driver" class="form-label">Driver</label><input id="driver" maxlength="120" class="form-control" required/></div>
@@ -59,14 +59,14 @@
  </section></div>
  <div class="col-lg-4"><section class="ev-card p-4 h-100">
   <h2 class="h5">Transport routes and stops</h2>
-  <form id="route-form" class="row g-2">
+  <form data-ev-action="Create route" data-ev-action-key="route-form" id="route-form" class="row g-2">
    <div class="col-12"><label for="route-vehicle" class="form-label">Vehicle</label><select id="route-vehicle" class="form-select" required></select></div>
    <div class="col-sm-5"><label for="route-code" class="form-label">Route code</label><input id="route-code" maxlength="30" class="form-control" required/></div>
    <div class="col-sm-7"><label for="route-name" class="form-label">Route name</label><input id="route-name" maxlength="120" class="form-control" required/></div>
    <div class="col-12"><button class="btn btn-outline-primary" type="submit">Create route</button></div>
   </form>
   <hr/>
-  <form id="stop-form" class="row g-2">
+  <form data-ev-action="Add stop" data-ev-action-key="stop-form" id="stop-form" class="row g-2">
    <div class="col-12"><label for="stop-route" class="form-label">Route</label><select id="stop-route" class="form-select" required></select></div>
    <div class="col-sm-8"><label for="stop-name" class="form-label">Stop name</label><input id="stop-name" maxlength="120" class="form-control" required/></div>
    <div class="col-sm-4"><label for="stop-order" class="form-label">Sequence</label><input id="stop-order" type="number" min="1" max="500" class="form-control" required/></div>
@@ -75,25 +75,25 @@
  </section></div>
  <div class="col-lg-4"><section class="ev-card p-4 h-100">
   <h2 class="h5">Student transport assignments</h2>
-  <form id="route-assignment-form" class="row g-2">
+  <form data-ev-action="Assign route" data-ev-action-key="route-assignment-form" id="route-assignment-form" class="row g-2">
    <div class="col-12"><label for="assign-student" class="form-label">Student</label><select id="assign-student" class="form-select" required></select></div>
    <div class="col-12"><label for="assign-route" class="form-label">Route</label><select id="assign-route" class="form-select" required></select></div>
    <div class="col-12"><label for="assign-stop" class="form-label">Pickup stop</label><select id="assign-stop" class="form-select" required></select></div>
    <div class="col-12"><button class="btn btn-primary" type="submit">Assign route</button></div>
   </form>
-  <ul id="route-assignments" class="small mt-3"></ul>
+  <ul data-ev-action="View Student transport assignments" data-ev-action-key="route-assignments" id="route-assignments" class="small mt-3"></ul>
  </section></div>
 </div>
 <div class="row g-3">
  <div class="col-lg-4"><section class="ev-card p-4 h-100">
   <h2 class="h5">Hostel blocks &amp; rooms</h2>
-  <form id="block-form" class="row g-2">
+  <form data-ev-action="Create block" data-ev-action-key="block-form" id="block-form" class="row g-2">
    <div class="col-sm-5"><label for="block-code" class="form-label">Block code</label><input id="block-code" maxlength="30" class="form-control" required/></div>
    <div class="col-sm-7"><label for="block-name" class="form-label">Name</label><input id="block-name" maxlength="120" class="form-control" required/></div>
    <div class="col-12"><button class="btn btn-outline-primary" type="submit">Create block</button></div>
   </form>
   <hr/>
-  <form id="room-form" class="row g-2">
+  <form data-ev-action="Add room" data-ev-action-key="room-form" id="room-form" class="row g-2">
    <div class="col-12"><label for="room-block" class="form-label">Block</label><select id="room-block" class="form-select" required></select></div>
    <div class="col-12"><label for="room-number" class="form-label">Room number</label><input id="room-number" maxlength="30" class="form-control" required/></div>
    <div class="col-12"><button class="btn btn-outline-primary" type="submit">Add room</button></div>
@@ -101,24 +101,25 @@
  </section></div>
  <div class="col-lg-4"><section class="ev-card p-4 h-100">
   <h2 class="h5">Beds and occupancy</h2>
-  <form id="bed-form" class="row g-2">
+  <form data-ev-action="Create bed" data-ev-action-key="bed-form" id="bed-form" class="row g-2">
    <div class="col-12"><label for="bed-room" class="form-label">Room</label><select id="bed-room" class="form-select" required></select></div>
    <div class="col-12"><label for="bed-number" class="form-label">Bed number</label><input id="bed-number" maxlength="30" class="form-control" required/></div>
    <div class="col-12"><button class="btn btn-outline-primary" type="submit">Create bed</button></div>
   </form>
-  <h3 class="h6 mt-3">Bed inventory</h3><ul id="beds-list" class="small"></ul>
+  <h3 class="h6 mt-3">Bed inventory</h3><ul data-ev-action="View Bed inventory" data-ev-action-key="beds-list" id="beds-list" class="small"></ul>
  </section></div>
  <div class="col-lg-4"><section class="ev-card p-4 h-100">
   <h2 class="h5">Student bed allocations</h2>
-  <form id="hostel-allocation-form" class="row g-2">
+  <form data-ev-action="Allocate bed" data-ev-action-key="hostel-allocation-form" id="hostel-allocation-form" class="row g-2">
    <div class="col-12"><label for="hostel-student" class="form-label">Student</label><select id="hostel-student" class="form-select" required></select></div>
    <div class="col-12"><label for="hostel-bed" class="form-label">Available bed</label><select id="hostel-bed" class="form-select" required></select></div>
    <div class="col-12"><button class="btn btn-primary" type="submit">Allocate bed</button></div>
   </form>
-  <ul id="hostel-allocations" class="small mt-3"></ul>
+  <ul data-ev-action="View Student bed allocations" data-ev-action-key="hostel-allocations" id="hostel-allocations" class="small mt-3"></ul>
   <p class="small text-secondary">Vacate the existing bed before transferring a student to another bed.</p>
  </section></div>
 </div>
 
-</div>
 @section Scripts {<script src="~/js/operations-admin.js" asp-append-version="true"></script>}
+
+</div>

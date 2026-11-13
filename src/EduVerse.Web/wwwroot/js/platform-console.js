@@ -46,6 +46,7 @@
   for(const module of modules){
    const col=node('div','','col-md-6 col-xl-4');
    const card=node('article','','ev-card ev-module-tile p-4 h-100');
+   card.dataset.evColor=({finance:'green',reporting:'green',students:'purple',hrms:'purple',operations:'amber',ams:'amber',learning:'rose'})[module.id]||'blue';
    card.append(node('span','▦','ev-module-symbol'));
    card.append(node('h3',module.name,'h6 fw-semibold mb-2'));
    card.append(node('p',module.description,'text-secondary small mb-3'));
@@ -70,6 +71,9 @@
    api('institutions/'+institution.id+'/modules'),
    api('institutions/'+institution.id+'/users')]);
   showInstitutions();
+  if (!['#platform-modules','#platform-users','#platform-invite'].includes(location.hash))
+   location.hash='platform-modules';
+  document.querySelector('.ev-module-workspace')?.dispatchEvent(new Event('ev:refresh-action'));
   const modules=el('platform-modules');modules.replaceChildren();
   for(const x of moduleInfo.modules){
    const item=node('div','','py-2 border-bottom');

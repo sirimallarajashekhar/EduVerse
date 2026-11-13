@@ -171,3 +171,25 @@ h2.h5,.ev-section-heading { font-size:1rem; }
  .btn,.ev-module-tab { min-height:44px; display:inline-flex; align-items:center; justify-content:center; }
  .ev-module-workspace .ev-campus-context .form-select { min-width:0; width:100%; }
 }
+
+/* Each address selects one business action; color distinguishes module context. */
+.ev-action-inactive { display:none !important; }
+.ev-action-navigation { padding:1rem; margin:1rem 0; border-top:3px solid var(--ev-module-color,#2563eb) !important; }
+.ev-action-navigation .form-select { max-width:640px; }
+.ev-current-action { font-size:1.15rem; font-weight:700; margin:1rem 0; color:var(--ev-module-color,#2563eb); }
+.ev-action-context { padding:1rem; margin-bottom:1rem; }
+.ev-action-context .form-select { max-width:480px; }
+.ev-action-card { border-top:3px solid var(--ev-module-color,#2563eb) !important; }
+.ev-module-workspace { --ev-module-color:#2563eb; }
+.ev-module-workspace:has(#fee-form),.ev-module-workspace:has(#reports-api-filter) { --ev-module-color:#047857; }
+.ev-module-workspace:has(#application-form),.ev-module-workspace:has(#employee-form) { --ev-module-color:#7c3aed; }
+.ev-module-workspace:has(#year-form),.ev-module-workspace:has(#period-form) { --ev-module-color:#0369a1; }
+.ev-module-workspace:has(#title-form),.ev-module-workspace:has(#asset-form) { --ev-module-color:#b45309; }
+.ev-module-workspace:has(#exam-form),.ev-module-workspace:has(#regulation-form) { --ev-module-color:#4338ca; }
+.ev-module-workspace:has(#lesson-form),.ev-module-workspace:has(#phase23-parent-message) { --ev-module-color:#be185d; }
+.ev-module-workspace:has(#rbac-create),.ev-module-workspace:has(#platform-invite) { --ev-module-color:#0f766e; }
+.ev-module-tile:nth-child(5n+1) .ev-module-symbol { background:#eff6ff; color:#2563eb; }
+.ev-module-tile[data-ev-color="green"] .ev-module-symbol { background:#ecfdf5; color:#047857; }
+.ev-module-tile[data-ev-color="purple"] .ev-module-symbol { background:#f5f3ff; color:#7c3aed; }
+.ev-module-tile[data-ev-color="amber"] .ev-module-symbol { background:#fffbeb; color:#b45309; }
+.ev-module-tile[data-ev-color="rose"] .ev-module-symbol { background:#fff1f2; color:#be185d; }

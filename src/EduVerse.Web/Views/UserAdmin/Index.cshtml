@@ -8,7 +8,7 @@
 </div>
 <div class="ev-card p-4 mb-4">
   <h2 class="h5">Invite user</h2>
-  <form id="invite-form" class="row g-3">
+  <form data-ev-action="Invite" data-ev-action-key="invite-form" id="invite-form" class="row g-3">
     @Html.AntiForgeryToken()
     <div class="col-md-4"><label class="form-label" for="email">Email</label>
       <input id="email" name="email" type="email" class="form-control" required /></div>
@@ -22,7 +22,7 @@
 </div>
 <div class="ev-card p-4">
   <h2 class="h5">Active users</h2>
-  <div class="table-responsive">
+  <div data-ev-action="View Active users" data-ev-action-key="user-rows" id="ev-action-user-rows" class="table-responsive">
     <table class="table table-striped align-middle">
       <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Action</th></tr></thead>
       <tbody id="user-rows"><tr><td colspan="3">Loading…</td></tr></tbody>
@@ -30,5 +30,6 @@
   </div>
 </div>
 
-</div>
 @section Scripts { <script src="~/js/user-admin.js" asp-append-version="true"></script> }
+
+</div>

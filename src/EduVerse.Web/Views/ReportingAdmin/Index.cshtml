@@ -4,7 +4,7 @@
 <h1 class="h3">Institution Analytics & Reports</h1>
 <p class="text-secondary">Read-only campus analytics. Metrics and exports are calculated by tenant-secured REST APIs.</p>
 <section class="ev-card p-4 mb-3">
-    <form id="report-filter" class="row g-3">
+    <form data-ev-action="Generate campus report" data-ev-action-key="report-filter" id="report-filter" class="row g-3">
         <div class="col-md-5"><label for="campus" class="form-label">Campus</label><select id="campus" class="form-select" required></select></div>
         <div class="col-md-3"><label for="from" class="form-label">From (UTC)</label><input id="from" class="form-control" type="date" required /></div>
         <div class="col-md-3"><label for="to" class="form-label">To (UTC)</label><input id="to" class="form-control" type="date" required /></div>
@@ -12,7 +12,7 @@
     </form>
     <p id="status" role="status" aria-live="polite" class="small mt-3"></p>
 </section>
-<section class="ev-card p-4 mb-3">
+<section data-ev-action="Generate campus report" data-ev-action-key="report-filter" id="action-3" class="ev-card p-4 mb-3">
     <h2 class="h5">Campus at a glance</h2>
     <dl id="kpis" class="row"></dl>
     <p class="small text-secondary">People and asset counts are current; financial amounts reflect recorded activity through the selected end date (UTC).</p>
@@ -26,12 +26,13 @@
             <a id="download-pdf" class="btn btn-outline-primary disabled" href="#" aria-disabled="true">PDF</a>
         </div>
     </div>
-    <div class="table-responsive"><table class="table table-striped">
+    <div data-ev-action="Generate campus report" data-ev-action-key="report-filter" id="ev-action-report-rows" class="table-responsive"><table class="table table-striped">
       <caption>Monthly campus reporting totals, UTC</caption>
       <thead><tr><th scope="col">Month</th><th scope="col">Enrollments</th><th scope="col">Payments</th><th scope="col">Collected (INR)</th></tr></thead>
       <tbody id="report-rows"></tbody>
     </table></div>
 </section>
 
-</div>
 @section Scripts { <script src="~/js/reporting-admin.js" asp-append-version="true"></script> }
+
+</div>

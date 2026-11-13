@@ -6,13 +6,13 @@
 <div class="ev-card p-4 mb-3">
 <label class="form-label" for="campus">Your assigned campus ID</label>
 <div class="input-group"><input type="text" id="campus" class="form-control" placeholder="Campus UUID" required/>
-<button class="btn btn-primary" id="load-classes" type="button">Load my classes</button></div>
+<button data-ev-action="Load my classes" data-ev-action-key="load-classes" class="btn btn-primary" id="load-classes" type="button">Load my classes</button></div>
 <p class="form-text">Obtain your campus ID from your institution administrator.</p></div>
 <div class="row g-3">
-<div class="col-lg-6"><section class="ev-card p-4"><h2 class="h5">Assigned classes</h2><div id="classes" aria-live="polite"></div>
-<h3 class="h6 mt-4">Roster</h3><div id="roster"></div></section></div>
+<div class="col-lg-6"><section class="ev-card p-4"><h2 class="h5">Assigned classes</h2><div data-ev-action="View Assigned classes" data-ev-action-key="classes" id="classes" aria-live="polite"></div>
+<h3 class="h6 mt-4">Roster</h3><div data-ev-action="View Roster" data-ev-action-key="roster" id="roster"></div></section></div>
 <div class="col-lg-6"><section class="ev-card p-4 mb-3"><h2 class="h5">Mark attendance</h2>
-<form id="attendance-form">
+<form data-ev-action="Save attendance" data-ev-action-key="attendance-form" id="attendance-form">
 <label class="form-label" for="enrollment">Enrollment UUID (from assigned class)</label><input class="form-control mb-2" id="enrollment" required/>
 <label class="form-label" for="on">Date</label><input class="form-control mb-2" id="on" type="date" required/>
 <label class="form-label" for="attendance-status">Status</label><select class="form-select mb-2" id="attendance-status">
@@ -20,15 +20,15 @@
 <label class="form-label" for="period">Period UUID (optional)</label><input class="form-control mb-2" id="period"/>
 <button class="btn btn-primary" type="submit">Save attendance</button></form></section>
 <section class="ev-card p-4 mb-3"><h2 class="h5">Enter assessment marks</h2>
-<form id="marks-form">
+<form data-ev-action="Save marks" data-ev-action-key="marks-form" id="marks-form">
 <label class="form-label" for="assessment">Assessment UUID</label><input class="form-control mb-2" id="assessment" required/>
 <label class="form-label" for="marks-enrollment">Enrollment UUID</label><input class="form-control mb-2" id="marks-enrollment" required/>
 <label class="form-label" for="marks">Marks</label><input class="form-control mb-2" id="marks" type="number" min="0" step="0.01"/>
 <label class="form-check mb-2"><input class="form-check-input" type="checkbox" id="absent"/> Absent</label>
 <button class="btn btn-primary" type="submit">Save marks</button></form></section>
-<section class="ev-card p-4"><h2 class="h5">My lessons</h2><div id="lessons"></div>
+<section class="ev-card p-4"><h2 class="h5">My lessons</h2><div data-ev-action="View My lessons" data-ev-action-key="lessons" id="lessons"></div>
 <h3 class="h6 mt-3">Prepare a draft lesson</h3>
-<form id="lesson-form">
+<form data-ev-action="Prepare lesson" data-ev-action-key="lesson-form" id="lesson-form">
 <label class="form-label" for="lesson-year">Academic year UUID</label><input class="form-control mb-2" id="lesson-year" required/>
 <label class="form-label" for="lesson-class">Class UUID (your assigned class)</label><input class="form-control mb-2" id="lesson-class" required/>
 <label class="form-label" for="lesson-subject">Subject UUID (your assigned subject)</label><input class="form-control mb-2" id="lesson-subject" required/>
@@ -38,28 +38,29 @@
 </form><p class="small text-secondary mt-2">Lesson publication remains an institution administrator operation.</p></section></div>
 </div><p id="portal-message" role="status" class="mt-3"></p>
 
-</div>
 @section Scripts {<script src="~/js/role-portals.js" asp-append-version="true"></script>}
 
 <section class="ev-card p-4 my-3"><h2 class="h5">Assignments and grading</h2>
-<form id="phase23-assignment-form">
+<form data-ev-action="Prepare draft assignment" data-ev-action-key="phase23-assignment-form" id="phase23-assignment-form">
 <label class="form-label" for="p23-lesson">Published lesson UUID</label><input class="form-control mb-2" id="p23-lesson" required/>
 <label class="form-label" for="p23-title">Assignment title</label><input class="form-control mb-2" id="p23-title" maxlength="160" required/>
 <label class="form-label" for="p23-instructions">Instructions</label><textarea class="form-control mb-2" id="p23-instructions" maxlength="8000" required></textarea>
 <label class="form-label" for="p23-due">Deadline</label><input type="datetime-local" class="form-control mb-2" id="p23-due" required/>
 <label class="form-label" for="p23-max">Maximum score</label><input type="number" class="form-control mb-2" id="p23-max" step=".01" min=".01" required/>
 <button class="btn btn-primary" type="submit">Prepare draft assignment</button></form>
-<h3 class="h6 mt-4">Assigned submissions</h3><button class="btn btn-outline-secondary btn-sm" id="p23-load-submissions">Refresh submissions</button>
-<div id="p23-submissions" class="mt-2"></div>
-<h3 class="h6 mt-4">Grade a submission</h3><form id="phase23-grade-form">
+<h3 class="h6 mt-4">Assigned submissions</h3><button data-ev-action="Refresh submissions" data-ev-action-key="p23-load-submissions" class="btn btn-outline-secondary btn-sm" id="p23-load-submissions">Refresh submissions</button>
+<div data-ev-action="Refresh submissions" data-ev-action-key="p23-load-submissions" id="p23-submissions" class="mt-2"></div>
+<h3 class="h6 mt-4">Grade a submission</h3><form data-ev-action="Grade submission" data-ev-action-key="phase23-grade-form" id="phase23-grade-form">
 <label class="form-label" for="p23-submission">Submission UUID</label><input class="form-control mb-2" id="p23-submission" required/>
 <label class="form-label" for="p23-score">Score</label><input type="number" class="form-control mb-2" id="p23-score" step=".01" min="0" required/>
 <label class="form-label" for="p23-feedback">Feedback</label><textarea class="form-control mb-2" id="p23-feedback" maxlength="1000"></textarea>
 <button class="btn btn-primary" type="submit">Grade submission</button></form>
 </section>
-<section class="ev-card p-4 my-3"><h2 class="h5">Parent conversations</h2><button class="btn btn-outline-secondary btn-sm" id="p23-load-conversations">Load messages</button><div id="p23-conversations"></div></section>
+<section class="ev-card p-4 my-3"><h2 class="h5">Parent conversations</h2><button data-ev-action="Load messages" data-ev-action-key="p23-load-conversations" class="btn btn-outline-secondary btn-sm" id="p23-load-conversations">Load messages</button><div data-ev-action="Load messages" data-ev-action-key="p23-load-conversations" id="p23-conversations"></div></section>
 <p id="p23-status" role="status"></p>
 <section class="ev-card p-4 my-3"><h2 class="h5">In-app notifications</h2>
-<button type="button" class="btn btn-outline-secondary btn-sm" id="p23-load-notifications">Refresh inbox</button>
-<div class="mt-2" id="p23-notifications" aria-live="polite"></div></section>
+<button data-ev-action="Refresh inbox" data-ev-action-key="p23-load-notifications" type="button" class="btn btn-outline-secondary btn-sm" id="p23-load-notifications">Refresh inbox</button>
+<div data-ev-action="Refresh inbox" data-ev-action-key="p23-load-notifications" class="mt-2" id="p23-notifications" aria-live="polite"></div></section>
 <script defer src="/js/phase23-portals.js"></script>
+
+</div>

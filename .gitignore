@@ -12,3 +12,5 @@ coverage/
 !*.example
 appsettings.Development.local.json
 **/secrets.json
+
+**/node_modules/

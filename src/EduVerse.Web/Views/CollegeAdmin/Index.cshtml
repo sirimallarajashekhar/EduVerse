@@ -11,7 +11,7 @@
 <div class="row g-3 mb-3">
  <div class="col-lg-5"><section class="ev-card p-4 h-100">
   <h2 class="h5">Academic regulations</h2>
-  <form id="regulation-form" class="row g-2">
+  <form data-ev-action="Create regulation" data-ev-action-key="regulation-form" id="regulation-form" class="row g-2">
    <div class="col-sm-4"><label for="rule-code" class="form-label">Code</label><input id="rule-code" maxlength="30" class="form-control" required/></div>
    <div class="col-sm-8"><label for="rule-name" class="form-label">Name</label><input id="rule-name" maxlength="160" class="form-control" required/></div>
    <div class="col-sm-6"><label for="passing" class="form-label">Passing grade points</label><input id="passing" type="number" min="0" max="10" step=".01" class="form-control" value="4" required/></div>
@@ -19,33 +19,33 @@
    <div class="col-sm-6"><label for="max-semesters" class="form-label">Maximum semesters</label><input id="max-semesters" type="number" min="2" max="16" class="form-control" value="8" required/></div>
    <div class="col-sm-6 d-flex align-items-end"><label><input id="allow-backlogs" type="checkbox"/> Allow backlog progression</label></div>
    <div class="col-12"><button class="btn btn-outline-primary" type="submit">Create regulation</button></div>
-  </form><ul id="regulations" class="small mt-3"></ul>
+  </form><ul data-ev-action="View Academic regulations" data-ev-action-key="regulations" id="regulations" class="small mt-3"></ul>
  </section></div>
  <div class="col-lg-7"><section class="ev-card p-4 h-100">
   <h2 class="h5">Degree programs</h2>
-  <form id="program-form" class="row g-2">
+  <form data-ev-action="Register degree program" data-ev-action-key="program-form" id="program-form" class="row g-2">
    <div class="col-sm-6"><label for="catalog-program" class="form-label">Academic catalog program</label><select id="catalog-program" class="form-select" required></select></div>
    <div class="col-sm-6"><label for="program-rule" class="form-label">Regulation</label><select id="program-rule" class="form-select" required></select></div>
    <div class="col-sm-5"><label for="program-code" class="form-label">Code</label><input id="program-code" maxlength="30" class="form-control" required/></div>
    <div class="col-sm-7"><label for="program-name" class="form-label">Program name</label><input id="program-name" maxlength="160" class="form-control" required/></div>
    <div class="col-12"><button class="btn btn-primary" type="submit">Register degree program</button></div>
-  </form><ul id="programs" class="small mt-3"></ul>
+  </form><ul data-ev-action="View Degree programs" data-ev-action-key="programs" id="programs" class="small mt-3"></ul>
  </section></div>
 </div>
 <div class="row g-3 mb-3">
  <div class="col-lg-5"><section class="ev-card p-4 h-100">
   <h2 class="h5">Semester registration</h2>
-  <form id="semester-form" class="row g-2">
+  <form data-ev-action="Create semester" data-ev-action-key="semester-form" id="semester-form" class="row g-2">
    <div class="col-sm-6"><label for="sem-program" class="form-label">Degree program</label><select id="sem-program" class="form-select" required></select></div>
    <div class="col-sm-6"><label for="sem-year" class="form-label">Academic year</label><select id="sem-year" class="form-select" required></select></div>
    <div class="col-sm-8"><label for="sem-catalog" class="form-label">Catalog semester</label><select id="sem-catalog" class="form-select" required></select></div>
    <div class="col-sm-4"><label for="sem-number" class="form-label">Semester no.</label><input id="sem-number" type="number" min="1" max="16" class="form-control" required/></div>
    <div class="col-12"><button class="btn btn-outline-primary" type="submit">Create semester</button></div>
-  </form><ul id="semesters" class="small mt-3"></ul>
+  </form><ul data-ev-action="View Semester registration" data-ev-action-key="semesters" id="semesters" class="small mt-3"></ul>
  </section></div>
  <div class="col-lg-7"><section class="ev-card p-4 h-100">
   <h2 class="h5">Core and elective course offerings</h2>
-  <form id="course-form" class="row g-2">
+  <form data-ev-action="Add course" data-ev-action-key="course-form" id="course-form" class="row g-2">
    <div class="col-sm-6"><label for="course-program" class="form-label">Program</label><select id="course-program" class="form-select" required></select></div>
    <div class="col-sm-6"><label for="course-semester" class="form-label">Semester</label><select id="course-semester" class="form-select" required></select></div>
    <div class="col-sm-6"><label for="course-subject" class="form-label">Academic subject</label><select id="course-subject" class="form-select" required></select></div>
@@ -56,7 +56,7 @@
    <div class="col-sm-4"><label for="course-credits" class="form-label">Credits</label><input id="course-credits" type="number" step=".01" min=".01" max="30" class="form-control" required/></div>
    <div class="col-sm-4"><label for="course-capacity" class="form-label">Seats</label><input id="course-capacity" type="number" min="1" max="5000" class="form-control" required/></div>
    <div class="col-12"><button class="btn btn-primary" type="submit">Add course</button></div>
-  </form><ul id="courses" class="small mt-3"></ul>
+  </form><ul data-ev-action="View Core and elective course offerings" data-ev-action-key="courses" id="courses" class="small mt-3"></ul>
  </section></div>
 </div>
 <section class="ev-card p-4 mb-3">
@@ -65,22 +65,23 @@
   <div class="col-lg-5">
    <label for="enrollment" class="form-label">College enrollment</label>
    <select id="enrollment" class="form-select"></select>
-   <form id="registration-form" class="row g-2 mt-2">
+   <form data-ev-action="Enroll in course" data-ev-action-key="registration-form" id="registration-form" class="row g-2 mt-2">
     <div class="col-12"><label for="register-course" class="form-label">Course offering</label><select id="register-course" class="form-select" required></select></div>
     <div class="col-12"><button class="btn btn-outline-primary" type="submit">Enroll in course</button></div>
    </form>
-   <form id="finalize-form" class="row g-2 mt-3">
+   <form data-ev-action="Finalize semester results" data-ev-action-key="finalize-form" id="finalize-form" class="row g-2 mt-3">
     <div class="col-12"><label for="finalize-semester" class="form-label">Semester to finalize</label><select id="finalize-semester" class="form-select" required></select></div>
     <div class="col-12"><button class="btn btn-primary" type="submit">Finalize semester results</button></div>
    </form>
   </div>
   <div class="col-lg-7">
-   <h3 class="h6">Course registrations</h3><ul id="registrations" class="small"></ul>
-   <h3 class="h6 mt-3">Credit-weighted transcript</h3><p id="transcript" class="small text-secondary"></p>
-   <ul id="term-results" class="small"></ul>
+   <h3 class="h6">Course registrations</h3><ul data-ev-action="View Course registrations" data-ev-action-key="registrations" id="registrations" class="small"></ul>
+   <h3 class="h6 mt-3">Credit-weighted transcript</h3><p data-ev-action="View transcript" data-ev-action-key="term-results" id="transcript" class="small text-secondary"></p>
+   <ul data-ev-action="View transcript" data-ev-action-key="term-results" id="term-results" class="small"></ul>
   </div>
  </div>
 </section>
 
-</div>
 @section Scripts {<script src="~/js/college-admin.js" asp-append-version="true"></script>}
+
+</div>

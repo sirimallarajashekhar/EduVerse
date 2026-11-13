@@ -28,16 +28,16 @@
 <div class="row g-3 mb-3">
  <div class="col-lg-4"><section class="ev-card p-4 h-100">
   <h2 id="ev-categories" class="h5 ev-module-section">Asset categories</h2>
-  <form id="category-form" class="row g-2">
+  <form data-ev-action="Add category" data-ev-action-key="category-form" id="category-form" class="row g-2">
    <div class="col-sm-5"><label for="category-code" class="form-label">Code</label><input id="category-code" class="form-control" maxlength="30" required/></div>
    <div class="col-sm-7"><label for="category-name" class="form-label">Category</label><input id="category-name" class="form-control" maxlength="120" required/></div>
    <div class="col-12"><button class="btn btn-outline-primary" type="submit">Add category</button></div>
   </form>
-  <ul id="category-list" class="small mt-2"></ul>
+  <ul data-ev-action="View Asset categories" data-ev-action-key="category-list" id="category-list" class="small mt-2"></ul>
  </section></div>
  <div class="col-lg-8"><section class="ev-card p-4 h-100">
   <h2 id="ev-assets" class="h5 ev-module-section">Register an asset</h2>
-  <form id="asset-form" class="row g-2">
+  <form data-ev-action="Register asset" data-ev-action-key="asset-form" id="asset-form" class="row g-2">
    <div class="col-sm-6"><label for="asset-category" class="form-label">Category</label><select id="asset-category" class="form-select" required></select></div>
    <div class="col-sm-6"><label for="asset-name" class="form-label">Asset name</label><input id="asset-name" maxlength="160" class="form-control" required/></div>
    <div class="col-sm-4"><label for="serial" class="form-label">Serial number</label><input id="serial" maxlength="100" class="form-control"/></div>
@@ -51,7 +51,7 @@
  <div class="col-lg-7"><section class="ev-card p-4 h-100">
   <h2 id="ev-allocations" class="h5 ev-module-section">Allocate, transfer or return assets</h2>
   <label for="asset" class="form-label">Asset</label><select id="asset" class="form-select mb-2"></select>
-  <form id="allocate-form" class="row g-2">
+  <form data-ev-action="Allocate / transfer" data-ev-action-key="allocate-form" id="allocate-form" class="row g-2">
    <div class="col-sm-4"><label for="building" class="form-label">Building</label><select id="building" class="form-select"></select></div>
    <div class="col-sm-4"><label for="department" class="form-label">Department</label><select id="department" class="form-select"></select></div>
    <div class="col-sm-4"><label for="employee" class="form-label">Employee</label><select id="employee" class="form-select"></select></div>
@@ -59,39 +59,39 @@
    <div class="col-12"><button class="btn btn-outline-primary" type="submit">Allocate / transfer</button></div>
   </form>
   <div class="d-flex flex-wrap gap-2 mt-3">
-   <button type="button" data-action="RETURN" class="btn btn-sm btn-outline-secondary asset-action">Return</button>
-   <button type="button" data-action="MAINTENANCE" class="btn btn-sm btn-outline-secondary asset-action">Maintenance</button>
-   <button type="button" data-action="REPAIR" class="btn btn-sm btn-outline-secondary asset-action">Repair complete</button>
-   <button type="button" data-action="RETIRE" class="btn btn-sm btn-outline-danger asset-action">Retire</button>
-   <button type="button" data-action="DISPOSE" class="btn btn-sm btn-outline-danger asset-action">Dispose</button>
+   <button data-ev-action="Return" data-ev-action-key="action-15" id="action-15" type="button" data-action="RETURN" class="btn btn-sm btn-outline-secondary asset-action">Return</button>
+   <button data-ev-action="Maintenance" data-ev-action-key="action-16" id="action-16" type="button" data-action="MAINTENANCE" class="btn btn-sm btn-outline-secondary asset-action">Maintenance</button>
+   <button data-ev-action="Repair complete" data-ev-action-key="action-17" id="action-17" type="button" data-action="REPAIR" class="btn btn-sm btn-outline-secondary asset-action">Repair complete</button>
+   <button data-ev-action="Retire" data-ev-action-key="action-18" id="action-18" type="button" data-action="RETIRE" class="btn btn-sm btn-outline-danger asset-action">Retire</button>
+   <button data-ev-action="Dispose" data-ev-action-key="action-19" id="action-19" type="button" data-action="DISPOSE" class="btn btn-sm btn-outline-danger asset-action">Dispose</button>
   </div>
-  <h3 class="h6 mt-3">Asset history</h3><ul id="asset-events" class="small"></ul>
+  <h3 class="h6 mt-3">Asset history</h3><ul data-ev-action="View Asset history" data-ev-action-key="asset-events" id="asset-events" class="small"></ul>
  </section></div>
  <div class="col-lg-5"><section class="ev-card p-4 h-100">
   <h2 id="ev-maintenance" class="h5 ev-module-section">Maintenance schedules and work orders</h2>
-  <form id="maintenance-form" class="row g-2">
+  <form data-ev-action="Create work order" data-ev-action-key="maintenance-form" id="maintenance-form" class="row g-2">
    <div class="col-12"><label for="work-title" class="form-label">Work order title</label><input id="work-title" maxlength="160" class="form-control" required/></div>
    <div class="col-12"><label for="work-due" class="form-label">Due date</label><input id="work-due" type="date" class="form-control" required/></div>
    <div class="col-12"><button class="btn btn-outline-primary" type="submit">Create work order</button></div>
   </form>
-  <ul id="work-orders" class="small mt-3"></ul>
+  <ul data-ev-action="View Maintenance schedules and work orders" data-ev-action-key="work-orders" id="work-orders" class="small mt-3"></ul>
  </section></div>
 </div>
 <div class="row g-3 mb-3">
  <div class="col-lg-5"><section class="ev-card p-4 h-100">
   <h2 id="ev-inventory" class="h5 ev-module-section">Inventory items</h2>
-  <form id="stock-form" class="row g-2">
+  <form data-ev-action="Create stock item" data-ev-action-key="stock-form" id="stock-form" class="row g-2">
    <div class="col-sm-4"><label for="sku" class="form-label">SKU</label><input id="sku" maxlength="40" class="form-control" required/></div>
    <div class="col-sm-8"><label for="stock-name" class="form-label">Item</label><input id="stock-name" maxlength="160" class="form-control" required/></div>
    <div class="col-sm-5"><label for="stock-unit" class="form-label">Unit</label><input id="stock-unit" maxlength="16" class="form-control" value="pcs" required/></div>
    <div class="col-sm-7"><label for="reorder" class="form-label">Reorder level</label><input id="reorder" type="number" min="0" step=".01" class="form-control" value="5" required/></div>
    <div class="col-12"><button class="btn btn-outline-primary" type="submit">Create stock item</button></div>
   </form>
-  <ul id="stock-items" class="small mt-3"></ul>
+  <ul data-ev-action="View Inventory items" data-ev-action-key="stock-items" id="stock-items" class="small mt-3"></ul>
  </section></div>
  <div class="col-lg-7"><section class="ev-card p-4 h-100">
   <h2 id="ev-movements" class="h5 ev-module-section">Stock movements</h2>
-  <form id="movement-form" class="row g-2">
+  <form data-ev-action="Record stock movement" data-ev-action-key="movement-form" id="movement-form" class="row g-2">
    <div class="col-12"><label for="movement-stock" class="form-label">Stock item</label><select id="movement-stock" class="form-select" required></select></div>
    <div class="col-sm-5"><label for="movement-type" class="form-label">Movement</label><select id="movement-type" class="form-select"><option value="IN">Receive</option><option value="OUT">Issue</option><option value="ADJUST">Positive adjustment</option></select></div>
    <div class="col-sm-7"><label for="movement-qty" class="form-label">Quantity</label><input id="movement-qty" type="number" min=".01" step=".01" class="form-control" required/></div>
@@ -104,24 +104,25 @@
 <div class="row g-3">
  <div class="col-lg-5"><section class="ev-card p-4 h-100">
   <h2 id="ev-vendors" class="h5 ev-module-section">Vendors</h2>
-  <form id="vendor-form" class="row g-2">
+  <form data-ev-action="Register vendor" data-ev-action-key="vendor-form" id="vendor-form" class="row g-2">
    <div class="col-12"><label for="vendor-name" class="form-label">Vendor</label><input id="vendor-name" maxlength="160" class="form-control" required/></div>
    <div class="col-12"><label for="vendor-email" class="form-label">Contact email</label><input id="vendor-email" type="email" maxlength="254" class="form-control"/></div>
    <div class="col-12"><button class="btn btn-outline-primary" type="submit">Register vendor</button></div>
   </form>
-  <ul id="vendor-list" class="small mt-3"></ul>
+  <ul data-ev-action="View Vendors" data-ev-action-key="vendor-list" id="vendor-list" class="small mt-3"></ul>
  </section></div>
  <div class="col-lg-7"><section class="ev-card p-4 h-100">
   <h2 id="ev-purchasing" class="h5 ev-module-section">Purchase order foundation</h2>
-  <form id="purchase-form" class="row g-2">
+  <form data-ev-action="Save draft purchase" data-ev-action-key="purchase-form" id="purchase-form" class="row g-2">
    <div class="col-sm-6"><label for="purchase-vendor" class="form-label">Vendor</label><select id="purchase-vendor" class="form-select" required></select></div>
    <div class="col-sm-6"><label for="purchase-stock" class="form-label">Item</label><select id="purchase-stock" class="form-select" required></select></div>
    <div class="col-sm-6"><label for="purchase-quantity" class="form-label">Quantity</label><input id="purchase-quantity" type="number" min=".01" step=".01" class="form-control" required/></div>
    <div class="col-sm-6"><label for="purchase-price" class="form-label">Unit price (INR)</label><input id="purchase-price" type="number" min="0" step=".01" class="form-control" required/></div>
    <div class="col-12"><button class="btn btn-outline-primary" type="submit">Save draft purchase</button></div>
   </form>
-  <ul id="purchases" class="small mt-3"></ul>
+  <ul data-ev-action="View Purchase order foundation" data-ev-action-key="purchases" id="purchases" class="small mt-3"></ul>
  </section></div>
 </div>
-</div>
 @section Scripts {<script src="/ams/js/ams-admin.js" asp-append-version="true"></script>}
+
+</div>

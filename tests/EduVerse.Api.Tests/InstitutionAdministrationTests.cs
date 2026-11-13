@@ -152,7 +152,7 @@ public sealed class InstitutionAdministrationTests : IAsyncLifetime
         Assert.Equal("READY",stats.OnboardingStatus);
         Assert.Equal("PILOT",stats.Subscription.PlanCode);
         Assert.Contains("core",stats.Subscription.Features);
-        Assert.DoesNotContain("hrms",stats.Subscription.Features);
+        Assert.Contains("hrms",stats.Subscription.Features);
     }
 
     [Fact]
@@ -185,7 +185,10 @@ public sealed class InstitutionAdministrationTests : IAsyncLifetime
         Assert.Equal("School",result.InstitutionKind);
         Assert.Equal("PILOT",result.PlanCode);
         Assert.Contains(result.Modules,m=>m.Id=="academics"&&m.Enabled);
-        Assert.Contains(result.Modules,m=>m.Id=="finance"&&!m.Enabled);
+        Assert.Contains(result.Modules,m=>m.Id=="finance"&&m.Enabled);
+        Assert.Contains(result.Modules,m=>m.Id=="ams"&&m.Enabled);
+        Assert.Contains(result.Modules,m=>m.Id=="hrms"&&m.Enabled);
+        Assert.All(result.Modules,m=>Assert.True(m.Enabled));
         Assert.DoesNotContain(result.Modules,m=>m.Id=="college");
     }
 

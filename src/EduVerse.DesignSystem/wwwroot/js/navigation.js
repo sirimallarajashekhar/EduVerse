@@ -2,6 +2,7 @@
 (async function loadModules() {
   const host = document.getElementById('module-navigation');
   if (!host) return;
+  if (document.getElementById('tenant-module-navigation')) { host.hidden=true; return; }
   try {
     const response = await fetch('/bff/platform/modules', { headers: { Accept: 'application/json' } });
     if (!response.ok) throw new Error('Module registry unavailable');

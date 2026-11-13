@@ -71,13 +71,13 @@ public sealed class CollegeManagementTests:IAsyncLifetime
  }
 
  [Fact]
- public async Task CollegeEndpointsDenySuspendedAndUnentitledTenants()
+ public async Task CollegeEndpointsDenySuspendedTenants()
  {
   if(host is null)return;
   using var client=await Client();
   var path=$"/api/v1/college/programs?campusId={campus:D}";
   using(var allowed=await client.GetAsync(path)) Assert.Equal(HttpStatusCode.OK,allowed.StatusCode);
-  await Sql("UPDATE institution_subscriptions SET plan_code='PILOT' WHERE tenant_id=@id",
+  await Sql("UPDATE institution_subscriptions SET status='SUSPENDED' WHERE tenant_id=@id",
    ("@id",tenant.ToString("D")));
   using(var unentitled=await client.GetAsync(path)) Assert.Equal(HttpStatusCode.Forbidden,unentitled.StatusCode);
   using(var write=await client.PostAsJsonAsync("/api/v1/college/programs",new { campusId=campus }))

@@ -1,4 +1,5 @@
 @{ ViewData["Title"] = "Platform Super Admin console"; }
+<div class="ev-module-workspace">
 <header class="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-4">
   <div>
     <p class="ev-eyebrow mb-2">PLATFORM / OVERVIEW</p>
@@ -8,7 +9,7 @@
   <a href="/platform/registrations?status=PENDING" class="btn btn-primary">Review institution approvals</a>
 </header>
 <form id="platform-token">@Html.AntiForgeryToken()</form>
-<div class="row g-3 mb-4" aria-label="Platform statistics">
+<div data-ev-action="View platform overview" data-ev-action-key="platform-overview" id="platform-overview" class="row g-3 mb-4" aria-label="Platform statistics">
   <div class="col-sm-6 col-xl-4"><section class="ev-card p-4 h-100">
     <p class="ev-stat-label">Registered institutions</p><h2 id="platform-total" class="ev-stat-value" aria-live="polite">—</h2>
     <p class="ev-micro-label mt-2 mb-0">Schools and colleges</p>
@@ -22,7 +23,7 @@
     <p class="ev-micro-label mt-2 mb-0">Across institutions</p>
   </section></div>
 </div>
-<section class="ev-card p-4 mb-4 ev-section-anchor" id="platform-modules-section" aria-labelledby="platform-modules-title">
+<section data-ev-action="All EduVerse modules" data-ev-action-key="platform-modules-section" class="ev-card p-4 mb-4 ev-section-anchor" id="platform-modules-section" aria-labelledby="platform-modules-title">
   <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
     <div>
       <h2 class="ev-section-heading" id="platform-modules-title">All EduVerse modules</h2>
@@ -38,7 +39,7 @@
       <h2 class="ev-section-heading" id="platform-institutions-title">Institutions</h2>
       <p class="text-secondary small mb-0">Select an institution to inspect enabled modules and administer its members.</p>
     </div>
-    <button class="btn btn-outline-primary btn-sm" id="platform-refresh" type="button">Refresh</button>
+    <button data-ev-action="Find an institution" data-ev-action-key="platform-refresh" class="btn btn-outline-primary btn-sm" id="platform-refresh" type="button">Refresh</button>
   </div>
   <label class="form-label" for="platform-search">Find an institution</label>
   <input class="form-control mb-3" id="platform-search" type="search" placeholder="Search name or institution code" autocomplete="off"/>
@@ -51,12 +52,12 @@
     <a href="/platform/registrations" class="btn btn-outline-secondary btn-sm">Approval queue</a>
   </div>
   <div class="row g-4 mb-4">
-    <div class="col-lg-6"><h3 class="h6 fw-semibold">Subscribed modules</h3><div id="platform-modules" aria-live="polite"></div></div>
-    <div class="col-lg-6"><h3 class="h6 fw-semibold">Institution users</h3><div id="platform-users" aria-live="polite"></div></div>
+    <div class="col-lg-6"><h3 class="h6 fw-semibold">Subscribed modules</h3><div data-ev-action="View Subscribed modules" data-ev-action-key="platform-modules" id="platform-modules" aria-live="polite"></div></div>
+    <div class="col-lg-6"><h3 class="h6 fw-semibold">Institution users</h3><div data-ev-action="View Institution users" data-ev-action-key="platform-users" id="platform-users" aria-live="polite"></div></div>
   </div>
   <hr/>
   <h3 class="h6 fw-semibold mb-3">Invite an institution user</h3>
-  <form id="platform-invite" class="row g-3">
+  <form data-ev-action="Invite institution user" data-ev-action-key="platform-invite" id="platform-invite" class="row g-3">
     <div class="col-md-6 col-lg-4"><label class="form-label" for="invite-email">Email</label><input type="email" class="form-control" id="invite-email" maxlength="254" required autocomplete="off"/></div>
     <div class="col-md-6 col-lg-4"><label class="form-label" for="invite-name">Display name</label><input class="form-control" id="invite-name" maxlength="160" required/></div>
     <div class="col-md-6 col-lg-2"><label class="form-label" for="invite-role">Role</label><select class="form-select" id="invite-role"><option value="MEMBER">Member</option><option value="ADMIN">Admin</option></select></div>
@@ -68,12 +69,14 @@
   <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
     <div><h2 class="ev-section-heading" id="platform-actions-title">API action directory</h2>
       <p class="text-secondary small mb-0">Inventory only. Tenant actions continue to require tenant authorization.</p></div>
-    <button type="button" class="btn btn-outline-primary btn-sm" id="platform-load-actions">Load API actions</button>
+    <button data-ev-action="Load API actions" data-ev-action-key="platform-load-actions" type="button" class="btn btn-outline-primary btn-sm" id="platform-load-actions">Load API actions</button>
   </div>
   <label class="form-label" for="platform-actions-search">Filter by module, method or route</label>
   <input class="form-control mb-2" id="platform-actions-search" type="search" placeholder="Search API actions"/>
   <p id="platform-actions-count" class="ev-micro-label"></p>
-  <div id="platform-actions" class="overflow-auto" style="max-height:420px" aria-live="polite"></div>
+  <div data-ev-action="Load API actions" data-ev-action-key="platform-load-actions" id="platform-actions" class="overflow-auto" style="max-height:420px" aria-live="polite"></div>
 </section>
 <p id="platform-message" role="status" aria-live="polite" class="small"></p>
 @section Scripts {<script src="~/js/platform-console.js" asp-append-version="true"></script>}
+
+</div>

@@ -13,7 +13,7 @@
     <div class="col-lg-6">
         <section class="ev-card p-4 h-100">
             <h2 class="h5">Employee onboarding</h2>
-            <form id="binding-form">
+            <form data-ev-action="Link identity and campus access" data-ev-action-key="binding-form" id="binding-form">
                 <label class="form-label" for="binding-employee">Employee ID</label>
                 <input class="form-control mb-2" id="binding-employee" required />
                 <label class="form-label" for="binding-user">Existing Identity User ID</label>
@@ -25,20 +25,20 @@
     <div class="col-lg-6">
         <section class="ev-card p-4 h-100">
             <h2 class="h5">Employee offboarding</h2>
-            <form id="clearance-form">
+            <form data-ev-action="Check asset clearance" data-ev-action-key="clearance-form" id="clearance-form">
                 <label class="form-label" for="exit-employee">Employee ID</label>
                 <input class="form-control mb-2" id="exit-employee" required />
                 <button class="btn btn-outline-primary mb-3" type="submit">Check asset clearance</button>
             </form>
             <p class="small" id="clearance-result" role="status"></p>
-            <button id="exit-button" class="btn btn-danger" type="button" disabled>Confirm offboarding</button>
+            <button data-ev-action="Confirm offboarding" data-ev-action-key="exit-button" id="exit-button" class="btn btn-danger" type="button" disabled>Confirm offboarding</button>
         </section>
     </div>
     <div class="col-12">
         <section class="ev-card p-4">
             <h2 class="h5">Procurement → Finance</h2>
             <p class="small text-secondary">Records a pending finance handoff; does not post the general ledger.</p>
-            <form id="purchase-form">
+            <form data-ev-action="Submit to finance review" data-ev-action-key="purchase-form" id="purchase-form">
                 <label for="purchase-id" class="form-label">Ordered purchase ID</label>
                 <input id="purchase-id" class="form-control mb-3" required />
                 <button type="submit" class="btn btn-primary">Submit to finance review</button>
@@ -47,5 +47,6 @@
     </div>
 </div>
 
-</div>
 @section Scripts { <script src="~/js/workflow-admin.js" asp-append-version="true"></script> }
+
+</div>
