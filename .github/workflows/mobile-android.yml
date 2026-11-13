@@ -30,8 +30,11 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Verify runner Android SDK
+        run: |
+          test -d "${ANDROID_HOME:?Android SDK missing on runner}"
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          ls "$ANDROID_HOME/cmdline-tools" || true
       - name: Install MAUI Android workload
         run: dotnet workload install maui-android
       - name: Display tooling
