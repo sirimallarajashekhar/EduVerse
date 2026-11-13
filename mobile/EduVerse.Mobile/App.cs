@@ -116,7 +116,11 @@ public sealed class App : Application
         }
         else if (role.Contains("STUDENT"))
         {
-            layout.Children.Add(LinkedStudentsAction("My student profile", false));
+            layout.Children.Add(StudentDashboardAction());
+        }
+        else if (role is "ADMIN" or "INSTITUTION_ADMIN")
+        {
+            layout.Children.Add(AdminDashboardAction());
         }
         else if (role.Contains("TEACHER"))
         {
@@ -166,6 +170,128 @@ public sealed class App : Application
         };
         layout.Children.Add(signOut);
         return Page("Dashboard", layout);
+    }
+
+    private Button AdminDashboardAction()
+    {
+        var button = Action("Open Admin Dashboard");
+        button.Clicked += async (_, _) =>
+        {
+            button.IsEnabled = false;
+            try
+            {
+                // Admin authorization and metrics are evaluated by the existing API and MySQL services.
+                var dashboard = await _api.GetInstitutionDashboardAsync();
+                var content = new VerticalStackLayout { Spacing = 14 };
+                content.Children.Add(Heading("Institution Administration"));
+                content.Children.Add(Note("Live institution dashboard"));
+                content.Children.Add(new Border
+                {
+                    Stroke = Color.FromArgb("#E0E6ED"), StrokeThickness = 1,
+                    Padding = new Thickness(12),
+                    Content = Note(DisplayRecord(dashboard))
+                });
+                content.Children.Add(ActionFor("Institution profile",
+                    "api/v1/institution-admin/profile"));
+                content.Children.Add(ActionFor("Subscription",
+                    "api/v1/institution-admin/subscription"));
+                content.Children.Add(ActionFor("Institution settings",
+                    "api/v1/institution-admin/settings"));
+                content.Children.Add(AdminCampusAction());
+                await _root.Navigation.PushAsync(Page("Admin Dashboard", content));
+            }
+            catch (UnauthorizedAccessException ex) { await HandleTeacherAccessErrorAsync(ex); }
+            catch (Exception ex) { await ShellAlertAsync("Dashboard unavailable", ex.Message); }
+            finally { button.IsEnabled = true; }
+        };
+        return button;
+    }
+
+    private Button AdminCampusAction()
+    {
+        var button = Action("Campuses and students");
+        button.Clicked += async (_, _) =>
+        {
+            button.IsEnabled = false;
+            try
+            {
+                var campuses = (await _api.GetCampusesAsync())
+                    .Where(campus => campus.IsActive).ToList();
+                var content = new VerticalStackLayout { Spacing = 12 };
+                content.Children.Add(Heading("Campuses"));
+                if (campuses.Count == 0) content.Children.Add(Note("No active campuses available."));
+                foreach (var campus in campuses)
+                {
+                    var current = campus;
+                    var open = Action($"{current.DisplayName} ({current.Code})");
+                    open.Clicked += async (_, _) =>
+                    {
+                        var details = new VerticalStackLayout { Spacing = 12 };
+                        details.Children.Add(Heading(current.DisplayName));
+                        details.Children.Add(ActionFor("Students",
+                            $"api/v1/students?campusId={current.Id:D}"));
+                        details.Children.Add(ActionFor("Admission applications",
+                            $"api/v1/students/applications?campusId={current.Id:D}"));
+                        details.Children.Add(ActionFor("Academic overview",
+                            $"api/v1/academic/overview?campusId={current.Id:D}"));
+                        details.Children.Add(ActionFor("Attendance dashboard",
+                            $"api/v1/attendance/dashboard?campusId={current.Id:D}"));
+                        await _root.Navigation.PushAsync(Page(current.DisplayName, details));
+                    };
+                    content.Children.Add(open);
+                }
+                await _root.Navigation.PushAsync(Page("Campuses", content));
+            }
+            catch (UnauthorizedAccessException ex) { await HandleTeacherAccessErrorAsync(ex); }
+            catch (Exception ex) { await ShellAlertAsync("Unable to load campuses", ex.Message); }
+            finally { button.IsEnabled = true; }
+        };
+        return button;
+    }
+
+    private Button StudentDashboardAction()
+    {
+        var button = Action("Open Student Dashboard");
+        button.Clicked += async (_, _) =>
+        {
+            button.IsEnabled = false;
+            try
+            {
+                var students = await _api.GetLinkedStudentsAsync(false);
+                var content = new VerticalStackLayout { Spacing = 14 };
+                content.Children.Add(Heading("My Student Dashboard"));
+                if (students.Count == 0)
+                    content.Children.Add(Note("No linked student profile. Ask your institution administrator to link your account."));
+                foreach (var linked in students)
+                {
+                    var current = linked;
+                    var profile = await _api.GetMyStudentProfileAsync(current.CampusId, current.StudentId);
+                    if (profile is null)
+                    {
+                        content.Children.Add(Note("Your student profile is currently unavailable."));
+                        continue;
+                    }
+                    var details = new VerticalStackLayout { Spacing = 8 };
+                    details.Children.Add(Heading($"{profile.GivenName} {profile.FamilyName}"));
+                    details.Children.Add(Note($"Admission: {profile.AdmissionNumber}"));
+                    details.Children.Add(Note($"Status: {profile.Status}"));
+                    var open = Action("View academics");
+                    open.Clicked += async (_, _) =>
+                        await _root.Navigation.PushAsync(LinkedStudentPage(current, false));
+                    details.Children.Add(open);
+                    content.Children.Add(new Border
+                    {
+                        Stroke = Color.FromArgb("#E0E6ED"), StrokeThickness = 1,
+                        Padding = new Thickness(14), Content = details
+                    });
+                }
+                await _root.Navigation.PushAsync(Page("Student Dashboard", content));
+            }
+            catch (UnauthorizedAccessException ex) { await HandleTeacherAccessErrorAsync(ex); }
+            catch (Exception ex) { await ShellAlertAsync("Student dashboard unavailable", ex.Message); }
+            finally { button.IsEnabled = true; }
+        };
+        return button;
     }
 
     private Button TeacherClassesAction(Func<Guid> selectedCampus)
