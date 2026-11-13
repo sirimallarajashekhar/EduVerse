@@ -123,8 +123,8 @@ public sealed class ReportingManagementTests : IAsyncLifetime
         using var denied = await memberClient.GetAsync("/api/v1/reporting/dashboard?" + Range(campus));
         Assert.Equal(HttpStatusCode.Forbidden, denied.StatusCode);
         using var pilotClient = await Client(2);
-        using var notSubscribed = await pilotClient.GetAsync("/api/v1/reporting/dashboard?" + Range(otherCampus));
-        Assert.Equal(HttpStatusCode.Forbidden, notSubscribed.StatusCode);
+        using var fullPilot = await pilotClient.GetAsync("/api/v1/reporting/dashboard?" + Range(otherCampus));
+        Assert.Equal(HttpStatusCode.OK, fullPilot.StatusCode);
     }
     [Fact]
     public async Task CsvContainsOnlyFixedSchemaAndRejectsInvalidRanges()

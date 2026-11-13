@@ -25,7 +25,7 @@
   <div class="col-lg-4">
     <section class="ev-card p-4 h-100">
       <h2 id="ev-years" class="h5 ev-module-section">Academic year</h2>
-      <form id="year-form">
+      <form data-ev-action="Add academic year" data-ev-action-key="year-form" id="year-form">
         <label class="form-label" for="year-code">Code</label><input id="year-code" class="form-control mb-2" required maxlength="30" placeholder="2026-27" />
         <label class="form-label" for="year-name">Name</label><input id="year-name" class="form-control mb-2" required maxlength="160" placeholder="Academic Year 2026–27" />
         <label class="form-label" for="year-start">Start date</label><input id="year-start" type="date" class="form-control mb-2" required />
@@ -38,7 +38,7 @@
     <section class="ev-card p-4 h-100">
       <h2 id="ev-catalog" class="h5 ev-module-section">Academic catalog</h2>
       <p class="text-secondary small">Manage terms, semesters, grades, classes, sections, programs, courses, batches and subjects.</p>
-      <form id="catalog-form" class="row g-2">
+      <form data-ev-action="Add catalog item" data-ev-action-key="catalog-form" id="catalog-form" class="row g-2">
         <div class="col-sm-4"><label class="form-label" for="item-kind">Type</label>
           <select id="item-kind" class="form-select">
             <option>PROGRAM</option><option>GRADE</option><option>CLASS</option><option>SECTION</option>
@@ -63,7 +63,7 @@
   <div class="col-lg-6">
     <section class="ev-card p-4">
       <h2 id="ev-faculty" class="h5 ev-module-section">Faculty assignment</h2>
-      <form id="faculty-form" class="row g-2">
+      <form data-ev-action="Assign faculty" data-ev-action-key="faculty-form" id="faculty-form" class="row g-2">
         <div class="col-sm-6"><label class="form-label" for="faculty-subject">Subject</label><select id="faculty-subject" class="form-select" required></select></div>
         <div class="col-sm-6"><label class="form-label" for="faculty-year">Academic year</label><select id="faculty-year" class="form-select" required></select></div>
         <div class="col-sm-12"><label class="form-label" for="faculty-person">Registered faculty/member</label><select id="faculty-person" class="form-select" required></select></div>
@@ -74,7 +74,7 @@
   <div class="col-lg-6">
     <section class="ev-card p-4">
       <h2 id="ev-calendar" class="h5 ev-module-section">Academic calendar</h2>
-      <form id="calendar-form" class="row g-2">
+      <form data-ev-action="Add calendar event" data-ev-action-key="calendar-form" id="calendar-form" class="row g-2">
         <div class="col-sm-6"><label for="event-kind" class="form-label">Event type</label>
           <select id="event-kind" class="form-select"><option>HOLIDAY</option><option>EVENT</option><option>EXAM</option><option>ACADEMIC</option></select></div>
         <div class="col-sm-6"><label for="event-year" class="form-label">Academic year</label><select id="event-year" class="form-select" required></select></div>
@@ -90,12 +90,13 @@
       <h2 id="ev-overview" class="h5 ev-module-section">Academic overview</h2>
       <p id="academic-overview" class="text-secondary small"></p>
       <div class="row g-3">
-        <div class="col-md-4"><h3 class="h6">Years</h3><ul id="academic-years"></ul></div>
-        <div class="col-md-4"><h3 class="h6">Catalog</h3><ul id="academic-items"></ul></div>
-        <div class="col-md-4"><h3 class="h6">Holidays &amp; events</h3><ul id="academic-events"></ul></div>
+        <div class="col-md-4"><h3 class="h6">Years</h3><ul data-ev-action="View Years" data-ev-action-key="academic-years" id="academic-years"></ul></div>
+        <div class="col-md-4"><h3 class="h6">Catalog</h3><ul data-ev-action="View Catalog" data-ev-action-key="academic-items" id="academic-items"></ul></div>
+        <div class="col-md-4"><h3 class="h6">Holidays &amp; events</h3><ul data-ev-action="View Holidays &amp; events" data-ev-action-key="academic-events" id="academic-events"></ul></div>
       </div>
     </section>
   </div>
 </div>
-</div>
 @section Scripts {<script src="~/js/academic-admin.js" asp-append-version="true"></script>}
+
+</div>

@@ -25,20 +25,20 @@
  <div class="col-lg-5">
   <section class="ev-card p-4 h-100">
    <h2 id="ev-periods" class="h5 ev-module-section">Academic periods</h2>
-   <form id="period-form" class="row g-2">
+   <form data-ev-action="Add period" data-ev-action-key="period-form" id="period-form" class="row g-2">
     <div class="col-sm-4"><label for="period-code" class="form-label">Code</label><input id="period-code" class="form-control" required maxlength="30" /></div>
     <div class="col-sm-8"><label for="period-name" class="form-label">Period name</label><input id="period-name" class="form-control" required maxlength="100" /></div>
     <div class="col-sm-6"><label for="period-start" class="form-label">Starts at</label><input id="period-start" type="time" class="form-control" required /></div>
     <div class="col-sm-6"><label for="period-end" class="form-label">Ends at</label><input id="period-end" type="time" class="form-control" required /></div>
     <div class="col-12"><button class="btn btn-primary" type="submit">Add period</button></div>
    </form>
-   <ul id="period-list" class="small mt-3"></ul>
+   <ul data-ev-action="View Academic periods" data-ev-action-key="period-list" id="period-list" class="small mt-3"></ul>
   </section>
  </div>
  <div class="col-lg-7">
   <section class="ev-card p-4 h-100">
    <h2 id="ev-timetable" class="h5 ev-module-section">Timetable &amp; teacher allocation</h2>
-   <form id="timetable-form" class="row g-2">
+   <form data-ev-action="Allocate timetable slot" data-ev-action-key="timetable-form" id="timetable-form" class="row g-2">
     <div class="col-sm-6"><label for="year" class="form-label">Academic year</label><select id="year" class="form-select" required></select></div>
     <div class="col-sm-6"><label for="weekday" class="form-label">Weekday</label>
      <select id="weekday" class="form-select"><option value="1">Monday</option><option value="2">Tuesday</option><option value="3">Wednesday</option><option value="4">Thursday</option><option value="5">Friday</option><option value="6">Saturday</option><option value="7">Sunday</option></select></div>
@@ -48,7 +48,7 @@
     <div class="col-sm-6"><label for="teacher" class="form-label">Assigned faculty</label><select id="teacher" class="form-select" required></select></div>
     <div class="col-12"><button class="btn btn-primary" type="submit">Allocate timetable slot</button></div>
    </form>
-   <ul id="timetable-list" class="small mt-3"></ul>
+   <ul data-ev-action="View Timetable &amp; teacher allocation" data-ev-action-key="timetable-list" id="timetable-list" class="small mt-3"></ul>
   </section>
  </div>
 </div>
@@ -56,7 +56,7 @@
  <div class="col-lg-6">
   <section class="ev-card p-4 h-100">
    <h2 id="ev-students" class="h5 ev-module-section">Student daily / period attendance</h2>
-   <form id="student-mark-form" class="row g-2">
+   <form data-ev-action="Save student attendance" data-ev-action-key="student-mark-form" id="student-mark-form" class="row g-2">
     <div class="col-sm-12"><label for="enrollment" class="form-label">Student enrollment</label><select id="enrollment" class="form-select" required></select></div>
     <div class="col-sm-6"><label for="student-date" class="form-label">Date</label><input id="student-date" type="date" class="form-control" required /></div>
     <div class="col-sm-6"><label for="mark-period" class="form-label">Attendance scope</label><select id="mark-period" class="form-select"></select></div>
@@ -65,27 +65,28 @@
     <div class="col-12"><button class="btn btn-outline-primary" type="submit">Save student attendance</button></div>
    </form>
    <p id="student-summary" class="small mt-3"></p>
-   <ul id="student-marks" class="small"></ul>
+   <ul data-ev-action="View Student daily / period attendance" data-ev-action-key="student-marks" id="student-marks" class="small"></ul>
   </section>
  </div>
  <div class="col-lg-6">
   <section class="ev-card p-4 h-100">
    <h2 id="ev-staff" class="h5 ev-module-section">Faculty / staff attendance</h2>
-   <form id="staff-mark-form" class="row g-2">
+   <form data-ev-action="Save staff attendance" data-ev-action-key="staff-mark-form" id="staff-mark-form" class="row g-2">
     <div class="col-sm-12"><label for="staff" class="form-label">Institution member</label><select id="staff" class="form-select" required></select></div>
     <div class="col-sm-6"><label for="staff-date" class="form-label">Date</label><input id="staff-date" type="date" class="form-control" required /></div>
     <div class="col-sm-6"><label for="staff-status" class="form-label">Status</label><select id="staff-status" class="form-select"><option>PRESENT</option><option>ABSENT</option><option>LATE</option><option>EXCUSED</option></select></div>
     <div class="col-12"><label for="staff-remarks" class="form-label">Remarks</label><input id="staff-remarks" maxlength="250" class="form-control" /></div>
     <div class="col-12"><button class="btn btn-outline-primary" type="submit">Save staff attendance</button></div>
    </form>
-   <ul id="staff-marks" class="small mt-3"></ul>
+   <ul data-ev-action="View Faculty / staff attendance" data-ev-action-key="staff-marks" id="staff-marks" class="small mt-3"></ul>
   </section>
  </div>
 </div>
-<section class="ev-card p-4">
+<section data-ev-action="Campus attendance overview" data-ev-action-key="action-9" id="action-9" class="ev-card p-4">
  <h2 id="ev-overview" class="h5 ev-module-section">Campus attendance overview</h2>
  <p id="dashboard" class="text-secondary small"></p>
  <p class="text-secondary small mb-0">School holidays are checked server-side. Teacher and class overlaps are rejected by the API.</p>
 </section>
-</div>
 @section Scripts {<script src="~/js/attendance-admin.js" asp-append-version="true"></script>}
+
+</div>

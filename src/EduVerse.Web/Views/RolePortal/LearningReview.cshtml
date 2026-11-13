@@ -5,8 +5,8 @@
 <form id="p23-anti">@Html.AntiForgeryToken()</form>
 <section class="ev-card p-4"><label class="form-label" for="p23-campus">Campus ID</label>
 <div class="input-group mb-3"><input class="form-control" id="p23-campus" placeholder="Campus UUID"/>
-<button class="btn btn-primary" type="button" id="p23-load-reviews">Load review queue</button></div>
-<div id="p23-reviews" aria-live="polite"></div></section>
+<button data-ev-action="Review learning content" data-ev-action-key="p23-load-reviews" class="btn btn-primary" type="button" id="p23-load-reviews">Load review queue</button></div>
+<div data-ev-action="Review learning content" data-ev-action-key="p23-load-reviews" id="p23-reviews" aria-live="polite"></div></section>
 <p class="mt-3" id="p23-status" role="status"></p>
 <script defer src="/js/phase23-portals.js"></script>
 

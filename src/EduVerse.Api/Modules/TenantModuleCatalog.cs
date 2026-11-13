@@ -19,15 +19,15 @@ public static class TenantModuleCatalog
         new("learning","Learning & Communication","/admin/learning","learning","Course materials and messaging"),
         new("college","Advanced College","/admin/college","college","Semesters, electives and CGPA",true),
         new("reporting","Reporting","/admin/reporting","reports","Institution reporting"),
-        new("workflows","Cross-module Workflows","/admin/workflows","workflows","Cross-module processes")
+        new("workflows","Cross-module Workflows","/admin/workflows","workflows","Cross-module processes"),
+        new("ams","Asset Management","/ams","ams","Assets, inventory and maintenance"),
+        new("hrms","Human Resources","/hrms","hrms","Employees, leave and payroll")
     ];
     /// <summary>Discover every defined school/college module without claiming tenant access.</summary>
     public static IReadOnlyList<TenantModule> ForPlatformOverview() =>
         Catalog.Select(x=>new TenantModule(x.Id,x.Name,x.Route,x.Description,
             x.Feature,false,"Select an institution to inspect subscription and access"))
-        .Concat(ModuleRegistry.All.Select(x=>new TenantModule(x.Id,x.DisplayName,
-            x.RoutePrefix,x.Description,"separate-module",false,
-            "Separate deployed module; tenant authorization required"))).ToArray();
+            .ToArray();
 
     public static IReadOnlyList<TenantModule> ForAdmin(string kind,IReadOnlyCollection<string> features)
     {

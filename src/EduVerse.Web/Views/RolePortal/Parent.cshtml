@@ -2,26 +2,27 @@
 <div class="ev-module-workspace">
 <header class="mb-4"><p class="ev-eyebrow">EduVerse · Parent</p><h1 class="h3">My children</h1>
 <p class="text-secondary">Access is limited to children linked and verified by your institution.</p></header>
-<div class="ev-card p-4 mb-3"><h2 class="h5">Linked children</h2><div id="links" aria-live="polite"></div></div>
-<div class="row g-3"><div class="col-lg-4"><section class="ev-card p-4"><h2 class="h5">Attendance</h2><div id="attendance"></div></section></div>
-<div class="col-lg-4"><section class="ev-card p-4"><h2 class="h5">Published results</h2><div id="results"></div></section></div>
-<div class="col-lg-4"><section class="ev-card p-4"><h2 class="h5">Announcements</h2><div id="notices"></div></section></div></div>
+<div class="ev-card p-4 mb-3"><h2 class="h5">Linked children</h2><div data-ev-action="View Linked children" data-ev-action-key="links" id="links" aria-live="polite"></div></div>
+<div class="row g-3"><div class="col-lg-4"><section class="ev-card p-4"><h2 class="h5">Attendance</h2><div data-ev-action="View Attendance" data-ev-action-key="attendance" id="attendance"></div></section></div>
+<div class="col-lg-4"><section class="ev-card p-4"><h2 class="h5">Published results</h2><div data-ev-action="View Published results" data-ev-action-key="results" id="results"></div></section></div>
+<div class="col-lg-4"><section class="ev-card p-4"><h2 class="h5">Announcements</h2><div data-ev-action="View Announcements" data-ev-action-key="notices" id="notices"></div></section></div></div>
 <p id="portal-message" role="status" class="mt-3"></p>
 
-</div>
 @section Scripts {<script src="~/js/role-portals.js" asp-append-version="true"></script>}
 
 <form id="p23-anti">@Html.AntiForgeryToken()</form>
 <section class="ev-card p-4 my-3"><h2 class="h5">Contact a teacher</h2>
-<form id="phase23-parent-message">
+<form data-ev-action="Start conversation" data-ev-action-key="phase23-parent-message" id="phase23-parent-message">
 <label class="form-label" for="p23-child">Linked student ID</label><input class="form-control mb-2" id="p23-child" required/>
 <label class="form-label" for="p23-campus">Campus ID</label><input class="form-control mb-2" id="p23-campus" required/>
 <label class="form-label" for="p23-subject">Subject</label><input class="form-control mb-2" id="p23-subject" maxlength="160" required/>
 <label class="form-label" for="p23-message">Message</label><textarea class="form-control mb-2" id="p23-message" maxlength="5000" required></textarea>
 <button class="btn btn-primary" type="submit">Start conversation</button></form>
-<button class="btn btn-outline-secondary btn-sm mt-3" id="p23-load-conversations">View conversations</button>
-<div id="p23-conversations"></div></section><p id="p23-status" role="status"></p>
+<button data-ev-action="View conversations" data-ev-action-key="p23-load-conversations" class="btn btn-outline-secondary btn-sm mt-3" id="p23-load-conversations">View conversations</button>
+<div data-ev-action="View conversations" data-ev-action-key="p23-load-conversations" id="p23-conversations"></div></section><p id="p23-status" role="status"></p>
 <section class="ev-card p-4 my-3"><h2 class="h5">In-app notifications</h2>
-<button type="button" class="btn btn-outline-secondary btn-sm" id="p23-load-notifications">Refresh inbox</button>
-<div class="mt-2" id="p23-notifications" aria-live="polite"></div></section>
+<button data-ev-action="Refresh inbox" data-ev-action-key="p23-load-notifications" type="button" class="btn btn-outline-secondary btn-sm" id="p23-load-notifications">Refresh inbox</button>
+<div data-ev-action="Refresh inbox" data-ev-action-key="p23-load-notifications" class="mt-2" id="p23-notifications" aria-live="polite"></div></section>
 <script defer src="/js/phase23-portals.js"></script>
+
+</div>

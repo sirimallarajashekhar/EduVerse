@@ -11,7 +11,7 @@
 <div class="row g-3 mb-3">
  <div class="col-lg-6"><section class="ev-card p-4 h-100">
   <h2 class="h5">Lessons &amp; learning materials</h2>
-  <form id="lesson-form" class="row g-2">
+  <form data-ev-action="Save draft lesson" data-ev-action-key="lesson-form" id="lesson-form" class="row g-2">
    <div class="col-sm-4"><label for="year" class="form-label">Academic year</label><select id="year" class="form-select" required></select></div>
    <div class="col-sm-4"><label for="class" class="form-label">Class / course</label><select id="class" class="form-select" required></select></div>
    <div class="col-sm-4"><label for="subject" class="form-label">Subject</label><select id="subject" class="form-select" required></select></div>
@@ -20,11 +20,11 @@
    <div class="col-12"><label for="resource" class="form-label">HTTPS resource link (optional)</label><input id="resource" class="form-control" type="url" maxlength="600"/></div>
    <div class="col-12"><button class="btn btn-primary" type="submit">Save draft lesson</button></div>
   </form>
-  <ul id="lessons" class="small mt-3"></ul>
+  <ul data-ev-action="View Lessons &amp; learning materials" data-ev-action-key="lessons" id="lessons" class="small mt-3"></ul>
  </section></div>
  <div class="col-lg-6"><section class="ev-card p-4 h-100">
   <h2 class="h5">Assignments</h2>
-  <form id="assignment-form" class="row g-2">
+  <form data-ev-action="Save draft assignment" data-ev-action-key="assignment-form" id="assignment-form" class="row g-2">
    <div class="col-12"><label for="assignment-lesson" class="form-label">Published lesson</label><select id="assignment-lesson" class="form-select" required></select></div>
    <div class="col-12"><label for="assignment-title" class="form-label">Assignment title</label><input id="assignment-title" class="form-control" maxlength="160" required/></div>
    <div class="col-12"><label for="instructions" class="form-label">Instructions</label><textarea id="instructions" class="form-control" maxlength="8000" rows="3" required></textarea></div>
@@ -32,52 +32,53 @@
    <div class="col-sm-6"><label for="max-score" class="form-label">Maximum score</label><input id="max-score" type="number" min=".01" step=".01" class="form-control" required/></div>
    <div class="col-12"><button class="btn btn-primary" type="submit">Save draft assignment</button></div>
   </form>
-  <ul id="assignments" class="small mt-3"></ul>
+  <ul data-ev-action="View Assignments" data-ev-action-key="assignments" id="assignments" class="small mt-3"></ul>
  </section></div>
 </div>
 <div class="row g-3 mb-3">
  <div class="col-lg-6"><section class="ev-card p-4 h-100">
   <h2 class="h5">Student submissions &amp; feedback</h2>
-  <form id="submission-form" class="row g-2">
+  <form data-ev-action="Record submission" data-ev-action-key="submission-form" id="submission-form" class="row g-2">
    <div class="col-sm-6"><label for="submission-assignment" class="form-label">Published assignment</label><select id="submission-assignment" class="form-select" required></select></div>
    <div class="col-sm-6"><label for="enrollment" class="form-label">Student enrollment</label><select id="enrollment" class="form-select" required></select></div>
    <div class="col-12"><label for="submission-body" class="form-label">Student work</label><textarea id="submission-body" class="form-control" maxlength="8000" rows="3" required></textarea></div>
    <div class="col-12"><button class="btn btn-outline-primary" type="submit">Record submission</button></div>
   </form>
   <h3 class="h6 mt-3">Review submissions</h3>
-  <ul id="submissions" class="small"></ul>
+  <ul data-ev-action="View Review submissions" data-ev-action-key="submissions" id="submissions" class="small"></ul>
   <p id="progress" class="small text-secondary"></p>
  </section></div>
  <div class="col-lg-6"><section class="ev-card p-4 h-100">
   <h2 class="h5">Announcements</h2>
-  <form id="announcement-form" class="row g-2">
+  <form data-ev-action="Publish announcement" data-ev-action-key="announcement-form" id="announcement-form" class="row g-2">
    <div class="col-sm-7"><label for="announcement-title" class="form-label">Title</label><input id="announcement-title" maxlength="160" class="form-control" required/></div>
    <div class="col-sm-5"><label for="audience" class="form-label">Audience</label><select id="audience" class="form-select"><option>ALL</option><option>STAFF</option><option>GUARDIANS</option></select></div>
    <div class="col-12"><label for="announcement-body" class="form-label">Message</label><textarea id="announcement-body" maxlength="1000" rows="3" class="form-control" required></textarea></div>
    <div class="col-12"><button class="btn btn-primary" type="submit">Publish announcement</button></div>
   </form>
-  <ul id="announcements" class="small mt-3"></ul>
+  <ul data-ev-action="View Announcements" data-ev-action-key="announcements" id="announcements" class="small mt-3"></ul>
   <h3 class="h6 mt-3">In-app notifications</h3>
-  <ul id="notifications" class="small"></ul>
+  <ul data-ev-action="View In-app notifications" data-ev-action-key="notifications" id="notifications" class="small"></ul>
  </section></div>
 </div>
 <section class="ev-card p-4">
  <h2 class="h5">Parent–teacher communication (administrator-mediated)</h2>
  <p class="small text-secondary">Only registered guardian records for the same student and campus can be linked to a thread. External delivery and guardian login are not enabled yet.</p>
- <form id="thread-form" class="row g-2">
+ <form data-ev-action="Open thread" data-ev-action-key="thread-form" id="thread-form" class="row g-2">
   <div class="col-sm-4"><label for="thread-student" class="form-label">Student</label><select id="thread-student" class="form-select" required></select></div>
   <div class="col-sm-4"><label for="guardian" class="form-label">Guardian</label><select id="guardian" class="form-select" required></select></div>
   <div class="col-sm-4"><label for="thread-subject" class="form-label">Subject</label><input id="thread-subject" class="form-control" maxlength="160" required/></div>
   <div class="col-12"><button class="btn btn-outline-primary" type="submit">Open thread</button></div>
  </form>
  <hr/>
- <form id="message-form" class="row g-2">
+ <form data-ev-action="Record message" data-ev-action-key="message-form" id="message-form" class="row g-2">
   <div class="col-sm-4"><label for="thread" class="form-label">Thread</label><select id="thread" class="form-select" required></select></div>
   <div class="col-sm-8"><label for="message" class="form-label">Message</label><textarea id="message" class="form-control" rows="2" maxlength="5000" required></textarea></div>
   <div class="col-12"><button class="btn btn-primary" type="submit">Record message</button></div>
  </form>
- <ul id="messages" class="small mt-3"></ul>
+ <ul data-ev-action="View Parent–teacher communication (administrator-mediated)" data-ev-action-key="messages" id="messages" class="small mt-3"></ul>
 </section>
 
-</div>
 @section Scripts {<script src="~/js/learning-admin.js" asp-append-version="true"></script>}
+
+</div>
