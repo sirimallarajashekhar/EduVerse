@@ -232,6 +232,33 @@ public sealed class App : Application
         var status = new Picker { Title = "Attendance status", AutomationId = "AttendanceStatus" };
         foreach (var option in new[] { "PRESENT", "ABSENT", "LATE", "EXCUSED" })
             status.Items.Add(option);
+        var periods = new List<MobileAttendancePeriod>();
+        var periodPicker = new Picker { Title = "Attendance period", AutomationId = "AttendancePeriod" };
+        periodPicker.Items.Add("Daily (no period)");
+        periodPicker.SelectedIndex = 0;
+        var loadPeriods = Action("Load attendance periods");
+        loadPeriods.Clicked += async (_, _) =>
+        {
+            loadPeriods.IsEnabled = false;
+            try
+            {
+                periods = (await _api.GetAttendancePeriodsAsync(campusId))
+                    .Where(x => x.IsActive && x.CampusId == campusId).ToList();
+                periodPicker.Items.Clear();
+                periodPicker.Items.Add("Daily (no period)");
+                foreach (var period in periods)
+                    periodPicker.Items.Add($"{period.Name} ({period.Code}) {period.StartsAt:HH:mm}–{period.EndsAt:HH:mm}");
+                periodPicker.SelectedIndex = 0;
+                if (periods.Count == 0)
+                    await ShellAlertAsync("Attendance periods", "No active periods found. Daily attendance is still available.");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                await HandleTeacherAccessErrorAsync(ex);
+            }
+            catch (Exception ex) { await ShellAlertAsync("Unable to load periods", ex.Message); }
+            finally { loadPeriods.IsEnabled = true; }
+        };
         var remarks = new Entry { Placeholder = "Remarks (optional, max 250 characters)", MaxLength = 250 };
         var result = Note("");
         var save = Action("Save attendance");
@@ -247,13 +274,20 @@ public sealed class App : Application
                 result.Text = "Select an attendance date.";
                 return;
             }
+            if (periodPicker.SelectedIndex < 0 || periodPicker.SelectedIndex > periods.Count)
+            {
+                result.Text = "Select a valid attendance period.";
+                return;
+            }
+            var selectedPeriodId = periodPicker.SelectedIndex == 0
+                ? (Guid?)null : periods[periodPicker.SelectedIndex - 1].Id;
             save.IsEnabled = false;
             result.Text = "Saving attendance…";
             try
             {
                 await _api.MarkTeacherAttendanceAsync(new MobileAttendanceMark(
                     campusId, student.EnrollmentId, DateOnly.FromDateTime(selectedDate),
-                    null, status.Items[status.SelectedIndex], remarks.Text?.Trim()));
+                    selectedPeriodId, status.Items[status.SelectedIndex], remarks.Text?.Trim()));
                 result.Text = "Attendance saved.";
                 await ShellAlertAsync("Attendance saved", "The server accepted the attendance entry.");
             }
@@ -279,6 +313,9 @@ public sealed class App : Application
         layout.Children.Add(Note("Select the date and status. The backend validates permissions and attendance rules."));
         layout.Children.Add(date);
         layout.Children.Add(status);
+        layout.Children.Add(Note("Use daily attendance or load an authorized class period. Periods may require additional read access."));
+        layout.Children.Add(loadPeriods);
+        layout.Children.Add(periodPicker);
         layout.Children.Add(remarks);
         layout.Children.Add(save);
         layout.Children.Add(result);
