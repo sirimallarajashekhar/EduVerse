@@ -218,12 +218,17 @@ public sealed class App : Application
                 result.Text = "Select an attendance status.";
                 return;
             }
+            if (date.Date is not DateTime selectedDate)
+            {
+                result.Text = "Select an attendance date.";
+                return;
+            }
             save.IsEnabled = false;
             result.Text = "Saving attendance…";
             try
             {
                 await _api.MarkTeacherAttendanceAsync(new MobileAttendanceMark(
-                    campusId, student.EnrollmentId, DateOnly.FromDateTime(date.Date),
+                    campusId, student.EnrollmentId, DateOnly.FromDateTime(selectedDate),
                     null, status.Items[status.SelectedIndex], remarks.Text?.Trim()));
                 result.Text = "Attendance saved.";
                 await ShellAlertAsync("Attendance saved", "The server accepted the attendance entry.");
