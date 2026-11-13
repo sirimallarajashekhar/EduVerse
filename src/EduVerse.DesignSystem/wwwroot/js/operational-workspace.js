@@ -2,15 +2,66 @@
 (() => {
   const root = document.querySelector('.ev-module-workspace');
   if (!root) return;
-  const tabs = [...root.querySelectorAll('.ev-module-tab[href^="#"]')];
-  const activate = () => {
-    const hash = decodeURIComponent(window.location.hash || '');
-    for (const tab of tabs) {
-      if (hash && tab.getAttribute('href') === hash) tab.setAttribute('aria-current', 'location');
-      else tab.removeAttribute('aria-current');
+  // Keep existing API-bound elements mounted so changing views preserves unsaved input.
+  let tabs = [...root.querySelectorAll('.ev-module-tab[href^="#"]')];
+  if (!tabs.length) {
+    const cards = [...root.querySelectorAll('.ev-card')].filter(card =>
+      card.querySelector('h2') && !card.parentElement.closest('.ev-card'));
+    if (cards.length > 1) {
+      const nav = document.createElement('nav');
+      nav.className = 'ev-module-tabs';
+      nav.setAttribute('aria-label', 'Choose a task');
+      cards.forEach((card, index) => {
+        const heading = card.querySelector('h2');
+        heading.id ||= `ev-task-${index + 1}`;
+        const link = document.createElement('a');
+        link.className = 'ev-module-tab';
+        link.href = `#${heading.id}`;
+        link.textContent = heading.textContent;
+        nav.append(link);
+      });
+      const heading = root.querySelector('h1');
+      (heading?.closest('header') || heading)?.after(nav);
+      tabs = [...nav.children];
+    }
+  }
+  const views = tabs.map(tab => {
+    const heading = document.getElementById(tab.hash.slice(1));
+    const panel = heading?.closest('.ev-card');
+    if (!panel || !root.contains(panel)) return null;
+    const host = panel.parentElement.matches('[class*="col-"]') ? panel.parentElement : panel;
+    panel.classList.add('ev-task-view');
+    if (host !== panel) host.classList.add('ev-task-column');
+    panel.setAttribute('aria-labelledby', heading.id);
+    return { tab, panel, host };
+  }).filter(Boolean);
+  const activate = (moveFocus = false) => {
+    let hash;
+    try { hash = decodeURIComponent(window.location.hash); } catch { hash = ''; }
+    const active = views.find(view => view.tab.hash === hash ||
+      (hash && view.panel.contains(document.getElementById(hash.slice(1))))) || views[0];
+    for (const view of views) {
+      const selected = view === active;
+      view.panel.hidden = !selected;
+      if (selected) view.tab.setAttribute('aria-current', 'location');
+      else view.tab.removeAttribute('aria-current');
+    }
+    for (const view of views) {
+      if (view.host !== view.panel)
+        view.host.hidden = !views.some(other => other.host === view.host && !other.panel.hidden);
+    }
+    // Empty Bootstrap rows must not leave blank space between the task selector and content.
+    for (const row of root.querySelectorAll('.row')) {
+      if ([...row.children].some(child => child.classList.contains('ev-task-view') || child.classList.contains('ev-task-column')))
+        row.classList.toggle('ev-task-row-empty', [...row.children].every(child => child.hidden));
+    }
+    if (moveFocus && active) {
+      const heading = active.panel.querySelector('h2');
+      heading.setAttribute('tabindex', '-1');
+      heading.focus({ preventScroll: true });
     }
   };
-  window.addEventListener('hashchange', activate);
+  window.addEventListener('hashchange', () => activate(true));
   activate();
 
   for (const search of root.querySelectorAll('[data-ev-filter-target]')) {
