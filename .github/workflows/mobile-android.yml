@@ -42,6 +42,6 @@ jobs:
           dotnet --info
           dotnet workload list
       - name: Restore Android target
-        run: dotnet restore mobile/EduVerse.Mobile/EduVerse.Mobile.csproj -p:TargetFrameworks=net10.0-android
+        run: dotnet restore mobile/EduVerse.Mobile/EduVerse.Mobile.csproj -p:TargetFrameworks=net10.0-android -r android-arm64
       - name: Build Android application
-        run: dotnet build mobile/EduVerse.Mobile/EduVerse.Mobile.csproj --configuration Release -f net10.0-android -p:TargetFrameworks=net10.0-android
+        run: dotnet build mobile/EduVerse.Mobile/EduVerse.Mobile.csproj --no-restore --configuration Release -f net10.0-android -r android-arm64 -p:TargetFrameworks=net10.0-android
