@@ -230,8 +230,8 @@ public sealed class App : Application
                         details.Children.Add(Heading(current.DisplayName));
                         details.Children.Add(ActionFor("Students",
                             $"api/v1/students?campusId={current.Id:D}"));
-                        details.Children.Add(ActionFor("Admission applications",
-                            $"api/v1/students/applications?campusId={current.Id:D}"));
+                        details.Children.Add(AdminAdmissionsAction(current.Id));
+                        details.Children.Add(AdminRegisterStudentAction(current.Id));
                         details.Children.Add(ActionFor("Academic overview",
                             $"api/v1/academic/overview?campusId={current.Id:D}"));
                         details.Children.Add(ActionFor("Attendance dashboard",
@@ -247,6 +247,156 @@ public sealed class App : Application
             finally { button.IsEnabled = true; }
         };
         return button;
+    }
+
+    private Button AdminAdmissionsAction(Guid campusId)
+    {
+        var button = Action("Review admissions");
+        button.Clicked += async (_, _) =>
+        {
+            button.IsEnabled = false;
+            try
+            {
+                var applications = await _api.GetAdmissionsAsync(campusId);
+                var content = new VerticalStackLayout { Spacing = 12 };
+                content.Children.Add(Heading("Admission applications"));
+                if (applications.Count == 0) content.Children.Add(Note("No applications found."));
+                foreach (var application in applications)
+                {
+                    var current = application;
+                    var item = new VerticalStackLayout { Spacing = 8 };
+                    item.Children.Add(Note($"{current.GivenName} {current.FamilyName}"));
+                    item.Children.Add(Note($"Application #{current.ApplicationNumber} • {current.Status}"));
+                    item.Children.Add(Note($"DOB: {current.DateOfBirth:dd MMM yyyy}"));
+                    if (string.Equals(current.Status, "SUBMITTED", StringComparison.OrdinalIgnoreCase))
+                    {
+                        foreach (var decision in new[] { "APPROVED", "REJECTED" })
+                        {
+                            var chosen = decision;
+                            var decide = Action(chosen == "APPROVED" ? "Approve" : "Reject");
+                            decide.Clicked += async (_, _) =>
+                            {
+                                var page = _root.Navigation.NavigationStack.LastOrDefault();
+                                if (page is null || !await page.DisplayAlertAsync(
+                                    "Confirm admission decision",
+                                    $"{chosen} application #{current.ApplicationNumber} for {current.GivenName} {current.FamilyName}?",
+                                    "Confirm", "Cancel")) return;
+                                decide.IsEnabled = false;
+                                try
+                                {
+                                    await _api.DecideAdmissionAsync(campusId, current.Id, chosen);
+                                    await ShellAlertAsync("Decision saved", "The API accepted the admission decision. Reopen this page to refresh.");
+                                    item.Children.Remove(decide);
+                                }
+                                catch (UnauthorizedAccessException ex) { await HandleTeacherAccessErrorAsync(ex); }
+                                catch (Exception ex) { await ShellAlertAsync("Decision not saved", ex.Message); }
+                                finally { decide.IsEnabled = true; }
+                            };
+                            item.Children.Add(decide);
+                        }
+                    }
+                    content.Children.Add(new Border
+                    {
+                        Stroke = Color.FromArgb("#E0E6ED"),
+                        Padding = new Thickness(12),
+                        Content = item
+                    });
+                }
+                await _root.Navigation.PushAsync(Page("Admissions", content));
+            }
+            catch (UnauthorizedAccessException ex) { await HandleTeacherAccessErrorAsync(ex); }
+            catch (Exception ex) { await ShellAlertAsync("Admissions unavailable", ex.Message); }
+            finally { button.IsEnabled = true; }
+        };
+        return button;
+    }
+
+    private Button AdminRegisterStudentAction(Guid campusId)
+    {
+        var button = Action("Register student");
+        button.Clicked += async (_, _) =>
+            await _root.Navigation.PushAsync(AdminStudentRegistrationPage(campusId));
+        return button;
+    }
+
+    private ContentPage AdminStudentRegistrationPage(Guid campusId)
+    {
+        var layout = new VerticalStackLayout { Spacing = 14 };
+        layout.Children.Add(Heading("Register student"));
+        layout.Children.Add(Note("Registration is saved to the existing EduVerse API and MySQL database."));
+        var givenName = new Entry { Placeholder = "Given name", AutomationId = "StudentGivenName" };
+        var familyName = new Entry { Placeholder = "Family name", AutomationId = "StudentFamilyName" };
+        var birthDate = new DatePicker
+        {
+            Date = DateTime.Today.AddYears(-10),
+            MaximumDate = DateTime.Today,
+            AutomationId = "StudentDateOfBirth"
+        };
+        var applicationId = new Entry
+        {
+            Placeholder = "Approved admission application ID (optional)",
+            AutomationId = "StudentApplicationId"
+        };
+        var status = Note("");
+        var submit = Action("Create student");
+        submit.Clicked += async (_, _) =>
+        {
+            if (string.IsNullOrWhiteSpace(givenName.Text) || string.IsNullOrWhiteSpace(familyName.Text))
+            {
+                status.Text = "Enter the student's given and family name.";
+                return;
+            }
+            if (birthDate.Date is not DateTime selectedDate)
+            {
+                status.Text = "Select a date of birth.";
+                return;
+            }
+            Guid? approvedApplication = null;
+            if (!string.IsNullOrWhiteSpace(applicationId.Text))
+            {
+                if (!Guid.TryParse(applicationId.Text.Trim(), out var parsed) || parsed == Guid.Empty)
+                {
+                    status.Text = "Enter a valid application ID or leave the field empty.";
+                    return;
+                }
+                approvedApplication = parsed;
+            }
+            var page = _root.Navigation.NavigationStack.LastOrDefault();
+            if (page is null || !await page.DisplayAlertAsync(
+                "Confirm student registration",
+                $"Create a student record for {givenName.Text.Trim()} {familyName.Text.Trim()}?",
+                "Create", "Cancel")) return;
+            submit.IsEnabled = false;
+            status.Text = "Saving student…";
+            try
+            {
+                var created = await _api.RegisterStudentAsync(new MobileStudentCreate(
+                    campusId, approvedApplication, givenName.Text.Trim(), familyName.Text.Trim(),
+                    DateOnly.FromDateTime(selectedDate)));
+                status.Text = $"Student registered: {created.AdmissionNumber}";
+                await ShellAlertAsync("Student registered",
+                    $"Admission number: {created.AdmissionNumber}");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                status.Text = "Registration was not completed.";
+                await HandleTeacherAccessErrorAsync(ex);
+            }
+            catch (Exception ex)
+            {
+                status.Text = "Registration was not completed. Check the API response before retrying.";
+                await ShellAlertAsync("Registration failed", ex.Message);
+            }
+            finally { submit.IsEnabled = true; }
+        };
+        layout.Children.Add(givenName);
+        layout.Children.Add(familyName);
+        layout.Children.Add(Note("Date of birth"));
+        layout.Children.Add(birthDate);
+        layout.Children.Add(applicationId);
+        layout.Children.Add(submit);
+        layout.Children.Add(status);
+        return Page("Register student", layout);
     }
 
     private Button StudentDashboardAction()
