@@ -27,6 +27,7 @@ GitHub Actions workflow **EduVerse Mobile Android CI** produces a Debug ARM64 AP
 - A successful test confirms the EduVerse public system-info endpoint is reachable; it does **not** verify database readiness, login permissions or tenant access.
 - `localhost` or `127.0.0.1` on a phone means **the phone**, not your development PC. For LAN or internet access, use a reachable address and valid HTTPS certificate. Do not disable TLS certificate validation.
 - Never embed server signing keys, MySQL passwords, production JWTs or test credentials in the APK.
+- Switching the configured HTTPS API base URL clears locally stored JWT/session metadata. Sign in again for the newly selected server; sessions cannot be carried between environments.
 
 ## Manual end-to-end test checklist
 

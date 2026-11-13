@@ -31,10 +31,19 @@ public sealed class EduVerseApi(HttpClient http)
         get => Preferences.Default.Get(UrlKey, "");
         set
         {
-            if (!Uri.TryCreate(value.Trim(), UriKind.Absolute, out var uri) ||
-                uri.Scheme != Uri.UriSchemeHttps || uri.UserInfo.Length != 0)
-                throw new ArgumentException("Enter a valid HTTPS API URL.");
-            Preferences.Default.Set(UrlKey, uri.AbsoluteUri.TrimEnd('/') + "/");
+            if (!Uri.TryCreate(value?.Trim(), UriKind.Absolute, out var uri) ||
+                uri.Scheme != Uri.UriSchemeHttps || uri.UserInfo.Length != 0 ||
+                !string.IsNullOrEmpty(uri.Query) || !string.IsNullOrEmpty(uri.Fragment))
+                throw new ArgumentException("Enter a valid HTTPS API URL without query or fragment.");
+            var normalized = uri.AbsoluteUri.TrimEnd('/') + "/";
+            var previous = Preferences.Default.Get(UrlKey, "");
+            if (!string.Equals(previous, normalized, StringComparison.Ordinal))
+            {
+                // Sessions belong to their API endpoint. Never forward stored JWTs to another server.
+                SecureStorage.Default.Remove(TokenKey);
+                SecureStorage.Default.Remove(SessionKey);
+            }
+            Preferences.Default.Set(UrlKey, normalized);
         }
     }
 
