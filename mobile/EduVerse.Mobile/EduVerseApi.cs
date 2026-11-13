@@ -14,6 +14,8 @@ public sealed record MobileCampus(Guid Id, Guid TenantId, string Code, string Di
 public sealed record MobileTeacherClass(Guid ClassId, Guid CampusId, Guid AcademicYearId);
 public sealed record MobileTeacherStudent(Guid StudentId, Guid EnrollmentId, string AdmissionNumber,
     string GivenName, string FamilyName);
+public sealed record MobileAttendanceMark(Guid CampusId, Guid EnrollmentId, DateOnly Date,
+    Guid? PeriodId, string Status, string? Remarks);
 
 public sealed class EduVerseApi(HttpClient http)
 {
@@ -110,6 +112,12 @@ public sealed class EduVerseApi(HttpClient http)
         await EnsureSuccessAsync(response, ct);
         return await response.Content.ReadFromJsonAsync<List<MobileTeacherStudent>>(JsonOptions, ct)
             ?? throw new InvalidOperationException("Teacher class roster response is invalid.");
+    }
+
+    public async Task MarkTeacherAttendanceAsync(MobileAttendanceMark mark, CancellationToken ct = default)
+    {
+        using var response = await SendAsync(HttpMethod.Post, "api/v1/portals/teacher/attendance", mark, true, ct);
+        await EnsureSuccessAsync(response, ct);
     }
 
     public async Task LogoutAsync()
