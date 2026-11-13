@@ -51,6 +51,30 @@ public sealed class App : Application
         var email = new Entry { Placeholder = "Email", Keyboard = Keyboard.Email, AutomationId = "Email" };
         var password = new Entry { Placeholder = "Password", IsPassword = true, AutomationId = "Password" };
         var status = Note("");
+        var checkConnection = Action("Test API connection");
+        checkConnection.Clicked += async (_, _) =>
+        {
+            checkConnection.IsEnabled = false;
+            status.Text = "Checking API connection…";
+            try
+            {
+                _api.ApiUrl = server.Text ?? "";
+                status.Text = await _api.CheckApiConnectionAsync();
+            }
+            catch (HttpRequestException ex)
+            {
+                status.Text = $"API is unreachable or returned an error: {ex.Message}";
+            }
+            catch (TaskCanceledException)
+            {
+                status.Text = "Connection timed out. Check the server address and network.";
+            }
+            catch (Exception ex)
+            {
+                status.Text = ex.Message;
+            }
+            finally { checkConnection.IsEnabled = true; }
+        };
         var login = Action("Sign in");
         login.Clicked += async (_, _) =>
         {
@@ -74,7 +98,7 @@ public sealed class App : Application
                 Heading("EduVerse"),
                 Note("Your school and college, in your pocket."),
                 Note("Connect to your institution's secure EduVerse API."),
-                server, institution, email, password, login, status
+                server, checkConnection, institution, email, password, login, status
             }
         };
         return Page("Sign in", layout);
