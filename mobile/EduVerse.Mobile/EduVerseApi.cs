@@ -36,6 +36,17 @@ public sealed class EduVerseApi(HttpClient http)
         }
     }
 
+    public async Task<string> CheckApiConnectionAsync(CancellationToken ct = default)
+    {
+        using var response = await SendAsync(HttpMethod.Get, "api/v1/system/info", null, false, ct);
+        response.EnsureSuccessStatusCode();
+        using var document = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(ct), cancellationToken: ct);
+        if (!document.RootElement.TryGetProperty("name", out var name) ||
+            !string.Equals(name.GetString(), "EduVerse", StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("The configured server is not an EduVerse API.");
+        return "Connected to EduVerse API.";
+    }
+
     public async Task<MobileSession?> GetSessionAsync()
     {
         try
