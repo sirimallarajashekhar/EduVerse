@@ -10,6 +10,8 @@ public sealed record MobileLogin(string TenantSlug, string Email, string Passwor
 public sealed record MobileSession(string AccessToken, DateTimeOffset ExpiresUtc,
     string DisplayName, string Email, string SubjectId, Guid TenantId, string RoleCode);
 public sealed record MobileLinkedStudent(Guid StudentId, Guid CampusId, string Relationship);
+public sealed record MobileStudentProfile(Guid Id, Guid CampusId, string AdmissionNumber,
+    string GivenName, string FamilyName, string Status);
 public sealed record MobileCampus(Guid Id, Guid TenantId, string Code, string DisplayName, bool IsActive);
 public sealed record MobileTeacherClass(Guid ClassId, Guid CampusId, Guid AcademicYearId);
 public sealed record MobileTeacherStudent(Guid StudentId, Guid EnrollmentId, string AdmissionNumber,
@@ -108,6 +110,32 @@ public sealed class EduVerseApi(HttpClient http)
         return await response.Content.ReadFromJsonAsync<List<MobileLinkedStudent>>(JsonOptions, ct)
             ?? throw new InvalidOperationException("The student list response was empty or invalid.");
     }
+
+    public async Task<MobileStudentProfile?> GetMyStudentProfileAsync(
+        Guid campusId, Guid studentId, CancellationToken ct = default)
+    {
+        using var response = await SendAsync(HttpMethod.Get,
+            $"api/v1/ownership/my/students/{studentId:D}?campusId={campusId:D}", null, true, ct);
+        if (response.StatusCode == HttpStatusCode.NotFound) return null;
+        await EnsureSuccessAsync(response, ct);
+        return await response.Content.ReadFromJsonAsync<MobileStudentProfile>(JsonOptions, ct)
+            ?? throw new InvalidOperationException("Student profile response is invalid.");
+    }
+
+    public Task<JsonElement> GetInstitutionDashboardAsync(CancellationToken ct = default)
+        => GetAsync("api/v1/institution-admin/dashboard", ct);
+
+    public Task<JsonElement> GetInstitutionProfileAsync(CancellationToken ct = default)
+        => GetAsync("api/v1/institution-admin/profile", ct);
+
+    public Task<JsonElement> GetSubscriptionAsync(CancellationToken ct = default)
+        => GetAsync("api/v1/institution-admin/subscription", ct);
+
+    public Task<JsonElement> GetCampusStudentsAsync(Guid campusId, CancellationToken ct = default)
+        => GetAsync($"api/v1/students?campusId={campusId:D}", ct);
+
+    public Task<JsonElement> GetCampusApplicationsAsync(Guid campusId, CancellationToken ct = default)
+        => GetAsync($"api/v1/students/applications?campusId={campusId:D}", ct);
 
     public async Task<IReadOnlyList<MobileCampus>> GetCampusesAsync(CancellationToken ct = default)
     {
