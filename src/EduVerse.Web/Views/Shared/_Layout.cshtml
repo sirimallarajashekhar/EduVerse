@@ -15,6 +15,8 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
   <link href="/_content/EduVerse.DesignSystem/css/eduverse.css" rel="stylesheet" />
   <link href="~/css/reporting.css" rel="stylesheet" asp-append-version="true" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 </head>
 <body class="@(authenticated ? "ev-app-shell" : "ev-public-shell")">
   <a class="ev-skip-link" href="#main-content">Skip to main content</a>
@@ -33,22 +35,22 @@
         <nav class="ev-sidebar-nav" aria-label="Main navigation">
           <div class="ev-nav-label">WORKSPACE</div>
           <a href="@landing" class="ev-nav-item" aria-current="@(currentPath == landing ? "page" : null)">
-            <span class="ev-nav-icon" aria-hidden="true">▦</span><span>Dashboard</span>
+            <span class="ev-nav-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide" aria-hidden="true"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg></span><span>Dashboard</span>
           </a>
           @if(platformAdmin)
           {
             <div class="ev-nav-label">PLATFORM</div>
             <a href="/platform/console#platform-institutions-section" class="ev-nav-item">
-              <span class="ev-nav-icon" aria-hidden="true">▤</span><span>Institutions</span>
+              <span class="ev-nav-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide" aria-hidden="true"><path d="M4 22V4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v18Z"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M12 6h.01M12 10h.01M12 14h.01M16 10h.01M16 14h.01M8 10h.01M8 14h.01"/></svg></span><span>Institutions</span>
             </a>
             <a href="/platform/registrations" class="ev-nav-item" aria-current="@(currentPath.StartsWith("/platform/registrations",StringComparison.OrdinalIgnoreCase) ? "page" : null)">
-              <span class="ev-nav-icon" aria-hidden="true">✓</span><span>Institution approvals</span>
+              <span class="ev-nav-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide" aria-hidden="true"><path d="m9 12 2 2 4-4"/><path d="M20 13c0 5-8 9-8 9s-8-4-8-9V5l8-3 8 3z"/></svg></span><span>Institution approvals</span>
             </a>
             <a href="/platform/console#platform-modules-section" class="ev-nav-item">
-              <span class="ev-nav-icon" aria-hidden="true">◫</span><span>Module catalog</span>
+              <span class="ev-nav-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span><span>Module catalog</span>
             </a>
             <a href="/platform/console#platform-actions-section" class="ev-nav-item">
-              <span class="ev-nav-icon" aria-hidden="true">⌘</span><span>API actions</span>
+              <span class="ev-nav-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide" aria-hidden="true"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6m6-14-4 16"/></svg></span><span>API actions</span>
             </a>
           }
           else if(institutionAdmin)
@@ -58,17 +60,17 @@
               <span class="ev-sidebar-hint">Loading permitted modules…</span>
             </div>
             <div class="ev-nav-label">INSIGHTS</div>
-            <a href="/admin/reports" class="ev-nav-item" aria-current="@(currentPath.StartsWith("/admin/reports",StringComparison.OrdinalIgnoreCase) ? "page" : null)"><span class="ev-nav-icon" aria-hidden="true">▥</span><span>Reports &amp; Analytics</span></a>
+            <a href="/admin/reports" class="ev-nav-item" aria-current="@(currentPath.StartsWith("/admin/reports",StringComparison.OrdinalIgnoreCase) ? "page" : null)"><span class="ev-nav-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide" aria-hidden="true"><path d="M3 3v18h18M9 17V9M14 17V5M19 17v-6"/></svg></span><span>Reports &amp; Analytics</span></a>
             <div class="ev-nav-label">ADMINISTRATION</div>
-            <a href="/admin/rbac" class="ev-nav-item"><span class="ev-nav-icon" aria-hidden="true">♙</span><span>Roles &amp; permissions</span></a>
-            <a href="/portal/learning-review" class="ev-nav-item"><span class="ev-nav-icon" aria-hidden="true">✓</span><span>Learning approvals</span></a>
+            <a href="/admin/rbac" class="ev-nav-item"><span class="ev-nav-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m20 0v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/><circle cx="9" cy="7" r="4"/></svg></span><span>Roles &amp; permissions</span></a>
+            <a href="/portal/learning-review" class="ev-nav-item"><span class="ev-nav-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide" aria-hidden="true"><path d="m9 12 2 2 4-4"/><path d="M20 13c0 5-8 9-8 9s-8-4-8-9V5l8-3 8 3z"/></svg></span><span>Learning approvals</span></a>
           }
           else
           {
             <div class="ev-nav-label">MY PORTALS</div>
-            <a href="/portal/teacher" class="ev-nav-item"><span class="ev-nav-icon" aria-hidden="true">▤</span><span>Teacher workspace</span></a>
-            <a href="/portal/parent" class="ev-nav-item"><span class="ev-nav-icon" aria-hidden="true">♡</span><span>Parent workspace</span></a>
-            <a href="/portal/student" class="ev-nav-item"><span class="ev-nav-icon" aria-hidden="true">◫</span><span>Student workspace</span></a>
+            <a href="/portal/teacher" class="ev-nav-item"><span class="ev-nav-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide" aria-hidden="true"><path d="M4 22V4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v18Z"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M12 6h.01M12 10h.01M12 14h.01M16 10h.01M16 14h.01M8 10h.01M8 14h.01"/></svg></span><span>Teacher workspace</span></a>
+            <a href="/portal/parent" class="ev-nav-item"><span class="ev-nav-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21l8.84-8.61a5.5 5.5 0 0 0 0-7.78z"/></svg></span><span>Parent workspace</span></a>
+            <a href="/portal/student" class="ev-nav-item"><span class="ev-nav-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span><span>Student workspace</span></a>
           }
         </nav>
         <div class="ev-sidebar-footer"><span class="ev-sidebar-status" aria-hidden="true"></span>EduVerse · Secure workspace</div>
@@ -121,5 +123,6 @@
     <script src="/_content/EduVerse.DesignSystem/js/tenant-navigation.js"></script>
   }
   @await RenderSectionAsync("Scripts", required: false)
+  <script src="/_content/EduVerse.DesignSystem/js/operational-workspace.js" defer></script>
 </body>
 </html>

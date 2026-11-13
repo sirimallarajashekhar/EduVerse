@@ -1,9 +1,10 @@
 @{ ViewData["Title"] = "User Management"; }
+<div class="ev-module-workspace">
 <div class="mb-4">
   <p class="ev-eyebrow">Identity administration</p>
   <h1 class="h3">Institution users</h1>
   <a class="btn btn-outline-primary mt-2" href="/admin/rbac">Manage custom roles &amp; permissions</a>
-  <p class="text-secondary">Invitations and permission decisions are processed by the Identity API.</p>
+  <p class="text-secondary">Invite staff and manage who can use your institution workspace.</p>
 </div>
 <div class="ev-card p-4 mb-4">
   <h2 class="h5">Invite user</h2>
@@ -27,5 +28,7 @@
       <tbody id="user-rows"><tr><td colspan="3">Loading…</td></tr></tbody>
     </table>
   </div>
+</div>
+
 </div>
 @section Scripts { <script src="~/js/user-admin.js" asp-append-version="true"></script> }
