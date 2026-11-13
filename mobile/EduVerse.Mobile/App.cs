@@ -270,6 +270,7 @@ public sealed class App : Application
                     item.Children.Add(Note($"DOB: {current.DateOfBirth:dd MMM yyyy}"));
                     if (string.Equals(current.Status, "SUBMITTED", StringComparison.OrdinalIgnoreCase))
                     {
+                        var decisionButtons = new List<Button>();
                         foreach (var decision in new[] { "APPROVED", "REJECTED" })
                         {
                             var chosen = decision;
@@ -282,16 +283,19 @@ public sealed class App : Application
                                     $"{chosen} application #{current.ApplicationNumber} for {current.GivenName} {current.FamilyName}?",
                                     "Confirm", "Cancel")) return;
                                 decide.IsEnabled = false;
+                                var saved = false;
                                 try
                                 {
                                     await _api.DecideAdmissionAsync(campusId, current.Id, chosen);
                                     await ShellAlertAsync("Decision saved", "The API accepted the admission decision. Reopen this page to refresh.");
-                                    item.Children.Remove(decide);
+                                    saved = true;
+                                    foreach (var action in decisionButtons) action.IsEnabled = false;
                                 }
                                 catch (UnauthorizedAccessException ex) { await HandleTeacherAccessErrorAsync(ex); }
                                 catch (Exception ex) { await ShellAlertAsync("Decision not saved", ex.Message); }
-                                finally { decide.IsEnabled = true; }
+                                finally { if (!saved) decide.IsEnabled = true; }
                             };
+                            decisionButtons.Add(decide);
                             item.Children.Add(decide);
                         }
                     }
