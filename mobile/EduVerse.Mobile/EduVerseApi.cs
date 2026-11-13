@@ -12,6 +12,13 @@ public sealed record MobileSession(string AccessToken, DateTimeOffset ExpiresUtc
 public sealed record MobileLinkedStudent(Guid StudentId, Guid CampusId, string Relationship);
 public sealed record MobileStudentProfile(Guid Id, Guid CampusId, string AdmissionNumber,
     string GivenName, string FamilyName, string Status);
+public sealed record MobileAdmission(Guid Id, Guid TenantId, Guid CampusId, long ApplicationNumber,
+    string GivenName, string FamilyName, DateOnly DateOfBirth, string Status);
+public sealed record MobileStudentCreate(Guid CampusId, Guid? ApplicationId,
+    string GivenName, string FamilyName, DateOnly DateOfBirth);
+public sealed record MobileStudentRecord(Guid Id, Guid TenantId, Guid CampusId,
+    string AdmissionNumber, string GivenName, string FamilyName, DateOnly DateOfBirth, string Status);
+public sealed record MobileAdmissionDecision(string Decision);
 public sealed record MobileCampus(Guid Id, Guid TenantId, string Code, string DisplayName, bool IsActive);
 public sealed record MobileTeacherClass(Guid ClassId, Guid CampusId, Guid AcademicYearId);
 public sealed record MobileTeacherStudent(Guid StudentId, Guid EnrollmentId, string AdmissionNumber,
@@ -136,6 +143,33 @@ public sealed class EduVerseApi(HttpClient http)
 
     public Task<JsonElement> GetCampusApplicationsAsync(Guid campusId, CancellationToken ct = default)
         => GetAsync($"api/v1/students/applications?campusId={campusId:D}", ct);
+
+    public async Task<IReadOnlyList<MobileAdmission>> GetAdmissionsAsync(Guid campusId, CancellationToken ct = default)
+    {
+        using var response = await SendAsync(HttpMethod.Get,
+            $"api/v1/students/applications?campusId={campusId:D}", null, true, ct);
+        await EnsureSuccessAsync(response, ct);
+        return await response.Content.ReadFromJsonAsync<List<MobileAdmission>>(JsonOptions, ct)
+            ?? throw new InvalidOperationException("Admissions response is invalid.");
+    }
+
+    public async Task DecideAdmissionAsync(Guid campusId, Guid applicationId,
+        string decision, CancellationToken ct = default)
+    {
+        using var response = await SendAsync(HttpMethod.Post,
+            $"api/v1/students/applications/{applicationId:D}/decision?campusId={campusId:D}",
+            new MobileAdmissionDecision(decision), true, ct);
+        await EnsureSuccessAsync(response, ct);
+    }
+
+    public async Task<MobileStudentRecord> RegisterStudentAsync(MobileStudentCreate request,
+        CancellationToken ct = default)
+    {
+        using var response = await SendAsync(HttpMethod.Post, "api/v1/students", request, true, ct);
+        await EnsureSuccessAsync(response, ct);
+        return await response.Content.ReadFromJsonAsync<MobileStudentRecord>(JsonOptions, ct)
+            ?? throw new InvalidOperationException("Student registration response is invalid.");
+    }
 
     public async Task<IReadOnlyList<MobileCampus>> GetCampusesAsync(CancellationToken ct = default)
     {
