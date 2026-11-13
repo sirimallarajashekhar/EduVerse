@@ -172,7 +172,13 @@ public sealed class App : Application
                             list.Children.Add(Heading("Class roster"));
                             if (students.Count == 0) list.Children.Add(Note("No enrolled students found."));
                             foreach (var student in students)
-                                list.Children.Add(Note($"{student.GivenName} {student.FamilyName} — {student.AdmissionNumber}"));
+                            {
+                                var enrolled = student;
+                                var attendanceButton = Action($"Attendance: {enrolled.GivenName} {enrolled.FamilyName} ({enrolled.AdmissionNumber})");
+                                attendanceButton.Clicked += async (_, _) =>
+                                    await _root.Navigation.PushAsync(TeacherAttendancePage(current.CampusId, enrolled));
+                                list.Children.Add(attendanceButton);
+                            }
                             await _root.Navigation.PushAsync(Page("Class roster", list));
                         }
                         catch (UnauthorizedAccessException ex)
@@ -191,6 +197,63 @@ public sealed class App : Application
             finally { button.IsEnabled = true; }
         };
         return button;
+    }
+
+    private ContentPage TeacherAttendancePage(Guid campusId, MobileTeacherStudent student)
+    {
+        var layout = new VerticalStackLayout { Spacing = 14 };
+        layout.Children.Add(Heading($"Attendance — {student.GivenName} {student.FamilyName}"));
+        layout.Children.Add(Note($"Admission: {student.AdmissionNumber}"));
+        var date = new DatePicker { Date = DateTime.Today, AutomationId = "AttendanceDate" };
+        var status = new Picker { Title = "Attendance status", AutomationId = "AttendanceStatus" };
+        foreach (var option in new[] { "PRESENT", "ABSENT", "LATE", "EXCUSED" })
+            status.Items.Add(option);
+        var remarks = new Entry { Placeholder = "Remarks (optional, max 250 characters)", MaxLength = 250 };
+        var result = Note("");
+        var save = Action("Save attendance");
+        save.Clicked += async (_, _) =>
+        {
+            if (status.SelectedIndex < 0)
+            {
+                result.Text = "Select an attendance status.";
+                return;
+            }
+            save.IsEnabled = false;
+            result.Text = "Saving attendance…";
+            try
+            {
+                await _api.MarkTeacherAttendanceAsync(new MobileAttendanceMark(
+                    campusId, student.EnrollmentId, DateOnly.FromDateTime(date.Date),
+                    null, status.Items[status.SelectedIndex], remarks.Text?.Trim()));
+                result.Text = "Attendance saved.";
+                await ShellAlertAsync("Attendance saved", "The server accepted the attendance entry.");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                result.Text = "Attendance was not saved.";
+                await HandleTeacherAccessErrorAsync(ex);
+            }
+            catch (HttpRequestException ex)
+            {
+                result.Text = ex.StatusCode == System.Net.HttpStatusCode.Conflict
+                    ? "Attendance cannot be recorded for this date (for example, an academic holiday)."
+                    : "The server rejected the attendance entry. No success has been recorded.";
+                await ShellAlertAsync("Attendance not saved", result.Text);
+            }
+            catch (Exception ex)
+            {
+                result.Text = "Attendance could not be saved.";
+                await ShellAlertAsync("Unable to save", ex.Message);
+            }
+            finally { save.IsEnabled = true; }
+        };
+        layout.Children.Add(Note("Select the date and status. The backend validates permissions and attendance rules."));
+        layout.Children.Add(date);
+        layout.Children.Add(status);
+        layout.Children.Add(remarks);
+        layout.Children.Add(save);
+        layout.Children.Add(result);
+        return Page("Mark attendance", layout);
     }
 
     private async Task HandleTeacherAccessErrorAsync(UnauthorizedAccessException ex)
