@@ -3,7 +3,7 @@ using Microsoft.Maui.Controls;
 
 namespace EduVerse.Mobile;
 
-public sealed class App : Application
+public sealed partial class App : Application
 {
     private readonly EduVerseApi _api;
     private readonly NavigationPage _root;
@@ -232,6 +232,7 @@ public sealed class App : Application
                             $"api/v1/students?campusId={current.Id:D}"));
                         details.Children.Add(AdminAdmissionsAction(current.Id));
                         details.Children.Add(AdminRegisterStudentAction(current.Id));
+                        details.Children.Add(AdminStudentManagementAction(current.Id));
                         details.Children.Add(ActionFor("Academic overview",
                             $"api/v1/academic/overview?campusId={current.Id:D}"));
                         details.Children.Add(ActionFor("Attendance dashboard",
