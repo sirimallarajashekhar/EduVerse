@@ -45,3 +45,12 @@ jobs:
         run: dotnet restore mobile/EduVerse.Mobile/EduVerse.Mobile.csproj -p:TargetFrameworks=net10.0-android -r android-arm64
       - name: Build Android application
         run: dotnet build mobile/EduVerse.Mobile/EduVerse.Mobile.csproj --no-restore --configuration Release -f net10.0-android -r android-arm64 -p:TargetFrameworks=net10.0-android
+      - name: Package Android debug APK for device QA
+        run: dotnet publish mobile/EduVerse.Mobile/EduVerse.Mobile.csproj --configuration Debug -f net10.0-android -r android-arm64 -p:TargetFrameworks=net10.0-android -p:AndroidPackageFormats=apk
+      - name: Upload debug APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: eduverse-android-arm64-debug-apk
+          path: mobile/EduVerse.Mobile/bin/Debug/net10.0-android/android-arm64/**/*.apk
+          if-no-files-found: error
+          retention-days: 7
