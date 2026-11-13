@@ -9,6 +9,7 @@ namespace EduVerse.Mobile;
 public sealed record MobileLogin(string TenantSlug, string Email, string Password);
 public sealed record MobileSession(string AccessToken, DateTimeOffset ExpiresUtc,
     string DisplayName, string Email, string SubjectId, Guid TenantId, string RoleCode);
+public sealed record MobileLinkedStudent(Guid StudentId, Guid CampusId, string Relationship);
 
 public sealed class EduVerseApi(HttpClient http)
 {
@@ -69,6 +70,15 @@ public sealed class EduVerseApi(HttpClient http)
         using var response = await SendAsync(HttpMethod.Get, path, null, true, ct);
         await EnsureSuccessAsync(response, ct);
         return await response.Content.ReadFromJsonAsync<JsonElement>(JsonOptions, ct);
+    }
+
+    public async Task<IReadOnlyList<MobileLinkedStudent>> GetLinkedStudentsAsync(bool parent, CancellationToken ct = default)
+    {
+        var path = parent ? "api/v1/portals/parent/children" : "api/v1/portals/student/me";
+        using var response = await SendAsync(HttpMethod.Get, path, null, true, ct);
+        await EnsureSuccessAsync(response, ct);
+        return await response.Content.ReadFromJsonAsync<List<MobileLinkedStudent>>(JsonOptions, ct)
+            ?? throw new InvalidOperationException("The student list response was empty or invalid.");
     }
 
     public async Task LogoutAsync()
