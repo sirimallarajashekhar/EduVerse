@@ -10,6 +10,9 @@ public sealed record MobileLogin(string TenantSlug, string Email, string Passwor
 public sealed record MobileSession(string AccessToken, DateTimeOffset ExpiresUtc,
     string DisplayName, string Email, string SubjectId, Guid TenantId, string RoleCode);
 public sealed record MobileLinkedStudent(Guid StudentId, Guid CampusId, string Relationship);
+public sealed record MobileTeacherClass(Guid ClassId, Guid CampusId, Guid AcademicYearId);
+public sealed record MobileTeacherStudent(Guid StudentId, Guid EnrollmentId, string AdmissionNumber,
+    string GivenName, string FamilyName);
 
 public sealed class EduVerseApi(HttpClient http)
 {
@@ -79,6 +82,25 @@ public sealed class EduVerseApi(HttpClient http)
         await EnsureSuccessAsync(response, ct);
         return await response.Content.ReadFromJsonAsync<List<MobileLinkedStudent>>(JsonOptions, ct)
             ?? throw new InvalidOperationException("The student list response was empty or invalid.");
+    }
+
+    public async Task<IReadOnlyList<MobileTeacherClass>> GetTeacherClassesAsync(Guid campusId, CancellationToken ct = default)
+    {
+        using var response = await SendAsync(HttpMethod.Get,
+            $"api/v1/portals/teacher/classes?campusId={campusId:D}", null, true, ct);
+        await EnsureSuccessAsync(response, ct);
+        return await response.Content.ReadFromJsonAsync<List<MobileTeacherClass>>(JsonOptions, ct)
+            ?? throw new InvalidOperationException("Teacher classes response is invalid.");
+    }
+
+    public async Task<IReadOnlyList<MobileTeacherStudent>> GetTeacherRosterAsync(Guid campusId,
+        Guid classId, CancellationToken ct = default)
+    {
+        using var response = await SendAsync(HttpMethod.Get,
+            $"api/v1/portals/teacher/classes/{classId:D}/students?campusId={campusId:D}", null, true, ct);
+        await EnsureSuccessAsync(response, ct);
+        return await response.Content.ReadFromJsonAsync<List<MobileTeacherStudent>>(JsonOptions, ct)
+            ?? throw new InvalidOperationException("Teacher class roster response is invalid.");
     }
 
     public async Task LogoutAsync()
