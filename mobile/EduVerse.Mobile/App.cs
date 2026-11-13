@@ -96,11 +96,37 @@ public sealed class App : Application
         }
         else if (role.Contains("TEACHER"))
         {
-            layout.Children.Add(Note("Teacher classes and lessons require an authorized campus ID."));
-            var campus = new Entry { Placeholder = "Campus ID (GUID)", AutomationId = "CampusId" };
-            layout.Children.Add(campus);
-            layout.Children.Add(TeacherClassesAction(campus));
-            layout.Children.Add(ActionFor("My lessons", () => CampusPath("api/v1/portals/teacher/lessons", campus.Text)));
+            layout.Children.Add(Note("Select a campus available to your institution account."));
+            var campuses = new List<MobileCampus>();
+            var picker = new Picker { Title = "Select campus", AutomationId = "CampusPicker" };
+            var load = Action("Load campuses");
+            load.Clicked += async (_, _) =>
+            {
+                load.IsEnabled = false;
+                try
+                {
+                    campuses = (await _api.GetCampusesAsync()).Where(x => x.IsActive).ToList();
+                    picker.Items.Clear();
+                    foreach (var item in campuses)
+                        picker.Items.Add($"{item.DisplayName} ({item.Code})");
+                    if (campuses.Count > 0) picker.SelectedIndex = 0;
+                    else await ShellAlertAsync("No campuses", "No active campuses are available for this account.");
+                }
+                catch (UnauthorizedAccessException ex) { await HandleTeacherAccessErrorAsync(ex); }
+                catch (Exception ex) { await ShellAlertAsync("Unable to load", ex.Message); }
+                finally { load.IsEnabled = true; }
+            };
+            layout.Children.Add(load);
+            layout.Children.Add(picker);
+            Guid SelectedCampus()
+            {
+                if (picker.SelectedIndex < 0 || picker.SelectedIndex >= campuses.Count)
+                    throw new ArgumentException("Load and select a campus first.");
+                return campuses[picker.SelectedIndex].Id;
+            }
+            layout.Children.Add(TeacherClassesAction(SelectedCampus));
+            layout.Children.Add(ActionFor("My lessons",
+                () => $"api/v1/portals/teacher/lessons?campusId={SelectedCampus():D}"));
         }
         else
         {
@@ -118,7 +144,7 @@ public sealed class App : Application
         return Page("Dashboard", layout);
     }
 
-    private Button TeacherClassesAction(Entry campus)
+    private Button TeacherClassesAction(Func<Guid> selectedCampus)
     {
         var button = Action("My classes");
         button.Clicked += async (_, _) =>
@@ -126,8 +152,7 @@ public sealed class App : Application
             button.IsEnabled = false;
             try
             {
-                if (!Guid.TryParse(campus.Text, out var campusId) || campusId == Guid.Empty)
-                    throw new ArgumentException("Enter a valid campus ID.");
+                var campusId = selectedCampus();
                 var classes = await _api.GetTeacherClassesAsync(campusId);
                 var layout = new VerticalStackLayout { Spacing = 14 };
                 layout.Children.Add(Heading("My classes"));
@@ -241,12 +266,6 @@ public sealed class App : Application
         }
         layout.Children.Add(ActionFor("Notices", path + "notices" + campus));
         return Page(parent ? "Child details" : "My academic details", layout);
-    }
-
-    private static string CampusPath(string basePath, string? campus)
-    {
-        if (!Guid.TryParse(campus, out var id)) throw new ArgumentException("Enter a valid campus ID.");
-        return $"{basePath}?campusId={id:D}";
     }
 
     private Button ActionFor(string title, string path) => ActionFor(title, () => path);
