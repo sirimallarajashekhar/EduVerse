@@ -99,7 +99,7 @@ public sealed class App : Application
             layout.Children.Add(Note("Teacher classes and lessons require an authorized campus ID."));
             var campus = new Entry { Placeholder = "Campus ID (GUID)", AutomationId = "CampusId" };
             layout.Children.Add(campus);
-            layout.Children.Add(ActionFor("My classes", () => CampusPath("api/v1/portals/teacher/classes", campus.Text)));
+            layout.Children.Add(TeacherClassesAction(campus));
             layout.Children.Add(ActionFor("My lessons", () => CampusPath("api/v1/portals/teacher/lessons", campus.Text)));
         }
         else
@@ -116,6 +116,69 @@ public sealed class App : Application
         };
         layout.Children.Add(signOut);
         return Page("Dashboard", layout);
+    }
+
+    private Button TeacherClassesAction(Entry campus)
+    {
+        var button = Action("My classes");
+        button.Clicked += async (_, _) =>
+        {
+            button.IsEnabled = false;
+            try
+            {
+                if (!Guid.TryParse(campus.Text, out var campusId) || campusId == Guid.Empty)
+                    throw new ArgumentException("Enter a valid campus ID.");
+                var classes = await _api.GetTeacherClassesAsync(campusId);
+                var layout = new VerticalStackLayout { Spacing = 14 };
+                layout.Children.Add(Heading("My classes"));
+                if (classes.Count == 0)
+                    layout.Children.Add(Note("No assigned classes found for this campus."));
+                foreach (var assigned in classes)
+                {
+                    var current = assigned;
+                    var rosterButton = Action($"Class {current.ClassId:D} — students");
+                    rosterButton.Clicked += async (_, _) =>
+                    {
+                        rosterButton.IsEnabled = false;
+                        try
+                        {
+                            var students = await _api.GetTeacherRosterAsync(current.CampusId, current.ClassId);
+                            var list = new VerticalStackLayout { Spacing = 12 };
+                            list.Children.Add(Heading("Class roster"));
+                            if (students.Count == 0) list.Children.Add(Note("No enrolled students found."));
+                            foreach (var student in students)
+                                list.Children.Add(Note($"{student.GivenName} {student.FamilyName} — {student.AdmissionNumber}"));
+                            await _root.Navigation.PushAsync(Page("Class roster", list));
+                        }
+                        catch (UnauthorizedAccessException ex)
+                        {
+                            await HandleTeacherAccessErrorAsync(ex);
+                        }
+                        catch (Exception ex) { await ShellAlertAsync("Unable to load", ex.Message); }
+                        finally { rosterButton.IsEnabled = true; }
+                    };
+                    layout.Children.Add(rosterButton);
+                }
+                await _root.Navigation.PushAsync(Page("My classes", layout));
+            }
+            catch (UnauthorizedAccessException ex) { await HandleTeacherAccessErrorAsync(ex); }
+            catch (Exception ex) { await ShellAlertAsync("Unable to load", ex.Message); }
+            finally { button.IsEnabled = true; }
+        };
+        return button;
+    }
+
+    private async Task HandleTeacherAccessErrorAsync(UnauthorizedAccessException ex)
+    {
+        if (await _api.GetSessionAsync() is not null)
+        {
+            await ShellAlertAsync("Access denied", ex.Message);
+            return;
+        }
+        await ShellAlertAsync("Session expired", ex.Message);
+        await _root.Navigation.PushAsync(LoginPage());
+        foreach (var oldPage in _root.Navigation.NavigationStack.ToArray().SkipLast(1))
+            _root.Navigation.RemovePage(oldPage);
     }
 
     private Button LinkedStudentsAction(string title, bool parent)
