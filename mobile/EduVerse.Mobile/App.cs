@@ -88,11 +88,11 @@ public sealed class App : Application
         var role = session.RoleCode.ToUpperInvariant();
         if (role.Contains("PARENT"))
         {
-            layout.Children.Add(ActionFor("My children", "api/v1/portals/parent/children"));
+            layout.Children.Add(LinkedStudentsAction("My children", true));
         }
         else if (role.Contains("STUDENT"))
         {
-            layout.Children.Add(ActionFor("My student profile", "api/v1/portals/student/me"));
+            layout.Children.Add(LinkedStudentsAction("My student profile", false));
         }
         else if (role.Contains("TEACHER"))
         {
@@ -116,6 +116,68 @@ public sealed class App : Application
         };
         layout.Children.Add(signOut);
         return Page("Dashboard", layout);
+    }
+
+    private Button LinkedStudentsAction(string title, bool parent)
+    {
+        var button = Action(title);
+        button.Clicked += async (_, _) =>
+        {
+            button.IsEnabled = false;
+            try
+            {
+                var students = await _api.GetLinkedStudentsAsync(parent);
+                var layout = new VerticalStackLayout { Spacing = 14 };
+                layout.Children.Add(Heading(title));
+                if (students.Count == 0)
+                    layout.Children.Add(Note("No linked student records are available for this account."));
+                foreach (var link in students)
+                {
+                    var student = link;
+                    var open = Action($"Student {student.StudentId:D}");
+                    open.Clicked += async (_, _) =>
+                        await _root.Navigation.PushAsync(LinkedStudentPage(student, parent));
+                    layout.Children.Add(open);
+                }
+                await _root.Navigation.PushAsync(Page(title, layout));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                if (await _api.GetSessionAsync() is null)
+                {
+                    await ShellAlertAsync("Session expired", ex.Message);
+                    await _root.Navigation.PushAsync(LoginPage());
+                    foreach (var oldPage in _root.Navigation.NavigationStack.ToArray().SkipLast(1))
+                        _root.Navigation.RemovePage(oldPage);
+                }
+                else await ShellAlertAsync("Access denied", ex.Message);
+            }
+            catch (Exception ex) { await ShellAlertAsync("Unable to load", ex.Message); }
+            finally { button.IsEnabled = true; }
+        };
+        return button;
+    }
+
+    private ContentPage LinkedStudentPage(MobileLinkedStudent link, bool parent)
+    {
+        var layout = new VerticalStackLayout { Spacing = 14 };
+        layout.Children.Add(Heading(parent ? "Child details" : "My academic details"));
+        layout.Children.Add(Note($"Student ID: {link.StudentId:D}"));
+        layout.Children.Add(Note($"Campus ID: {link.CampusId:D}"));
+
+        var path = parent
+            ? $"api/v1/portals/parent/children/{link.StudentId:D}/"
+            : $"api/v1/portals/student/{link.StudentId:D}/";
+        var campus = $"?campusId={link.CampusId:D}";
+        layout.Children.Add(ActionFor("Attendance", path + "attendance" + campus));
+        layout.Children.Add(ActionFor("Results", path + "results" + campus));
+        if (!parent)
+        {
+            layout.Children.Add(ActionFor("Timetable", path + "timetable" + campus));
+            layout.Children.Add(ActionFor("Assignments", path + "assignments" + campus));
+        }
+        layout.Children.Add(ActionFor("Notices", path + "notices" + campus));
+        return Page(parent ? "Child details" : "My academic details", layout);
     }
 
     private static string CampusPath(string basePath, string? campus)
