@@ -12,8 +12,13 @@ public sealed class App : Application
     {
         _api = api;
         _root = new NavigationPage(new ContentPage { Content = new ActivityIndicator { IsRunning = true, VerticalOptions = LayoutOptions.Center } });
-        MainPage = _root;
+    }
+
+    protected override Window CreateWindow(IActivationState? activationState)
+    {
+        var window = new Window(_root);
         _ = OpenInitialAsync();
+        return window;
     }
 
     private async Task OpenInitialAsync()
