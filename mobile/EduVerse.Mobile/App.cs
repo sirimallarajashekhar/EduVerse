@@ -139,7 +139,17 @@ public sealed class App : Application
             }
             catch (UnauthorizedAccessException ex)
             {
-                await ShellAlertAsync("Access denied", ex.Message);
+                if (await _api.GetSessionAsync() is null)
+                {
+                    await ShellAlertAsync("Session expired", ex.Message);
+                    await _root.Navigation.PushAsync(LoginPage());
+                    foreach (var oldPage in _root.Navigation.NavigationStack.ToArray().SkipLast(1))
+                        _root.Navigation.RemovePage(oldPage);
+                }
+                else
+                {
+                    await ShellAlertAsync("Access denied", ex.Message);
+                }
             }
             catch (Exception ex)
             {

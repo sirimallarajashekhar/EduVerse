@@ -96,17 +96,21 @@ public sealed class EduVerseApi(HttpClient http)
         using var request = new HttpRequestMessage(method, new Uri(new Uri(baseUrl), path));
         if (authenticated)
         {
-            var token = await SecureStorage.Default.GetAsync(TokenKey);
-            if (string.IsNullOrWhiteSpace(token)) throw new UnauthorizedAccessException("Please sign in again.");
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            var session = await GetSessionAsync();
+            if (session is null) throw new UnauthorizedAccessException("Session expired. Sign in again.");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", session.AccessToken);
         }
         if (body is not null) request.Content = JsonContent.Create(body, options: JsonOptions);
         return await http.SendAsync(request, ct);
     }
 
-    private static async Task EnsureSuccessAsync(HttpResponseMessage response, CancellationToken ct)
+    private async Task EnsureSuccessAsync(HttpResponseMessage response, CancellationToken ct)
     {
-        if (response.StatusCode == HttpStatusCode.Unauthorized) throw new UnauthorizedAccessException("Session expired. Sign in again.");
+        if (response.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            await ClearLocalAsync();
+            throw new UnauthorizedAccessException("Session expired. Sign in again.");
+        }
         if (response.StatusCode == HttpStatusCode.Forbidden) throw new UnauthorizedAccessException("You do not have permission to access this information.");
         if (!response.IsSuccessStatusCode)
         {
