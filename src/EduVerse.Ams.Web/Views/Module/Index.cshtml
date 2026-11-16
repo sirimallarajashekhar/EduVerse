@@ -88,10 +88,10 @@
 
   <form ev-activities="movement-form" data-ev-action="Record stock movement" data-ev-action-key="movement-form" id="movement-form" class="row g-2">
    <div class="col-12"><label for="movement-stock" class="form-label">Stock item</label><select id="movement-stock" class="form-select" required></select></div>
-   <div class="col-sm-5"><label for="movement-type" class="form-label">Movement</label><select id="movement-type" class="form-select"><option value="IN">Receive</option><option value="OUT">Issue</option><option value="ADJUST">Positive adjustment</option></select></div>
+   <div class="col-sm-5"><label for="movement-type" class="form-label">Movement</label><select ev-fixed-operation="true" id="movement-type" class="form-select"><option value="IN">Receive</option><option value="OUT">Issue</option><option value="ADJUST">Positive adjustment</option></select></div>
    <div class="col-sm-7"><label for="movement-qty" class="form-label">Quantity</label><input id="movement-qty" type="number" min=".01" step=".01" class="form-control" required/></div>
    <div class="col-12"><label for="movement-reference" class="form-label">Reference (optional)</label><input id="movement-reference" maxlength="100" class="form-control"/></div>
-   <div class="col-12"><button class="btn btn-primary" type="submit">Record stock movement</button></div>
+   <div class="col-12"><button ev-activity-submit="true" class="btn btn-primary" type="submit">Record stock movement</button></div>
   </form>
   <p class="small text-secondary mt-2 mb-0">Stock issues cannot make inventory negative; repeated requests with the same key are recorded once.</p>
  </section></div>

@@ -157,7 +157,7 @@ public sealed class InstitutionModuleLandingTests
         foreach (var page in new[]
         {
             (Route:"/admin/students/activities/application-form",Section:"application-form",Script:"student-admin.js"),
-            (Route:"/admin/academics/activities/catalog-form",Section:"catalog-form",Script:"academic-admin.js"),
+            (Route:"/admin/academics/activities/create-class",Section:"catalog-form",Script:"academic-admin.js"),
             (Route:"/admin/attendance/activities/timetable-form",Section:"timetable-form",Script:"attendance-admin.js"),
             (Route:"/admin/finance/activities/payment-form",Section:"payment-form",Script:"finance-admin.js"),
             (Route:"/admin/exams/activities/result-view",Section:"result-view",Script:"exam-admin.js")

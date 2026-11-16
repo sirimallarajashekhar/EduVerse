@@ -4,7 +4,7 @@
 <header class="ev-module-header"><div>
   <p class="ev-eyebrow">EduVerse · Student lifecycle</p>
   <h1 class="h2">@ViewData["ActivityTitle"]</h1>
-  <p class="text-secondary">Sensitive student information is managed by tenant-secured REST APIs.</p>
+  <p class="text-secondary">Choose a student and complete the selected activity.</p>
 </div>
 <a class="ev-module-home" href="/modules" aria-label="Return to institution dashboard">← Dashboard</a>
 </header><p><a class="ev-module-home" href="/admin/students">← All student activities</a></p>
@@ -90,10 +90,12 @@
 
       <form ev-activities="lifecycle-form" data-ev-action="Change student status" data-ev-action-key="lifecycle-form" id="lifecycle-form" class="row g-2">
         <div class="col-sm-6"><label for="lifecycle-action" class="form-label">Action</label>
-          <select id="lifecycle-action" class="form-select"><option value="PROMOTE">Promote</option><option value="TRANSFER">Transfer</option><option value="WITHDRAW">Withdraw</option></select></div>
-        <div class="col-sm-6"><label for="target-campus" class="form-label">Transfer destination</label><select id="target-campus" class="form-select"></select></div>
+          <select ev-fixed-operation="true" id="lifecycle-action" class="form-select"><option value="PROMOTE">Promote</option><option value="TRANSFER">Transfer</option><option value="WITHDRAW">Withdraw</option></select></div>
+        <div ev-requested-activities="transfer-student" class="col-sm-6"><label for="target-campus" class="form-label">Transfer destination</label><select id="target-campus" class="form-select" required></select></div>
+        <div ev-requested-activities="promote-student" class="col-sm-6"><label for="promote-year" class="form-label">Destination academic year</label><select id="promote-year" class="form-select" required></select></div>
+        <div ev-requested-activities="promote-student" class="col-sm-6"><label for="promote-item" class="form-label">Destination grade / class / section</label><select id="promote-item" class="form-select" required></select></div>
         <div class="col-12"><label for="lifecycle-reason" class="form-label">Reason</label><input id="lifecycle-reason" maxlength="400" class="form-control" /></div>
-        <div class="col-12"><button class="btn btn-outline-danger" type="submit">Apply lifecycle action</button></div>
+        <div class="col-12"><button ev-activity-submit="true" class="btn btn-outline-danger" type="submit">Apply lifecycle action</button></div>
       </form>
     </section>
   </div>

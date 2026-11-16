@@ -48,9 +48,9 @@
 
   <form ev-activities="lifecycle-form" data-ev-action="Apply lifecycle transition" data-ev-action-key="lifecycle-form" id="lifecycle-form" class="row g-2 mt-1">
    <div class="col-sm-6"><label for="lifecycle" class="form-label">Employment action</label>
-    <select id="lifecycle" class="form-select"><option value="ACTIVE">Activate / return</option><option value="ON_LEAVE">Mark on leave</option><option value="EXITED">Exit employment</option></select></div>
+    <select ev-fixed-operation="true" id="lifecycle" class="form-select"><option value="ACTIVE">Activate / return</option><option value="ON_LEAVE">Mark on leave</option><option value="EXITED">Exit employment</option></select></div>
    <div class="col-sm-6"><label for="lifecycle-note" class="form-label">Note</label><input id="lifecycle-note" maxlength="400" class="form-control"/></div>
-   <div class="col-12"><button class="btn btn-outline-primary" type="submit">Apply lifecycle transition</button></div>
+   <div class="col-12"><button ev-activity-submit="true" class="btn btn-outline-primary" type="submit">Apply lifecycle transition</button></div>
   </form>
  </section></div>
 </div>

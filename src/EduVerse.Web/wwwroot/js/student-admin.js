@@ -101,6 +101,8 @@
     (a) => a.givenName + ' ' + a.familyName + ' (#' + a.applicationNumber + ')', 'Select an approved application');
     select('student', students, (s) => s.givenName + ' ' + s.familyName + ' · ' + s.admissionNumber, 'Select a student');
     select('enroll-year', years, (y) => y.name, 'Select year');
+    select('promote-year', years, (y) => y.name, 'Select destination year');
+    select('promote-item', items.filter((i) => ['GRADE', 'CLASS', 'SECTION'].includes(i.kind)), (i) => i.kind + ' — ' + i.name, 'Select destination');
     select('enroll-item', items.filter((i) => ['GRADE', 'CLASS', 'SECTION', 'COURSE', 'BATCH'].includes(i.kind)),
     (i) => i.kind + ' · ' + i.name, 'Select class or course');
     await refreshStudentDetails();
@@ -153,8 +155,8 @@
       if (!confirm('Confirm ' + action.toLowerCase() + ' for the selected student?')) return;
       await call('/' + student() + '/lifecycle?campusId=' + campus(), 'POST', {
         action, targetCampusId: action === 'TRANSFER' ? val('target-campus') : null,
-        academicYearId: action === 'PROMOTE' ? val('enroll-year') : null,
-        academicItemId: action === 'PROMOTE' ? val('enroll-item') : null,
+        academicYearId: action === 'PROMOTE' ? val('promote-year') : null,
+        academicItemId: action === 'PROMOTE' ? val('promote-item') : null,
         reason: val('lifecycle-reason') || null
       });await refresh();
     });

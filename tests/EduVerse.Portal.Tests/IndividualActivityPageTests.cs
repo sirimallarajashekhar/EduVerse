@@ -74,4 +74,49 @@ public sealed class IndividualActivityPageTests
         using var unknown=await client.GetAsync("/admin/finance/activities/not-an-activity");
         Assert.Equal(HttpStatusCode.NotFound,unknown.StatusCode);
     }
+    [Theory]
+    [InlineData("/admin/academics/activities/create-class","item-kind","CLASS")]
+    [InlineData("/admin/academics/activities/create-subject","item-kind","SUBJECT")]
+    [InlineData("/admin/institution/activities/create-department","resource-type","departments")]
+    [InlineData("/admin/institution/activities/create-building","resource-type","buildings")]
+    [InlineData("/admin/students/activities/promote-student","lifecycle-action","PROMOTE")]
+    [InlineData("/admin/students/activities/transfer-student","lifecycle-action","TRANSFER")]
+    [InlineData("/admin/students/activities/withdraw-student","lifecycle-action","WITHDRAW")]
+    public async Task SpecificOperationHasNoOperationSwitcher(string route,string field,string value)
+    {
+        using var host=Host();using var client=host.CreateClient();
+        var html=await client.GetStringAsync(route);
+        Assert.DoesNotMatch("<select[^>]*id=\""+field+"\"",html);
+        var input=Regex.Match(html,"<input[^>]*id=\""+field+"\"[^>]*>").Value;
+        Assert.Contains("type=\"hidden\"",input);
+        Assert.Contains("value=\""+value+"\"",input);
+        if(value=="PROMOTE")
+        {
+            Assert.Contains("id=\"promote-year\"",html);
+            Assert.Contains("id=\"promote-item\"",html);
+            Assert.DoesNotContain("id=\"target-campus\"",html);
+        }
+        if(value=="TRANSFER")
+        {
+            Assert.Contains("id=\"target-campus\"",html);
+            Assert.DoesNotContain("id=\"promote-year\"",html);
+        }
+        if(value=="WITHDRAW")
+        {
+            Assert.DoesNotContain("id=\"target-campus\"",html);
+            Assert.DoesNotContain("id=\"promote-year\"",html);
+        }
+    }
+
+    [Theory]
+    [InlineData("/admin/academics/activities/catalog-form","/admin/academics")]
+    [InlineData("/admin/students/activities/lifecycle-form","/admin/students")]
+    [InlineData("/admin/institution/activities/resource-form","/admin/institution")]
+    public async Task CombinedOperationBookmarksReturnToActivityMenu(string route,string menu)
+    {
+        using var host=Host();using var client=host.CreateClient(new(){AllowAutoRedirect=false});
+        using var response=await client.GetAsync(route);
+        Assert.Equal(HttpStatusCode.Redirect,response.StatusCode);
+        Assert.Equal(menu,response.Headers.Location?.ToString());
+    }
 }

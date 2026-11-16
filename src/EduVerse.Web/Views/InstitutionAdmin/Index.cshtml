@@ -7,7 +7,7 @@
 
 @Html.AntiForgeryToken()
 
-  <p class="text-secondary">Tenant-scoped information is retrieved from EduVerse REST APIs.</p>
+  <p class="text-secondary">Manage the selected activity for your institution.</p>
 </div>
 <div ev-activities="institution-metrics" data-ev-action="View institution overview" data-ev-action-key="institution-metrics" class="row g-3 mb-4" id="institution-metrics" aria-live="polite">
   <div class="col-md-3"><div class="ev-card p-3"><div class="ev-eyebrow">Campuses</div><h2 id="campus-count">—</h2></div></div>
@@ -87,11 +87,11 @@
       <p class="text-secondary small">Resources are tied to a campus inside this institution.</p>
       <form ev-activities="resource-form" data-ev-action="Add department or building" data-ev-action-key="resource-form" id="resource-form" class="row g-2 align-items-end">
         <div class="col-sm-3"><label for="resource-type" class="form-label">Resource</label>
-          <select id="resource-type" class="form-select"><option value="departments">Department</option><option value="buildings">Building</option></select></div>
+          <select ev-fixed-operation="true" id="resource-type" class="form-select"><option value="departments">Department</option><option value="buildings">Building</option></select></div>
         <div class="col-sm-3"><label for="resource-campus" class="form-label">Campus</label><select id="resource-campus" class="form-select" required></select></div>
         <div class="col-sm-2"><label for="resource-code" class="form-label">Code</label><input id="resource-code" class="form-control" maxlength="30" required /></div>
         <div class="col-sm-3"><label for="resource-name" class="form-label">Name</label><input id="resource-name" class="form-control" maxlength="160" required /></div>
-        <div class="col-sm-1"><button class="btn btn-primary" type="submit">Add</button></div>
+        <div class="col-sm-1"><button ev-activity-submit="true" class="btn btn-primary" type="submit">Add</button></div>
       </form>
       <p id="institution-message" role="status" class="mt-3"></p>
       <div ev-activities="departments-list,buildings-list" class="row mt-2 g-3">
