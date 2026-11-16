@@ -57,6 +57,12 @@ public sealed class ActivityLookupStore(string connectionString,ITenantContext c
             };
             return await Query(db,sql+" AND "+live,actor,campus,search,ct);
         }
+        // Tenant administrators may have tenant-wide permission, but a supplied campus must still belong to them.
+        await using(var campusCheck=new MySqlCommand("SELECT COUNT(*) FROM campuses WHERE tenant_id=@t AND id=@c AND is_active=1",db))
+        {
+            campusCheck.Parameters.AddWithValue("@t",actor.TenantId.ToString("D"));campusCheck.Parameters.AddWithValue("@c",c.ToString("D"));
+            if(Convert.ToInt32(await campusCheck.ExecuteScalarAsync(ct))!=1)throw new UnauthorizedAccessException();
+        }
         var permission=resource=="teacher-assessments"?"exams.read":resource=="teacher-periods"?"attendance.read":resource is "teacher-lessons" or "teacher-submissions"?"learning.read":"academic.read";
         await authorizer.RequireAsync(permission,c,ct);
         const string slots="""
