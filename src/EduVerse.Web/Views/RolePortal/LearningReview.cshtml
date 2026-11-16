@@ -1,12 +1,16 @@
 @{ViewData["Title"]="Learning approvals";}
-<div class="ev-module-workspace">
-<header class="mb-4"><p class="ev-eyebrow">EduVerse · Institution administration</p><h1 class="h3">Learning content review</h1>
-<p class="text-secondary">Review teacher-created draft lessons and assignments before publishing.</p></header>
+@{ ViewData["Title"] = ViewData["ActivityTitle"]; }
+<div class="ev-module-workspace" data-activity-page="true" data-activity-base="/portal/learning-review">
+<header class="mb-4"><p class="ev-eyebrow">EduVerse · Institution administration</p><h1 class="h2">@ViewData["ActivityTitle"]</h1>
+<p class="text-secondary">Review teacher-created draft lessons and assignments before publishing.</p></header><p><a class="ev-module-home" href="/portal/learning-review">← All learningreview activities</a></p>
+
+@Html.AntiForgeryToken()
+
 <form id="p23-anti">@Html.AntiForgeryToken()</form>
-<section class="ev-card p-4"><label class="form-label" for="p23-campus">Campus ID</label>
-<div class="input-group mb-3"><input class="form-control" id="p23-campus" placeholder="Campus UUID"/>
-<button data-ev-action="Review learning content" data-ev-action-key="p23-load-reviews" class="btn btn-primary" type="button" id="p23-load-reviews">Load review queue</button></div>
-<div data-ev-action="Review learning content" data-ev-action-key="p23-load-reviews" id="p23-reviews" aria-live="polite"></div></section>
+<section ev-activities="p23-load-reviews" class="ev-card p-4"><label class="form-label" for="p23-campus">Campus ID</label>
+<div ev-activities="p23-load-reviews" class="input-group mb-3"><input class="form-control" id="p23-campus" placeholder="Campus UUID"/>
+<button ev-activities="p23-load-reviews" data-ev-action="Review learning content" data-ev-action-key="p23-load-reviews" class="btn btn-primary" type="button" id="p23-load-reviews">Load review queue</button></div>
+<div ev-activities="p23-load-reviews" data-ev-action="Review learning content" data-ev-action-key="p23-load-reviews" id="p23-reviews" aria-live="polite"></div></section>
 <p class="mt-3" id="p23-status" role="status"></p>
 <script defer src="/js/phase23-portals.js"></script>
 

@@ -1,16 +1,20 @@
 @{ViewData["Title"]="Roles and permissions";}
-<div class="ev-module-workspace">
+@{ ViewData["Title"] = ViewData["ActivityTitle"]; }
+<div class="ev-module-workspace" data-activity-page="true" data-activity-base="/admin/rbac">
 <div class="mb-4">
   <p class="ev-eyebrow">Institution security</p>
-  <h1 class="h3">Roles &amp; Permissions</h1>
+  <h1 class="h2">@ViewData["ActivityTitle"]</h1><p><a class="ev-module-home" href="/admin/rbac">← All roles and permissions</a></p>
+
+@Html.AntiForgeryToken()
+
   <p class="text-secondary">Tenant-owned custom roles. Platform Super Admin and institution ADMIN are protected system roles.</p>
 </div>
 <form id="rbac-token-form">@Html.AntiForgeryToken()</form>
-<div class="row g-3">
- <div class="col-lg-5">
-  <section class="ev-card p-4 mb-3">
-   <h2 class="h5">Create role</h2>
-   <form data-ev-action="Create role" data-ev-action-key="rbac-create" id="rbac-create">
+<div ev-activities="rbac-create,rbac-assign,rbac-assignments,rbac-permissions" class="row g-3">
+ <div ev-activities="rbac-create,rbac-assign,rbac-assignments" class="col-lg-5">
+  <section ev-activities="rbac-create" class="ev-card p-4 mb-3">
+
+   <form ev-activities="rbac-create" data-ev-action="Create role" data-ev-action-key="rbac-create" id="rbac-create">
     <label for="rbac-code" class="form-label">Code (uppercase)</label>
     <input id="rbac-code" class="form-control mb-2" required maxlength="32" pattern="[A-Z][A-Z0-9_]{2,31}" placeholder="TEACHER"/>
     <label for="rbac-name" class="form-label">Display name</label>
@@ -18,25 +22,25 @@
     <button type="submit" class="btn btn-primary">Create role</button>
    </form>
   </section>
-  <section class="ev-card p-4">
-   <h2 class="h5">Assign or revoke role</h2>
-   <form data-ev-action="Assign role" data-ev-action-key="rbac-assign" id="rbac-assign">
+  <section ev-activities="rbac-assign,rbac-assignments" class="ev-card p-4">
+
+   <form ev-activities="rbac-assign" data-ev-action="Assign role" data-ev-action-key="rbac-assign" id="rbac-assign">
     <label for="rbac-user" class="form-label">Institution member</label>
     <select id="rbac-user" required class="form-select mb-2"></select>
     <label for="rbac-assign-role" class="form-label">Custom role</label>
     <select id="rbac-assign-role" required class="form-select mb-2"></select>
     <button type="submit" class="btn btn-primary">Assign role</button>
    </form>
-   <h3 class="h6 mt-4">Current assignments</h3>
-   <div data-ev-action="View Current assignments" data-ev-action-key="rbac-assignments" id="rbac-assignments" aria-live="polite"></div>
+
+   <div ev-activities="rbac-assignments" data-ev-action="View Current assignments" data-ev-action-key="rbac-assignments" id="rbac-assignments" aria-live="polite"></div>
   </section>
  </div>
- <div class="col-lg-7">
-  <section class="ev-card p-4">
-   <h2 class="h5">Role permission editor</h2>
+ <div ev-activities="rbac-permissions" class="col-lg-7">
+  <section ev-activities="rbac-permissions" class="ev-card p-4">
+
    <label for="rbac-edit-role" class="form-label">Role</label>
    <select id="rbac-edit-role" class="form-select mb-3"></select>
-   <form data-ev-action="Edit role permissions" data-ev-action-key="rbac-permissions" id="rbac-permissions">
+   <form ev-activities="rbac-permissions" data-ev-action="Edit role permissions" data-ev-action-key="rbac-permissions" id="rbac-permissions">
     <div id="rbac-permission-options" class="row g-2 mb-3"></div>
     <button type="submit" class="btn btn-primary">Save permissions</button>
    </form>

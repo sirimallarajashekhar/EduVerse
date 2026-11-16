@@ -1,24 +1,28 @@
 @{
     ViewData["Title"] = "Reports & Analytics";
 }
-<div class="ev-module-workspace">
+@{ ViewData["Title"] = ViewData["ActivityTitle"]; }
+<div class="ev-module-workspace" data-activity-page="true" data-activity-base="/admin/reports">
     <header class="ev-module-header">
         <div>
             <p class="ev-eyebrow">EduVerse · Institution intelligence</p>
-            <h1 class="h2">Reports &amp; Analytics</h1>
+            <h1 class="h2">@ViewData["ActivityTitle"]</h1>
             <p class="text-secondary">Campus-specific operational snapshots from authorized EduVerse REST APIs. Values are not sample data.</p>
         </div>
         <a class="ev-module-home" href="/modules">← Dashboard</a>
-    </header>
+    </header><p><a class="ev-module-home" href="/admin/reports">← All reports and analytics</a></p>
 
-    <section class="ev-card p-4 mb-3">
-        <div class="row g-3 align-items-end">
+@Html.AntiForgeryToken()
+<section class="ev-card p-3 mb-3" ev-activities="reports-refresh,action-10,action-11,action-12,action-13,reports-exam-rows,reports-export-csv,reports-print,reports-receipts-table,reports-receipts-table,reports-api-filter,reports-api-filter,reports-specialized-links"><label for="reports-campus" class="form-label">Campus</label><select id="reports-campus" class="form-select" aria-describedby="reports-scope"></select></section>
+
+    <section ev-activities="reports-refresh" class="ev-card p-4 mb-3">
+        <div ev-activities="reports-refresh" class="row g-3 align-items-end">
             <div class="col-md-6">
-                <label for="reports-campus" class="form-label">Campus</label>
-                <select id="reports-campus" class="form-select" aria-describedby="reports-scope"></select>
+
+
             </div>
-            <div class="col-md-6 d-flex gap-2 align-items-end">
-                <button data-ev-action="Refresh reports" data-ev-action-key="reports-refresh" id="reports-refresh" type="button" class="btn btn-primary">Refresh reports</button>
+            <div ev-activities="reports-refresh" class="col-md-6 d-flex gap-2 align-items-end">
+                <button ev-activities="reports-refresh" data-ev-action="Refresh reports" data-ev-action-key="reports-refresh" id="reports-refresh" type="button" class="btn btn-primary">Refresh reports</button>
                 <span id="reports-updated" class="small text-secondary" aria-live="polite"></span>
             </div>
         </div>
@@ -26,8 +30,8 @@
         <p id="reports-status" role="status" aria-live="polite" class="small mt-2 mb-0">Loading reporting access…</p>
     </section>
 
-    <div class="row g-3 mb-3">
-        <div class="col-lg-4"><section data-ev-action="Institution overview" data-ev-action-key="action-10" id="action-10" class="ev-card p-4 h-100" aria-labelledby="reports-institution-title">
+    <div ev-activities="action-10,action-11,action-12" class="row g-3 mb-3">
+        <div ev-activities="action-10" class="col-lg-4"><section ev-activities="action-10" data-ev-action="Institution overview" data-ev-action-key="action-10" id="action-10" class="ev-card p-4 h-100" aria-labelledby="reports-institution-title">
             <h2 id="reports-institution-title" class="h5">Institution overview</h2>
             <p class="small text-secondary">Institution-wide, not filtered by campus</p>
             <dl class="row mb-0">
@@ -37,7 +41,7 @@
                 <dt class="col-8">Members</dt><dd class="col-4 text-end" id="reports-members">—</dd>
             </dl>
         </section></div>
-        <div class="col-lg-4"><section data-ev-action="Attendance operations" data-ev-action-key="action-11" id="action-11" class="ev-card p-4 h-100" aria-labelledby="reports-attendance-title">
+        <div ev-activities="action-11" class="col-lg-4"><section ev-activities="action-11" data-ev-action="Attendance operations" data-ev-action-key="action-11" id="action-11" class="ev-card p-4 h-100" aria-labelledby="reports-attendance-title">
             <h2 id="reports-attendance-title" class="h5">Attendance operations</h2>
             <p class="small text-secondary">Selected campus · record volumes</p>
             <dl class="row mb-0">
@@ -49,7 +53,7 @@
             <a href="/admin/attendance" class="small">Open attendance workspace</a>
             <p class="small text-secondary mt-2 mb-0" id="reports-attendance-note"></p>
         </section></div>
-        <div class="col-lg-4"><section data-ev-action="Admissions" data-ev-action-key="action-12" id="action-12" class="ev-card p-4 h-100" aria-labelledby="reports-admissions-title">
+        <div ev-activities="action-12" class="col-lg-4"><section ev-activities="action-12" data-ev-action="Admissions" data-ev-action-key="action-12" id="action-12" class="ev-card p-4 h-100" aria-labelledby="reports-admissions-title">
             <h2 id="reports-admissions-title" class="h5">Admissions</h2>
             <p class="small text-secondary">Selected campus · current records</p>
             <dl class="row mb-0">
@@ -62,7 +66,7 @@
         </section></div>
     </div>
 
-    <section data-ev-action="Fees &amp; Finance" data-ev-action-key="action-13" id="action-13" class="ev-card p-4 mb-3" aria-labelledby="reports-finance-title">
+    <section ev-activities="action-13" data-ev-action="Fees &amp; Finance" data-ev-action-key="action-13" id="action-13" class="ev-card p-4 mb-3" aria-labelledby="reports-finance-title">
         <div class="d-flex flex-wrap justify-content-between gap-2 align-items-center mb-3">
             <div><h2 id="reports-finance-title" class="h5 mb-1">Fees &amp; Finance</h2><p class="text-secondary small mb-0">Selected campus · API-calculated amounts in INR</p></div>
             <a href="/admin/finance" class="btn btn-sm btn-outline-primary">Finance workspace</a>
@@ -80,10 +84,10 @@
         <p id="reports-finance-note" class="small text-secondary mt-3 mb-0"></p>
     </section>
 
-    <section class="ev-card p-4 mb-3" aria-labelledby="reports-exams-title">
-        <h2 id="reports-exams-title" class="h5">Published exam analytics</h2>
+    <section ev-activities="reports-exam-rows" class="ev-card p-4 mb-3" aria-labelledby="reports-exams-title">
+
         <p class="text-secondary small">Results are only shown for exams whose analytics have been published by the Exam API.</p>
-        <div data-ev-action="View Published exam analytics" data-ev-action-key="reports-exam-rows" id="ev-action-reports-exam-rows" class="table-responsive"><table class="table table-sm align-middle">
+        <div ev-activities="reports-exam-rows" data-ev-action="View Published exam analytics" data-ev-action-key="reports-exam-rows" id="ev-action-reports-exam-rows" class="table-responsive"><table class="table table-sm align-middle">
             <thead><tr><th scope="col">Exam</th><th scope="col">Students</th><th scope="col">Average</th><th scope="col">Pass rate</th><th scope="col">Highest</th><th scope="col">Lowest</th></tr></thead>
             <tbody id="reports-exam-rows"><tr><td colspan="6" class="text-secondary">Select a campus to load published exams.</td></tr></tbody>
         </table></div>
@@ -91,18 +95,18 @@
         <a href="/admin/exams" class="small">Open exams workspace</a>
     </section>
 
-    <section class="ev-card p-4 mb-3" aria-labelledby="reports-trends-title">
-        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <section ev-activities="reports-export-csv,reports-print,reports-receipts-table,reports-receipts-table" class="ev-card p-4 mb-3" aria-labelledby="reports-trends-title">
+        <div ev-activities="reports-export-csv,reports-print" class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
             <div>
-                <h2 id="reports-trends-title" class="h5 mb-1">Trends &amp; exports</h2>
+
                 <p class="small text-secondary mb-0">Receipt counts by month and published exam average percentages. All displayed payment amounts originate from the secured Finance API.</p>
             </div>
-            <div class="d-flex gap-2 flex-wrap ev-report-actions">
-                <button data-ev-action="Export Excel-compatible CSV" data-ev-action-key="reports-export-csv" type="button" id="reports-export-csv" class="btn btn-sm btn-outline-primary" disabled>Export Excel-compatible CSV</button>
-                <button data-ev-action="Print / Save as PDF" data-ev-action-key="reports-print" type="button" id="reports-print" class="btn btn-sm btn-outline-secondary" disabled>Print / Save as PDF</button>
+            <div ev-activities="reports-export-csv,reports-print" class="d-flex gap-2 flex-wrap ev-report-actions">
+                <button ev-activities="reports-export-csv" data-ev-action="Export Excel-compatible CSV" data-ev-action-key="reports-export-csv" type="button" id="reports-export-csv" class="btn btn-sm btn-outline-primary" disabled>Export Excel-compatible CSV</button>
+                <button ev-activities="reports-print" data-ev-action="Print / Save as PDF" data-ev-action-key="reports-print" type="button" id="reports-print" class="btn btn-sm btn-outline-secondary" disabled>Print / Save as PDF</button>
             </div>
         </div>
-        <div class="row g-3 align-items-end mb-3 ev-report-actions">
+        <div ev-activities="reports-receipts-table,reports-export-csv,reports-print" class="row g-3 align-items-end mb-3 ev-report-actions">
             <div class="col-sm-5 col-md-4">
                 <label for="reports-from" class="form-label">Receipt date from</label>
                 <input id="reports-from" type="date" class="form-control" />
@@ -111,8 +115,8 @@
                 <label for="reports-to" class="form-label">Receipt date to</label>
                 <input id="reports-to" type="date" class="form-control" />
             </div>
-            <div class="col-sm-2 col-md-4">
-                <button data-ev-action="Apply" data-ev-action-key="reports-apply-dates" id="reports-apply-dates" type="button" class="btn btn-outline-primary" disabled>Apply</button>
+            <div ev-activities="reports-receipts-table" class="col-sm-2 col-md-4">
+                <button ev-activities="reports-receipts-table" data-ev-action="View receipts" data-ev-action-key="reports-receipts-table" id="reports-apply-dates" type="button" class="btn btn-outline-primary" disabled>Apply</button>
             </div>
         </div>
         <p class="small text-secondary" id="reports-filter-description">Date filters apply only to the 250 most recent receipts supplied by the current Finance API, not all historical payments. The finance dashboard above remains the API's all-time campus snapshot.</p>
@@ -120,29 +124,29 @@
         <div class="row g-3 mb-3">
             <div class="col-lg-6">
                 <section class="border rounded p-3 h-100" aria-labelledby="reports-receipt-chart-title">
-                    <h3 id="reports-receipt-chart-title" class="h6">Monthly receipt volume</h3>
+
                     <div id="reports-receipt-chart" role="img" aria-label="Monthly receipt counts" class="ev-report-chart"></div>
                 </section>
             </div>
             <div class="col-lg-6">
                 <section class="border rounded p-3 h-100" aria-labelledby="reports-exam-chart-title">
-                    <h3 id="reports-exam-chart-title" class="h6">Published exam averages</h3>
+
                     <div id="reports-exam-chart" role="img" aria-label="Average percentage by published exam" class="ev-report-chart"></div>
                 </section>
             </div>
         </div>
-        <h3 class="h6">Receipts in selected date range</h3>
-        <div data-ev-action="View Receipts in selected date range" data-ev-action-key="reports-receipts-table" id="ev-action-reports-receipts-table" class="table-responsive"><table class="table table-sm align-middle" id="reports-receipts-table">
+
+        <div ev-activities="reports-receipts-table" data-ev-action="View Receipts in selected date range" data-ev-action-key="reports-receipts-table" id="ev-action-reports-receipts-table" class="table-responsive"><table class="table table-sm align-middle" id="reports-receipts-table">
             <thead><tr><th scope="col">Receipt</th><th scope="col">Collected date</th><th scope="col">Amount (INR)</th><th scope="col">Reconciliation</th></tr></thead>
             <tbody id="reports-receipt-rows"><tr><td colspan="4" class="text-secondary">Select a campus to load receipts.</td></tr></tbody>
         </table></div>
         <p class="small text-secondary mb-0">Exports include only authorized receipt records returned by the current API (maximum 250). CSV is compatible with Excel; Save as PDF uses the browser print dialog.</p>
     </section>
 
-    <section class="ev-card p-4 mb-3" aria-labelledby="reports-api-title">
-        <h2 id="reports-api-title" class="h5">Advanced historical reporting</h2>
+    <section ev-activities="reports-api-filter,reports-api-filter" class="ev-card p-4 mb-3" aria-labelledby="reports-api-title">
+
         <p class="small text-secondary">Server-generated campus analytics across a selected UTC date range (maximum 366 days). Finance totals are API-calculated as-of the end date; student, staff and asset counts reflect current state.</p>
-        <form data-ev-action="Generate historical report" data-ev-action-key="reports-api-filter" id="reports-api-filter" class="row g-3 mb-3">
+        <form ev-activities="reports-api-filter" data-ev-action="Generate historical report" data-ev-action-key="reports-api-filter" id="reports-api-filter" class="row g-3 mb-3">
             <div class="col-sm-4"><label for="reports-api-from" class="form-label">From (UTC)</label><input id="reports-api-from" class="form-control" type="date" required /></div>
             <div class="col-sm-4"><label for="reports-api-to" class="form-label">To (UTC)</label><input id="reports-api-to" class="form-control" type="date" required /></div>
             <div class="col-sm-4 d-flex align-items-end"><button class="btn btn-primary" type="submit">Generate historical report</button></div>
@@ -154,17 +158,17 @@
         </div>
         <p id="reports-api-status" role="status" aria-live="polite" class="small">Select a campus to generate an authorized report.</p>
         <div class="row g-3 mb-3" id="reports-api-kpis" aria-live="polite"></div>
-        <h3 class="h6">Monthly enrollments and collections</h3>
-        <div data-ev-action="View Monthly enrollments and collections" data-ev-action-key="reports-api-months" id="ev-action-reports-api-months" class="table-responsive"><table class="table table-sm">
+
+        <div ev-activities="reports-api-filter" data-ev-action="Generate historical report" data-ev-action-key="reports-api-filter" id="ev-action-reports-api-filter" class="table-responsive"><table class="table table-sm">
             <thead><tr><th scope="col">Month (UTC)</th><th scope="col">Enrollments</th><th scope="col">Payments</th><th scope="col">Collected (INR)</th></tr></thead>
             <tbody id="reports-api-months"></tbody>
         </table></div>
     </section>
 
-    <section class="ev-card p-4" aria-labelledby="reports-specialized-title">
-        <h2 id="reports-specialized-title" class="h5">Specialized reporting</h2>
+    <section ev-activities="reports-specialized-links" class="ev-card p-4" aria-labelledby="reports-specialized-title">
+
         <p class="small text-secondary">HRMS and AMS maintain their own tenant-secured reporting workflows. Consolidated cross-module trends require dedicated API reporting contracts.</p>
-        <div data-ev-action="View Specialized reporting" data-ev-action-key="reports-specialized-links" id="reports-specialized-links" class="d-flex gap-2 flex-wrap" aria-live="polite"></div>
+        <div ev-activities="reports-specialized-links" data-ev-action="View Specialized reporting" data-ev-action-key="reports-specialized-links" id="reports-specialized-links" class="d-flex gap-2 flex-wrap" aria-live="polite"></div>
     </section>
 @section Scripts {
     <script src="~/js/reporting-insights.js" asp-append-version="true"></script>

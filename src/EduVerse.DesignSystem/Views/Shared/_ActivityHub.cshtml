@@ -1,0 +1,12 @@
+@model EduVerse.DesignSystem.Activities.ActivityMenu
+<header class="ev-module-header">
+  <div><p class="ev-eyebrow">Choose an activity</p><h1 class="h2">@Model.Title</h1>
+  <p class="text-secondary">Select what you want to do. Each activity opens on its own page.</p></div>
+  <a href="/modules" class="ev-module-home">All modules</a>
+</header>
+<nav class="row g-3" aria-label="Activities">
+@foreach(var activity in Model.Activities)
+{
+  <div class="col-md-6 col-xl-4"><a class="ev-card ev-activity-link p-3 d-block h-100" href="@(Model.BasePath + "/activities/" + Uri.EscapeDataString(activity.Key))">@activity.Title <span aria-hidden="true">→</span></a></div>
+}
+</nav>

@@ -1,15 +1,20 @@
 @{ ViewData["Title"] = "Platform Super Admin console"; }
-<div class="ev-module-workspace">
+@{ ViewData["Title"] = ViewData["ActivityTitle"]; }
+<div class="ev-module-workspace" data-activity-page="true" data-activity-base="/platform/console">
 <header class="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-4">
   <div>
     <p class="ev-eyebrow mb-2">PLATFORM / OVERVIEW</p>
-    <h1 class="h2 fw-bold mb-2">Platform control center</h1>
+    <h1 class="h2">@ViewData["ActivityTitle"]</h1>
     <p class="text-secondary mb-0">Manage institutions, discover modules and review access across EduVerse.</p>
   </div>
   <a href="/platform/registrations?status=PENDING" class="btn btn-primary">Review institution approvals</a>
-</header>
+</header><p><a class="ev-module-home" href="/platform/console">← All platform activities</a></p>
+
+@Html.AntiForgeryToken()
+
+<section class="ev-card p-3 mb-3" ev-activities="platform-modules,platform-users,platform-invite"><label for="platform-context-institution" class="form-label">Institution</label><select id="platform-context-institution" class="form-select"></select></section>
 <form id="platform-token">@Html.AntiForgeryToken()</form>
-<div data-ev-action="View platform overview" data-ev-action-key="platform-overview" id="platform-overview" class="row g-3 mb-4" aria-label="Platform statistics">
+<div ev-activities="platform-overview" data-ev-action="View platform overview" data-ev-action-key="platform-overview" id="platform-overview" class="row g-3 mb-4" aria-label="Platform statistics">
   <div class="col-sm-6 col-xl-4"><section class="ev-card p-4 h-100">
     <p class="ev-stat-label">Registered institutions</p><h2 id="platform-total" class="ev-stat-value" aria-live="polite">—</h2>
     <p class="ev-micro-label mt-2 mb-0">Schools and colleges</p>
@@ -23,7 +28,7 @@
     <p class="ev-micro-label mt-2 mb-0">Across institutions</p>
   </section></div>
 </div>
-<section data-ev-action="All EduVerse modules" data-ev-action-key="platform-modules-section" class="ev-card p-4 mb-4 ev-section-anchor" id="platform-modules-section" aria-labelledby="platform-modules-title">
+<section ev-activities="platform-modules-section" data-ev-action="All EduVerse modules" data-ev-action-key="platform-modules-section" class="ev-card p-4 mb-4 ev-section-anchor" id="platform-modules-section" aria-labelledby="platform-modules-title">
   <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
     <div>
       <h2 class="ev-section-heading" id="platform-modules-title">All EduVerse modules</h2>
@@ -33,31 +38,31 @@
   </div>
   <div id="platform-all-modules" class="row g-3" aria-live="polite"><p class="text-secondary">Loading system modules…</p></div>
 </section>
-<section class="ev-card p-4 mb-4 ev-section-anchor" id="platform-institutions-section" aria-labelledby="platform-institutions-title">
-  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+<section ev-activities="platform-refresh" class="ev-card p-4 mb-4 ev-section-anchor" id="platform-institutions-section" aria-labelledby="platform-institutions-title">
+  <div ev-activities="platform-refresh" class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
     <div>
-      <h2 class="ev-section-heading" id="platform-institutions-title">Institutions</h2>
+
       <p class="text-secondary small mb-0">Select an institution to inspect enabled modules and administer its members.</p>
     </div>
-    <button data-ev-action="Find an institution" data-ev-action-key="platform-refresh" class="btn btn-outline-primary btn-sm" id="platform-refresh" type="button">Refresh</button>
+    <button ev-activities="platform-refresh" data-ev-action="Find an institution" data-ev-action-key="platform-refresh" class="btn btn-outline-primary btn-sm" id="platform-refresh" type="button">Refresh</button>
   </div>
   <label class="form-label" for="platform-search">Find an institution</label>
   <input class="form-control mb-3" id="platform-search" type="search" placeholder="Search name or institution code" autocomplete="off"/>
   <div id="platform-institutions" class="row g-3" aria-live="polite"><p class="text-secondary">Loading institutions…</p></div>
 </section>
-<section class="ev-card p-4 mb-4 ev-section-anchor" id="platform-selected" hidden aria-labelledby="platform-selected-name">
+<section ev-activities="platform-modules,platform-users,platform-invite" class="ev-card p-4 mb-4 ev-section-anchor" id="platform-selected" hidden aria-labelledby="platform-selected-name">
   <div class="d-flex flex-wrap gap-2 justify-content-between align-items-start mb-3">
     <div><p class="ev-eyebrow mb-1">INSTITUTION DETAILS</p><h2 class="ev-section-heading" id="platform-selected-name">Institution details</h2>
       <p id="platform-selected-scope" class="text-secondary small mb-0"></p></div>
     <a href="/platform/registrations" class="btn btn-outline-secondary btn-sm">Approval queue</a>
   </div>
-  <div class="row g-4 mb-4">
-    <div class="col-lg-6"><h3 class="h6 fw-semibold">Subscribed modules</h3><div data-ev-action="View Subscribed modules" data-ev-action-key="platform-modules" id="platform-modules" aria-live="polite"></div></div>
-    <div class="col-lg-6"><h3 class="h6 fw-semibold">Institution users</h3><div data-ev-action="View Institution users" data-ev-action-key="platform-users" id="platform-users" aria-live="polite"></div></div>
+  <div ev-activities="platform-modules,platform-users" class="row g-4 mb-4">
+    <div ev-activities="platform-modules" class="col-lg-6"><div ev-activities="platform-modules" data-ev-action="View Subscribed modules" data-ev-action-key="platform-modules" id="platform-modules" aria-live="polite"></div></div>
+    <div ev-activities="platform-users" class="col-lg-6"><div ev-activities="platform-users" data-ev-action="View Institution users" data-ev-action-key="platform-users" id="platform-users" aria-live="polite"></div></div>
   </div>
   <hr/>
-  <h3 class="h6 fw-semibold mb-3">Invite an institution user</h3>
-  <form data-ev-action="Invite institution user" data-ev-action-key="platform-invite" id="platform-invite" class="row g-3">
+
+  <form ev-activities="platform-invite" data-ev-action="Invite institution user" data-ev-action-key="platform-invite" id="platform-invite" class="row g-3">
     <div class="col-md-6 col-lg-4"><label class="form-label" for="invite-email">Email</label><input type="email" class="form-control" id="invite-email" maxlength="254" required autocomplete="off"/></div>
     <div class="col-md-6 col-lg-4"><label class="form-label" for="invite-name">Display name</label><input class="form-control" id="invite-name" maxlength="160" required/></div>
     <div class="col-md-6 col-lg-2"><label class="form-label" for="invite-role">Role</label><select class="form-select" id="invite-role"><option value="MEMBER">Member</option><option value="ADMIN">Admin</option></select></div>
@@ -65,16 +70,16 @@
   </form>
   <p class="small text-secondary mt-3 mb-0">Activation uses the password-reset flow; passwords are never displayed.</p>
 </section>
-<section class="ev-card p-4 mb-3 ev-section-anchor" id="platform-actions-section" aria-labelledby="platform-actions-title">
-  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-    <div><h2 class="ev-section-heading" id="platform-actions-title">API action directory</h2>
+<section ev-activities="platform-load-actions" class="ev-card p-4 mb-3 ev-section-anchor" id="platform-actions-section" aria-labelledby="platform-actions-title">
+  <div ev-activities="platform-load-actions" class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <div>
       <p class="text-secondary small mb-0">Inventory only. Tenant actions continue to require tenant authorization.</p></div>
-    <button data-ev-action="Load API actions" data-ev-action-key="platform-load-actions" type="button" class="btn btn-outline-primary btn-sm" id="platform-load-actions">Load API actions</button>
+    <button ev-activities="platform-load-actions" data-ev-action="Load API actions" data-ev-action-key="platform-load-actions" type="button" class="btn btn-outline-primary btn-sm" id="platform-load-actions">Load API actions</button>
   </div>
   <label class="form-label" for="platform-actions-search">Filter by module, method or route</label>
   <input class="form-control mb-2" id="platform-actions-search" type="search" placeholder="Search API actions"/>
   <p id="platform-actions-count" class="ev-micro-label"></p>
-  <div data-ev-action="Load API actions" data-ev-action-key="platform-load-actions" id="platform-actions" class="overflow-auto" style="max-height:420px" aria-live="polite"></div>
+  <div ev-activities="platform-load-actions" data-ev-action="Load API actions" data-ev-action-key="platform-load-actions" id="platform-actions" class="overflow-auto" style="max-height:420px" aria-live="polite"></div>
 </section>
 <p id="platform-message" role="status" aria-live="polite" class="small"></p>
 @section Scripts {<script src="~/js/platform-console.js" asp-append-version="true"></script>}

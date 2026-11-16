@@ -1,31 +1,29 @@
 @{ViewData["Title"]="Academic Management";}
-<div class="ev-module-workspace">
+@{ ViewData["Title"] = ViewData["ActivityTitle"]; }
+<div class="ev-module-workspace" data-activity-page="true" data-activity-base="/admin/academics">
 <header class="ev-module-header"><div>
   <p class="ev-eyebrow">School &amp; college academics</p>
-  <h1 class="h2">Academic administration</h1>
+  <h1 class="h2">@ViewData["ActivityTitle"]</h1>
   <p class="text-secondary">Set up academic years, classes, subjects and the school calendar.</p>
 </div>
 <a class="ev-module-home" href="/modules" aria-label="Return to institution dashboard">← Dashboard</a>
-</header>
+</header><p><a class="ev-module-home" href="/admin/academics">← All academic activities</a></p>
 
-<nav class="ev-module-tabs" aria-label="Module sections">
- <a class="ev-module-tab" href="#ev-years">Academic year</a>
- <a class="ev-module-tab" href="#ev-catalog">Academic catalog</a>
- <a class="ev-module-tab" href="#ev-faculty">Faculty assignment</a>
- <a class="ev-module-tab" href="#ev-calendar">Academic calendar</a>
- <a class="ev-module-tab" href="#ev-overview">Academic overview</a>
-</nav>
+@Html.AntiForgeryToken()
+
+
+
 <section class="ev-card p-4 mb-3">
   @Html.AntiForgeryToken()
   <label class="form-label" for="academic-campus">Active campus</label>
   <select id="academic-campus" class="form-select" style="max-width:480px" aria-label="Academic campus"></select>
   <p id="academic-message" class="mt-3 small" role="status" aria-live="polite">Loading campuses…</p>
 </section>
-<div class="row g-3 mb-3">
-  <div class="col-lg-4">
-    <section class="ev-card p-4 h-100">
-      <h2 id="ev-years" class="h5 ev-module-section">Academic year</h2>
-      <form data-ev-action="Add academic year" data-ev-action-key="year-form" id="year-form">
+<div ev-activities="year-form,catalog-form" class="row g-3 mb-3">
+  <div ev-activities="year-form" class="col-lg-4">
+    <section ev-activities="year-form" class="ev-card p-4 h-100">
+
+      <form ev-activities="year-form" data-ev-action="Add academic year" data-ev-action-key="year-form" id="year-form">
         <label class="form-label" for="year-code">Code</label><input id="year-code" class="form-control mb-2" required maxlength="30" placeholder="2026-27" />
         <label class="form-label" for="year-name">Name</label><input id="year-name" class="form-control mb-2" required maxlength="160" placeholder="Academic Year 2026–27" />
         <label class="form-label" for="year-start">Start date</label><input id="year-start" type="date" class="form-control mb-2" required />
@@ -34,11 +32,11 @@
       </form>
     </section>
   </div>
-  <div class="col-lg-8">
-    <section class="ev-card p-4 h-100">
-      <h2 id="ev-catalog" class="h5 ev-module-section">Academic catalog</h2>
+  <div ev-activities="catalog-form" class="col-lg-8">
+    <section ev-activities="catalog-form" class="ev-card p-4 h-100">
+
       <p class="text-secondary small">Manage terms, semesters, grades, classes, sections, programs, courses, batches and subjects.</p>
-      <form data-ev-action="Add catalog item" data-ev-action-key="catalog-form" id="catalog-form" class="row g-2">
+      <form ev-activities="catalog-form" data-ev-action="Add catalog item" data-ev-action-key="catalog-form" id="catalog-form" class="row g-2">
         <div class="col-sm-4"><label class="form-label" for="item-kind">Type</label>
           <select id="item-kind" class="form-select">
             <option>PROGRAM</option><option>GRADE</option><option>CLASS</option><option>SECTION</option>
@@ -59,11 +57,11 @@
     </section>
   </div>
 </div>
-<div class="row g-3">
-  <div class="col-lg-6">
-    <section class="ev-card p-4">
-      <h2 id="ev-faculty" class="h5 ev-module-section">Faculty assignment</h2>
-      <form data-ev-action="Assign faculty" data-ev-action-key="faculty-form" id="faculty-form" class="row g-2">
+<div ev-activities="faculty-form,calendar-form,academic-years,academic-items,academic-events" class="row g-3">
+  <div ev-activities="faculty-form" class="col-lg-6">
+    <section ev-activities="faculty-form" class="ev-card p-4">
+
+      <form ev-activities="faculty-form" data-ev-action="Assign faculty" data-ev-action-key="faculty-form" id="faculty-form" class="row g-2">
         <div class="col-sm-6"><label class="form-label" for="faculty-subject">Subject</label><select id="faculty-subject" class="form-select" required></select></div>
         <div class="col-sm-6"><label class="form-label" for="faculty-year">Academic year</label><select id="faculty-year" class="form-select" required></select></div>
         <div class="col-sm-12"><label class="form-label" for="faculty-person">Registered faculty/member</label><select id="faculty-person" class="form-select" required></select></div>
@@ -71,10 +69,10 @@
       </form>
     </section>
   </div>
-  <div class="col-lg-6">
-    <section class="ev-card p-4">
-      <h2 id="ev-calendar" class="h5 ev-module-section">Academic calendar</h2>
-      <form data-ev-action="Add calendar event" data-ev-action-key="calendar-form" id="calendar-form" class="row g-2">
+  <div ev-activities="calendar-form" class="col-lg-6">
+    <section ev-activities="calendar-form" class="ev-card p-4">
+
+      <form ev-activities="calendar-form" data-ev-action="Add calendar event" data-ev-action-key="calendar-form" id="calendar-form" class="row g-2">
         <div class="col-sm-6"><label for="event-kind" class="form-label">Event type</label>
           <select id="event-kind" class="form-select"><option>HOLIDAY</option><option>EVENT</option><option>EXAM</option><option>ACADEMIC</option></select></div>
         <div class="col-sm-6"><label for="event-year" class="form-label">Academic year</label><select id="event-year" class="form-select" required></select></div>
@@ -85,14 +83,14 @@
       </form>
     </section>
   </div>
-  <div class="col-12">
-    <section class="ev-card p-4">
-      <h2 id="ev-overview" class="h5 ev-module-section">Academic overview</h2>
+  <div ev-activities="academic-years,academic-items,academic-events" class="col-12">
+    <section ev-activities="academic-years,academic-items,academic-events" class="ev-card p-4">
+
       <p id="academic-overview" class="text-secondary small"></p>
-      <div class="row g-3">
-        <div class="col-md-4"><h3 class="h6">Years</h3><ul data-ev-action="View Years" data-ev-action-key="academic-years" id="academic-years"></ul></div>
-        <div class="col-md-4"><h3 class="h6">Catalog</h3><ul data-ev-action="View Catalog" data-ev-action-key="academic-items" id="academic-items"></ul></div>
-        <div class="col-md-4"><h3 class="h6">Holidays &amp; events</h3><ul data-ev-action="View Holidays &amp; events" data-ev-action-key="academic-events" id="academic-events"></ul></div>
+      <div ev-activities="academic-years,academic-items,academic-events" class="row g-3">
+        <div ev-activities="academic-years" class="col-md-4"><ul ev-activities="academic-years" data-ev-action="View Years" data-ev-action-key="academic-years" id="academic-years"></ul></div>
+        <div ev-activities="academic-items" class="col-md-4"><ul ev-activities="academic-items" data-ev-action="View Catalog" data-ev-action-key="academic-items" id="academic-items"></ul></div>
+        <div ev-activities="academic-events" class="col-md-4"><ul ev-activities="academic-events" data-ev-action="View Holidays &amp; events" data-ev-action-key="academic-events" id="academic-events"></ul></div>
       </div>
     </section>
   </div>

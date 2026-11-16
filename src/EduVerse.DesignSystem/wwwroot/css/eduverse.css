@@ -193,3 +193,17 @@ h2.h5,.ev-section-heading { font-size:1rem; }
 .ev-module-tile[data-ev-color="purple"] .ev-module-symbol { background:#f5f3ff; color:#7c3aed; }
 .ev-module-tile[data-ev-color="amber"] .ev-module-symbol { background:#fffbeb; color:#b45309; }
 .ev-module-tile[data-ev-color="rose"] .ev-module-symbol { background:#fff1f2; color:#be185d; }
+
+/* Server-rendered activity pages and module menus. No in-page hiding is required. */
+.ev-activity-link { color:#1e40af; text-decoration:none; font-weight:600; }
+.ev-activity-link:hover,.ev-activity-link:focus-visible { border-color:#2563eb; background:#eff6ff; }
+.ev-activity-link span { float:right; }
+[data-activity-page] .ev-card { max-width:1100px; }
+
+[data-activity-base="/admin/finance"],[data-activity-base="/admin/reports"] { --ev-module-color:#047857; }
+[data-activity-base="/admin/students"],[data-activity-base="/hrms"] { --ev-module-color:#7c3aed; }
+[data-activity-base="/admin/academics"],[data-activity-base="/admin/attendance"] { --ev-module-color:#0369a1; }
+[data-activity-base="/admin/operations"],[data-activity-base="/ams"] { --ev-module-color:#b45309; }
+[data-activity-base="/admin/exams"],[data-activity-base="/admin/college"] { --ev-module-color:#4338ca; }
+[data-activity-base="/admin/learning"] { --ev-module-color:#be185d; }
+[data-activity-page] .ev-card { border-top:3px solid var(--ev-module-color,#2563eb); }

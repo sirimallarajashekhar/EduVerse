@@ -1,0 +1,12 @@
+@model EduVerse.Web.Controllers.PlatformRegistrationReview
+@{ var approve=Model.ActionName=="approve"; ViewData["Title"]=(approve?"Approve ":"Reject ")+Model.Registration.Name; }
+<header class="ev-module-header"><div><p class="ev-eyebrow">Institution registration</p><h1 class="h2">@ViewData["Title"]</h1></div><a class="ev-module-home" href="/platform/registrations">← Registration queue</a></header>
+<section class="ev-card p-4">
+  <p>@Model.Registration.Kind · @Model.Registration.Email · @Model.Registration.Slug</p>
+  <form method="post" action="/platform/registrations/@Model.Registration.Id/@Model.ActionName">
+    @Html.AntiForgeryToken()
+    <label class="form-label" for="review-reason">@(approve?"Approval reason":"Rejection reason")</label>
+    <textarea class="form-control mb-3" id="review-reason" name="reason" maxlength="500" required rows="3"></textarea>
+    <button class="btn @(approve?"btn-success":"btn-danger")" type="submit">@(approve?"Approve and provision institution":"Reject application")</button>
+  </form>
+</section>

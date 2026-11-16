@@ -73,6 +73,25 @@ public sealed class PlatformAdminController(IHttpClientFactory clients):Controll
         catch(HttpRequestException){return StatusCode(502);}
     }
 
+    [Authorize(Roles="PLATFORM_SUPER_ADMIN"),HttpGet("registrations/{id:guid}/{actionName:regex(^(approve|reject)$)}")]
+    public async Task<IActionResult> ReviewPage(Guid id,string actionName,CancellationToken ct)
+    {
+        var token=await HttpContext.GetTokenAsync(EduVerseCookieAuth.Scheme,"access_token");
+        using var request=new HttpRequestMessage(HttpMethod.Get,"api/v1/platform-admin/registrations?status=PENDING");
+        request.Headers.Authorization=new AuthenticationHeaderValue("Bearer",token);
+        try
+        {
+            using var response=await clients.CreateClient("EduVerseIdentityApi").SendAsync(request,ct);
+            if(!response.IsSuccessStatusCode)return StatusCode((int)response.StatusCode);
+            var rows=await response.Content.ReadFromJsonAsync<List<PlatformRegistrationView>>(cancellationToken:ct);
+            var registration=rows?.FirstOrDefault(x=>x.Id==id);
+            if(registration is null)return NotFound();
+            Response.Headers["Cache-Control"]="no-store";
+            return View("Review",new PlatformRegistrationReview(registration,actionName));
+        }
+        catch(HttpRequestException){return StatusCode(502);}
+    }
+
     [Authorize(Roles="PLATFORM_SUPER_ADMIN"),HttpPost("registrations/{id:guid}/{actionName:regex(^(approve|reject)$)}")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Review(Guid id,string actionName,string reason,CancellationToken ct)
@@ -120,3 +139,5 @@ public sealed class PlatformLoginForm
 public sealed record PlatformRegistrationView(Guid Id,string Slug,string Name,string Kind,string Email,
     string Status,DateTime CreatedUtc,DateTime? ReviewedUtc,string? Reason,Guid? TenantId);
 public sealed record PlatformRegistrationPage(string Status,IReadOnlyList<PlatformRegistrationView> Requests);
+
+public sealed record PlatformRegistrationReview(PlatformRegistrationView Registration,string ActionName);

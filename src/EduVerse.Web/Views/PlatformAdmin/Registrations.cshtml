@@ -11,7 +11,7 @@
 </header>
 @if (TempData["Info"] is string info) {<div class="alert alert-success" role="status">@info</div>}
 @if (TempData["Error"] is string err) {<div class="alert alert-danger" role="alert">@err</div>}
-<section data-ev-action="Registration status" data-ev-action-key="action-3" id="action-3" class="ev-card p-4 mb-4" aria-labelledby="approval-status-heading">
+<section id="action-3" class="ev-card p-4 mb-4" aria-labelledby="approval-status-heading">
   <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
     <div><h2 class="ev-section-heading" id="approval-status-heading">Registration status</h2>
       <p class="text-secondary small mb-0">Showing @Model.Requests.Count @Model.Status.ToLowerInvariant() applications.</p></div>
@@ -27,7 +27,7 @@
 </section>
 @if(!Model.Requests.Any())
 {
-  <section data-ev-action="No @Model.Status.ToLowerInvariant() registrations" data-ev-action-key="action-4" id="action-4" class="ev-card p-5 text-center" role="status">
+  <section id="action-4" class="ev-card p-5 text-center" role="status">
     <h2 class="h5">No @Model.Status.ToLowerInvariant() registrations</h2>
     <p class="text-secondary mb-0">New applications will appear in the pending queue after submission.</p>
   </section>
@@ -45,23 +45,9 @@
     </div>
     @if(r.Status=="PENDING")
     {
-      <div class="row g-3">
-        <div class="col-lg-6">
-          <form data-ev-action="Approve @r.Name" data-ev-action-key="approve-@r.Id" id="approve-form-@r.Id" method="post" action="/platform/registrations/@r.Id/approve" class="p-3 rounded border h-100">
-            @Html.AntiForgeryToken()
-            <label class="form-label fw-semibold" for="approve-@r.Id">Approval reason</label>
-            <input class="form-control mb-3" id="approve-@r.Id" name="reason" maxlength="500" required placeholder="Document the approval decision"/>
-            <button class="btn btn-success" type="submit">Approve and provision institution</button>
-          </form>
-        </div>
-        <div class="col-lg-6">
-          <form data-ev-action="Reject @r.Name" data-ev-action-key="reject-@r.Id" id="reject-form-@r.Id" method="post" action="/platform/registrations/@r.Id/reject" class="p-3 rounded border h-100">
-            @Html.AntiForgeryToken()
-            <label class="form-label fw-semibold" for="reject-@r.Id">Rejection reason</label>
-            <input class="form-control mb-3" id="reject-@r.Id" name="reason" maxlength="500" required placeholder="Document the rejection reason"/>
-            <button class="btn btn-outline-danger" type="submit">Reject application</button>
-          </form>
-        </div>
+      <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-outline-primary" href="/platform/registrations/@r.Id/approve">Approve @r.Name</a>
+        <a class="btn btn-outline-danger" href="/platform/registrations/@r.Id/reject">Reject @r.Name</a>
       </div>
     }
     else
