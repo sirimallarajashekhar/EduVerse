@@ -28,3 +28,9 @@ Validation:
 - Existing authenticated page tests were updated to follow menu links to individual activities.
 
 The previous PILOT entitlement migration remains unchanged. No additional database migration is required for this UI change. A full build and the MVC rendering tests must pass CI before merge; live API/database and responsive visual verification are separate from the DOM fixture checks.
+
+## Specific operations
+
+Menus split combined-operation forms into dedicated URLs. Create Class, Create Subject, Create Department, Create Building, Receive Stock, Issue Stock, Adjust Stock, Promote Student, Transfer Student, Withdraw Student and each employee status transition now have their own activity. The operation is rendered as fixed text plus the existing API field; no action-switching dropdown appears on those pages. Old combined-operation URLs redirect to their module menu.
+
+Promotion has its own required destination academic year and grade/class/section fields. It no longer reads inputs from the unrelated enrollment form. Transfer renders a destination campus, while withdrawal renders no destination fields. API validation and authorization remain authoritative for all submitted values.

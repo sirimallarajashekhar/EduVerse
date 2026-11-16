@@ -35,10 +35,10 @@
   <div ev-activities="catalog-form" class="col-lg-8">
     <section ev-activities="catalog-form" class="ev-card p-4 h-100">
 
-      <p class="text-secondary small">Manage terms, semesters, grades, classes, sections, programs, courses, batches and subjects.</p>
+      <p class="text-secondary small">Enter the details for this academic item.</p>
       <form ev-activities="catalog-form" data-ev-action="Add catalog item" data-ev-action-key="catalog-form" id="catalog-form" class="row g-2">
         <div class="col-sm-4"><label class="form-label" for="item-kind">Type</label>
-          <select id="item-kind" class="form-select">
+          <select ev-fixed-operation="true" id="item-kind" class="form-select">
             <option>PROGRAM</option><option>GRADE</option><option>CLASS</option><option>SECTION</option>
             <option>COURSE</option><option>BATCH</option><option>SUBJECT</option><option>TERM</option><option>SEMESTER</option>
           </select></div>
@@ -52,7 +52,7 @@
           <select id="item-department" class="form-select"><option value="">None</option></select></div>
         <div class="col-sm-3"><label class="form-label" for="item-start">Start (optional)</label><input id="item-start" type="date" class="form-control" /></div>
         <div class="col-sm-3"><label class="form-label" for="item-end">End (optional)</label><input id="item-end" type="date" class="form-control" /></div>
-        <div class="col-12"><button class="btn btn-primary" type="submit">Add catalog item</button></div>
+        <div class="col-12"><button ev-activity-submit="true" class="btn btn-primary" type="submit">Add catalog item</button></div>
       </form>
     </section>
   </div>
