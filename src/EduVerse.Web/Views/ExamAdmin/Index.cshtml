@@ -1,31 +1,29 @@
 @{ViewData["Title"]="Exams & Results";}
-<div class="ev-module-workspace">
+@{ ViewData["Title"] = ViewData["ActivityTitle"]; }
+<div class="ev-module-workspace" data-activity-page="true" data-activity-base="/admin/exams">
 <header class="ev-module-header"><div>
  <p class="ev-eyebrow">EduVerse · School &amp; college assessment</p>
- <h1 class="h2">Exams &amp; Results</h1>
+ <h1 class="h2">@ViewData["ActivityTitle"]</h1>
  <p class="text-secondary">Create exams, enter validated subject marks, approve and publish report cards.</p>
 </div>
 <a class="ev-module-home" href="/modules" aria-label="Return to institution dashboard">← Dashboard</a>
-</header>
+</header><p><a class="ev-module-home" href="/admin/exams">← All examination activities</a></p>
 
-<nav class="ev-module-tabs" aria-label="Module sections">
- <a class="ev-module-tab" href="#ev-schemes">Grading scheme</a>
- <a class="ev-module-tab" href="#ev-examinations">New examination</a>
- <a class="ev-module-tab" href="#ev-assessments">Subject assessments &amp; schedule</a>
- <a class="ev-module-tab" href="#ev-marks">Student marks entry</a>
- <a class="ev-module-tab" href="#ev-results">Published results &amp; performance</a>
-</nav>
+@Html.AntiForgeryToken()
+<section class="ev-card p-3 mb-3" ev-activities="assessment-form,assessments,mark-form,mark-list,approve,publish,result-view,result-download"><label for="exam" class="form-label">Selected examination</label><select id="exam" class="form-select"></select></section>
+
+
 <section class="ev-card p-4 mb-3">
  @Html.AntiForgeryToken()
  <label for="campus" class="form-label">Active campus</label>
  <select id="campus" class="form-select" style="max-width:440px"></select>
  <p id="status" role="status" class="small mt-3 mb-0"></p>
 </section>
-<div class="row g-3 mb-3">
- <div class="col-lg-5"><section class="ev-card p-4 h-100">
-  <h2 id="ev-schemes" class="h5 ev-module-section">Grading scheme</h2>
+<div ev-activities="scheme-form,exam-form,approve,publish" class="row g-3 mb-3">
+ <div ev-activities="scheme-form" class="col-lg-5"><section ev-activities="scheme-form" class="ev-card p-4 h-100">
+
   <p class="small text-secondary">Define contiguous grade ranges from 0.00 to 100.00. Points are on a 0–10 scale.</p>
-  <form data-ev-action="Create scheme" data-ev-action-key="scheme-form" id="scheme-form" class="row g-2">
+  <form ev-activities="scheme-form" data-ev-action="Create scheme" data-ev-action-key="scheme-form" id="scheme-form" class="row g-2">
    <div class="col-sm-4"><label for="scheme-code" class="form-label">Code</label><input id="scheme-code" maxlength="30" class="form-control" required /></div>
    <div class="col-sm-8"><label for="scheme-name" class="form-label">Scheme name</label><input id="scheme-name" maxlength="120" class="form-control" required /></div>
    <div class="col-12"><label for="scheme-bands" class="form-label">Grades (one per line: grade,min,max,points)</label>
@@ -36,9 +34,9 @@ F,0.00,34.99,0</textarea></div>
    <div class="col-12"><button type="submit" class="btn btn-primary">Create scheme</button></div>
   </form>
  </section></div>
- <div class="col-lg-7"><section class="ev-card p-4 h-100">
-  <h2 id="ev-examinations" class="h5 ev-module-section">New examination</h2>
-  <form data-ev-action="Create examination" data-ev-action-key="exam-form" id="exam-form" class="row g-2">
+ <div ev-activities="exam-form,approve,publish" class="col-lg-7"><section ev-activities="exam-form,approve,publish" class="ev-card p-4 h-100">
+
+  <form ev-activities="exam-form" data-ev-action="Create examination" data-ev-action-key="exam-form" id="exam-form" class="row g-2">
    <div class="col-sm-6"><label for="year" class="form-label">Academic year</label><select id="year" class="form-select" required></select></div>
    <div class="col-sm-6"><label for="scheme" class="form-label">Grading scheme</label><select id="scheme" class="form-select" required></select></div>
    <div class="col-sm-4"><label for="exam-code" class="form-label">Code</label><input id="exam-code" class="form-control" maxlength="30" required /></div>
@@ -47,18 +45,18 @@ F,0.00,34.99,0</textarea></div>
    <div class="col-12"><button type="submit" class="btn btn-primary">Create examination</button></div>
   </form>
   <hr/>
-  <label for="exam" class="form-label">Selected examination</label><select id="exam" class="form-select"></select>
-  <div class="d-flex flex-wrap gap-2 mt-2">
-   <button data-ev-action="Approve results" data-ev-action-key="approve" id="approve" type="button" class="btn btn-outline-primary">Approve results</button>
-   <button data-ev-action="Publish results" data-ev-action-key="publish" id="publish" type="button" class="btn btn-outline-danger">Publish results</button>
+
+  <div ev-activities="approve,publish" class="d-flex flex-wrap gap-2 mt-2">
+   <button ev-activities="approve" data-ev-action="Approve results" data-ev-action-key="approve" id="approve" type="button" class="btn btn-outline-primary">Approve results</button>
+   <button ev-activities="publish" data-ev-action="Publish results" data-ev-action-key="publish" id="publish" type="button" class="btn btn-outline-danger">Publish results</button>
   </div>
   <p id="exam-state" class="small mt-2"></p>
  </section></div>
 </div>
-<div class="row g-3 mb-3">
- <div class="col-lg-6"><section class="ev-card p-4 h-100">
-  <h2 id="ev-assessments" class="h5 ev-module-section">Subject assessments &amp; schedule</h2>
-  <form data-ev-action="Add assessment" data-ev-action-key="assessment-form" id="assessment-form" class="row g-2">
+<div ev-activities="assessment-form,assessments,mark-form,mark-list" class="row g-3 mb-3">
+ <div ev-activities="assessment-form,assessments" class="col-lg-6"><section ev-activities="assessment-form,assessments" class="ev-card p-4 h-100">
+
+  <form ev-activities="assessment-form" data-ev-action="Add assessment" data-ev-action-key="assessment-form" id="assessment-form" class="row g-2">
    <div class="col-sm-6"><label for="item" class="form-label">Class / section / course</label><select id="item" class="form-select" required></select></div>
    <div class="col-sm-6"><label for="subject" class="form-label">Subject</label><select id="subject" class="form-select" required></select></div>
    <div class="col-sm-6"><label for="exam-date" class="form-label">Exam date</label><input id="exam-date" type="date" class="form-control" required /></div>
@@ -68,29 +66,29 @@ F,0.00,34.99,0</textarea></div>
    <div class="col-sm-4"><label for="credits" class="form-label">Credits</label><input id="credits" type="number" min="0.01" max="50" step="0.01" value="1" class="form-control" required /></div>
    <div class="col-12"><button type="submit" class="btn btn-outline-primary">Add assessment</button></div>
   </form>
-  <ul data-ev-action="View Subject assessments &amp; schedule" data-ev-action-key="assessments" id="assessments" class="small mt-3"></ul>
+  <ul ev-activities="assessments" data-ev-action="View Subject assessments &amp; schedule" data-ev-action-key="assessments" id="assessments" class="small mt-3"></ul>
  </section></div>
- <div class="col-lg-6"><section class="ev-card p-4 h-100">
-  <h2 id="ev-marks" class="h5 ev-module-section">Student marks entry</h2>
-  <form data-ev-action="Save draft marks" data-ev-action-key="mark-form" id="mark-form" class="row g-2">
+ <div ev-activities="mark-form,mark-list" class="col-lg-6"><section ev-activities="mark-form,mark-list" class="ev-card p-4 h-100">
+
+  <form ev-activities="mark-form" data-ev-action="Save draft marks" data-ev-action-key="mark-form" id="mark-form" class="row g-2">
    <div class="col-12"><label for="assessment" class="form-label">Assessment</label><select id="assessment" class="form-select" required></select></div>
    <div class="col-12"><label for="enrollment" class="form-label">Student enrollment</label><select id="enrollment" class="form-select" required></select></div>
    <div class="col-sm-6"><label for="marks" class="form-label">Obtained marks</label><input id="marks" type="number" min="0" step="0.01" class="form-control"/></div>
    <div class="col-sm-6 d-flex align-items-end"><label><input id="absent" type="checkbox"/> Absent (no numerical marks)</label></div>
    <div class="col-12"><button type="submit" class="btn btn-outline-primary">Save draft marks</button></div>
   </form>
-  <ul data-ev-action="View Student marks entry" data-ev-action-key="mark-list" id="mark-list" class="small mt-3"></ul>
+  <ul ev-activities="mark-list" data-ev-action="View Student marks entry" data-ev-action-key="mark-list" id="mark-list" class="small mt-3"></ul>
  </section></div>
 </div>
-<section class="ev-card p-4">
- <h2 id="ev-results" class="h5 ev-module-section">Published results &amp; performance</h2>
+<section ev-activities="result-view,result-download" class="ev-card p-4">
+
  <p id="analytics" class="small"></p>
  <label for="result-enrollment" class="form-label">Student enrollment</label><select id="result-enrollment" class="form-select mb-2"></select>
- <div class="d-flex flex-wrap gap-2">
-  <button data-ev-action="View result" data-ev-action-key="result-view" id="result-view" class="btn btn-outline-primary" type="button">View result</button>
-  <button data-ev-action="Download report card" data-ev-action-key="result-download" id="result-download" class="btn btn-outline-secondary" type="button">Download report card</button>
+ <div ev-activities="result-view,result-download" class="d-flex flex-wrap gap-2">
+  <button ev-activities="result-view" data-ev-action="View result" data-ev-action-key="result-view" id="result-view" class="btn btn-outline-primary" type="button">View result</button>
+  <button ev-activities="result-download" data-ev-action="Download report card" data-ev-action-key="result-download" id="result-download" class="btn btn-outline-secondary" type="button">Download report card</button>
  </div>
- <pre data-ev-action="View result" data-ev-action-key="result-view" id="result-output" class="small mt-3" style="white-space:pre-wrap"></pre>
+ <pre ev-activities="result-view" data-ev-action="View result" data-ev-action-key="result-view" id="result-output" class="small mt-3" style="white-space:pre-wrap"></pre>
  <p class="small text-secondary mb-0">Published results are immutable in this phase. GPA is credit-weighted within an exam; CGPA is a simple mean across published exam GPAs.</p>
 </section>
 @section Scripts {<script src="~/js/exam-admin.js" asp-append-version="true"></script>}

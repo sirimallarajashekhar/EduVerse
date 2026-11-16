@@ -1,3 +1,4 @@
+using EduVerse.DesignSystem.Activities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,5 +10,6 @@ namespace EduVerse.Web.Controllers;
 public sealed class StudentAdminController:Controller
 {
     [HttpGet("")]
-    public IActionResult Index()=>View();
+    [HttpGet("activities/{activity}")]
+    public IActionResult Index(string? activity=null)=>this.ActivityPage("students",activity);
 }

@@ -114,25 +114,14 @@ public sealed class InstitutionModuleLandingTests
         using var reportsResponse = await client.GetAsync("/admin/reports");
         Assert.Equal(HttpStatusCode.OK, reportsResponse.StatusCode);
         var reportsHtml = await reportsResponse.Content.ReadAsStringAsync();
-        Assert.Contains("Reports &amp; Analytics", reportsHtml);
-        Assert.Contains("reports-campus", reportsHtml);
-        Assert.Contains("reports-finance-metrics", reportsHtml);
-        Assert.Contains("reports-exam-rows", reportsHtml);
-        Assert.Contains("reporting.js", reportsHtml);
-        Assert.Contains("reporting-insights.js", reportsHtml);
-        Assert.Contains("reporting.css", reportsHtml);
-        Assert.Contains("reports-from", reportsHtml);
-        Assert.Contains("reports-to", reportsHtml);
-        Assert.Contains("reports-export-csv", reportsHtml);
-        Assert.Contains("reports-print", reportsHtml);
-        Assert.Contains("reports-receipt-chart", reportsHtml);
-        Assert.Contains("reports-exam-chart", reportsHtml);
-        Assert.Contains("reports-receipt-rows", reportsHtml);
-        Assert.Contains("reports-api-filter", reportsHtml);
-        Assert.Contains("reports-api-months", reportsHtml);
-        Assert.Contains("reports-api-xlsx", reportsHtml);
-        Assert.Contains("reports-api-pdf", reportsHtml);
-        Assert.Contains("reporting-backend.js", reportsHtml);
+        Assert.Contains("/admin/reports/activities/reports-api-filter",reportsHtml);
+        Assert.DoesNotContain("id=\"reports-api-filter\"",reportsHtml);
+        using var historicalPage=await client.GetAsync("/admin/reports/activities/reports-api-filter");
+        Assert.Equal(HttpStatusCode.OK,historicalPage.StatusCode);
+        var historyHtml=await historicalPage.Content.ReadAsStringAsync();
+        Assert.Contains("id=\"reports-api-filter\"",historyHtml);
+        Assert.Contains("id=\"reports-api-months\"",historyHtml);
+        Assert.DoesNotContain("id=\"reports-exam-rows\"",historyHtml);
         using var historyScript = await client.GetAsync("/js/reporting-backend.js");
         Assert.Equal(HttpStatusCode.OK, historyScript.StatusCode);
         var historyJs = await historyScript.Content.ReadAsStringAsync();
@@ -160,25 +149,25 @@ public sealed class InstitutionModuleLandingTests
         var overviewBody=await overviewApi.Content.ReadAsStringAsync();
         Assert.Contains("\"campuses\":2",overviewBody);
         Assert.Contains("\"members\":7",overviewBody);
-        using var institutionPage=await client.GetAsync("/admin/institution");
+        using var institutionPage=await client.GetAsync("/admin/institution/activities/campus-form");
         Assert.Equal(HttpStatusCode.OK,institutionPage.StatusCode);
         var institutionHtml=await institutionPage.Content.ReadAsStringAsync();
         Assert.Contains("campus-form",institutionHtml);
-        Assert.Contains("campuses-list",institutionHtml);
+        Assert.DoesNotContain("id=\"campuses-list\"",institutionHtml);
         foreach (var page in new[]
         {
-            (Route:"/admin/students",Section:"ev-admission",Script:"student-admin.js"),
-            (Route:"/admin/academics",Section:"ev-catalog",Script:"academic-admin.js"),
-            (Route:"/admin/attendance",Section:"ev-timetable",Script:"attendance-admin.js"),
-            (Route:"/admin/finance",Section:"ev-collections",Script:"finance-admin.js"),
-            (Route:"/admin/exams",Section:"ev-results",Script:"exam-admin.js")
+            (Route:"/admin/students/activities/application-form",Section:"application-form",Script:"student-admin.js"),
+            (Route:"/admin/academics/activities/catalog-form",Section:"catalog-form",Script:"academic-admin.js"),
+            (Route:"/admin/attendance/activities/timetable-form",Section:"timetable-form",Script:"attendance-admin.js"),
+            (Route:"/admin/finance/activities/payment-form",Section:"payment-form",Script:"finance-admin.js"),
+            (Route:"/admin/exams/activities/result-view",Section:"result-view",Script:"exam-admin.js")
         })
         {
             using var sectionResponse=await client.GetAsync(page.Route);
             Assert.Equal(HttpStatusCode.OK,sectionResponse.StatusCode);
             var sectionHtml=await sectionResponse.Content.ReadAsStringAsync();
             Assert.Contains("ev-module-workspace",sectionHtml);
-            Assert.Contains("ev-module-tabs",sectionHtml);
+            Assert.DoesNotContain("ev-module-tabs",sectionHtml);
             Assert.Contains("id=\"" + page.Section + "\"",sectionHtml);
             Assert.Contains(page.Script,sectionHtml);
             Assert.Contains("operational-workspace.js",sectionHtml);

@@ -1,21 +1,25 @@
 @{ViewData["Title"]="Institution administration";}
-<div class="ev-module-workspace">
+@{ ViewData["Title"] = ViewData["ActivityTitle"]; }
+<div class="ev-module-workspace" data-activity-page="true" data-activity-base="/admin/institution">
 <div class="mb-4">
   <p class="ev-eyebrow">INSTITUTION / ADMINISTRATION</p>
-  <h1 class="h3">School &amp; college management</h1>
+  <h1 class="h2">@ViewData["ActivityTitle"]</h1><p><a class="ev-module-home" href="/admin/institution">← All institution activities</a></p>
+
+@Html.AntiForgeryToken()
+
   <p class="text-secondary">Tenant-scoped information is retrieved from EduVerse REST APIs.</p>
 </div>
-<div data-ev-action="View institution overview" data-ev-action-key="institution-metrics" class="row g-3 mb-4" id="institution-metrics" aria-live="polite">
+<div ev-activities="institution-metrics" data-ev-action="View institution overview" data-ev-action-key="institution-metrics" class="row g-3 mb-4" id="institution-metrics" aria-live="polite">
   <div class="col-md-3"><div class="ev-card p-3"><div class="ev-eyebrow">Campuses</div><h2 id="campus-count">—</h2></div></div>
   <div class="col-md-3"><div class="ev-card p-3"><div class="ev-eyebrow">Departments</div><h2 id="department-count">—</h2></div></div>
   <div class="col-md-3"><div class="ev-card p-3"><div class="ev-eyebrow">Buildings</div><h2 id="building-count">—</h2></div></div>
   <div class="col-md-3"><div class="ev-card p-3"><div class="ev-eyebrow">Active members</div><h2 id="member-count">—</h2></div></div>
 </div>
-<div class="row g-3">
-  <div class="col-lg-7">
-    <section class="ev-card p-4">
-      <h2 class="h5">Institution profile</h2>
-      <form data-ev-action="Save profile" data-ev-action-key="profile-form" id="profile-form">
+<div ev-activities="profile-form,mark-ready,module-features,plans-list,setting-form,settings-list,campus-form,campuses-list,resource-form,departments-list,buildings-list" class="row g-3">
+  <div ev-activities="profile-form,mark-ready" class="col-lg-7">
+    <section ev-activities="profile-form,mark-ready" class="ev-card p-4">
+
+      <form ev-activities="profile-form" data-ev-action="Save profile" data-ev-action-key="profile-form" id="profile-form">
         @Html.AntiForgeryToken()
         <div class="row g-2">
           <div class="col-sm-6"><label for="legalName" class="form-label">Legal name</label><input id="legalName" class="form-control" required maxlength="160" /></div>
@@ -28,23 +32,23 @@
         </div>
         <button type="submit" class="btn btn-primary mt-3">Save profile</button>
       </form>
-      <div class="d-flex gap-3 align-items-center mt-3">
+      <div ev-activities="mark-ready" class="d-flex gap-3 align-items-center mt-3">
         <span>Onboarding: <strong id="onboarding-status">—</strong></span>
-        <button data-ev-action="Mark ready" data-ev-action-key="mark-ready" type="button" class="btn btn-sm btn-outline-success" id="mark-ready">Mark ready</button>
+        <button ev-activities="mark-ready" data-ev-action="Mark ready" data-ev-action-key="mark-ready" type="button" class="btn btn-sm btn-outline-success" id="mark-ready">Mark ready</button>
       </div>
     </section>
   </div>
-  <div class="col-lg-5">
-    <section class="ev-card p-4 mb-3">
-      <h2 class="h5">Subscription &amp; module access</h2>
+  <div ev-activities="module-features,plans-list,setting-form,settings-list" class="col-lg-5">
+    <section ev-activities="module-features,plans-list" class="ev-card p-4 mb-3">
+
       <p id="subscription-status" class="mb-2" aria-live="polite">Loading…</p>
-      <div data-ev-action="View Subscription &amp; module access" data-ev-action-key="module-features" id="module-features" class="small text-secondary"></div>
-      <h3 class="h6 mt-3">Available plans</h3><ul data-ev-action="View Available plans" data-ev-action-key="plans-list" id="plans-list" class="small text-secondary mb-0"></ul>
+      <div ev-activities="module-features" data-ev-action="View Subscription &amp; module access" data-ev-action-key="module-features" id="module-features" class="small text-secondary"></div>
+      <ul ev-activities="plans-list" data-ev-action="View Available plans" data-ev-action-key="plans-list" id="plans-list" class="small text-secondary mb-0"></ul>
       <p class="text-secondary small mt-3">Plan assignments require authorized operator provisioning.</p>
     </section>
-    <section class="ev-card p-4">
-      <h2 class="h5">Institution settings</h2>
-      <form data-ev-action="Save setting" data-ev-action-key="setting-form" id="setting-form">
+    <section ev-activities="setting-form,settings-list" class="ev-card p-4">
+
+      <form ev-activities="setting-form" data-ev-action="Save setting" data-ev-action-key="setting-form" id="setting-form">
         <label for="setting-key" class="form-label">Setting</label>
         <select id="setting-key" class="form-select mb-2">
           <option value="timezone">Timezone</option><option value="locale">Locale</option>
@@ -56,32 +60,32 @@
         <input id="setting-value" maxlength="240" class="form-control mb-2" required />
         <button type="submit" class="btn btn-outline-primary">Save setting</button>
       </form>
-      <ul data-ev-action="View Institution settings" data-ev-action-key="settings-list" id="settings-list" class="mt-3 mb-0 small"></ul>
+      <ul ev-activities="settings-list" data-ev-action="View Institution settings" data-ev-action-key="settings-list" id="settings-list" class="mt-3 mb-0 small"></ul>
     </section>
   </div>
-  <div class="col-12">
-    <section class="ev-card p-4" aria-labelledby="campus-admin-heading">
+  <div ev-activities="campus-form,campuses-list" class="col-12">
+    <section ev-activities="campus-form,campuses-list" class="ev-card p-4" aria-labelledby="campus-admin-heading">
       <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-        <div><p class="ev-eyebrow mb-1">INSTITUTION STRUCTURE</p><h2 class="ev-section-heading" id="campus-admin-heading">Campuses</h2></div>
+        <div><p class="ev-eyebrow mb-1">INSTITUTION STRUCTURE</p></div>
         <a href="/modules" class="btn btn-outline-primary btn-sm">Back to dashboard</a>
       </div>
       <p class="text-secondary small">Each campus belongs to your institution. Create a campus before assigning departments or buildings.</p>
-      <form data-ev-action="Add campus" data-ev-action-key="campus-form" id="campus-form" class="row g-3 align-items-end">
+      <form ev-activities="campus-form" data-ev-action="Add campus" data-ev-action-key="campus-form" id="campus-form" class="row g-3 align-items-end">
         <div class="col-md-3"><label for="campus-code" class="form-label">Campus code</label>
           <input id="campus-code" class="form-control" minlength="2" maxlength="30" required placeholder="MAIN"/></div>
         <div class="col-md-6"><label for="campus-name" class="form-label">Campus name</label>
           <input id="campus-name" class="form-control" minlength="2" maxlength="160" required placeholder="Main Campus"/></div>
         <div class="col-md-3"><button type="submit" class="btn btn-primary w-100">Add campus</button></div>
       </form>
-      <h3 class="h6 mt-4">Registered campuses</h3>
-      <ul data-ev-action="View Registered campuses" data-ev-action-key="campuses-list" id="campuses-list" class="mb-0 small" aria-live="polite"><li>Loading campuses…</li></ul>
+
+      <ul ev-activities="campuses-list" data-ev-action="View Registered campuses" data-ev-action-key="campuses-list" id="campuses-list" class="mb-0 small" aria-live="polite"><li>Loading campuses…</li></ul>
     </section>
   </div>
-  <div class="col-12">
-    <section class="ev-card p-4">
-      <h2 class="h5">Departments &amp; buildings</h2>
+  <div ev-activities="resource-form,departments-list,buildings-list" class="col-12">
+    <section ev-activities="resource-form,departments-list,buildings-list" class="ev-card p-4">
+
       <p class="text-secondary small">Resources are tied to a campus inside this institution.</p>
-      <form data-ev-action="Add department or building" data-ev-action-key="resource-form" id="resource-form" class="row g-2 align-items-end">
+      <form ev-activities="resource-form" data-ev-action="Add department or building" data-ev-action-key="resource-form" id="resource-form" class="row g-2 align-items-end">
         <div class="col-sm-3"><label for="resource-type" class="form-label">Resource</label>
           <select id="resource-type" class="form-select"><option value="departments">Department</option><option value="buildings">Building</option></select></div>
         <div class="col-sm-3"><label for="resource-campus" class="form-label">Campus</label><select id="resource-campus" class="form-select" required></select></div>
@@ -90,9 +94,9 @@
         <div class="col-sm-1"><button class="btn btn-primary" type="submit">Add</button></div>
       </form>
       <p id="institution-message" role="status" class="mt-3"></p>
-      <div class="row mt-2 g-3">
-        <div class="col-md-6"><h3 class="h6">Departments</h3><ul data-ev-action="View Departments" data-ev-action-key="departments-list" id="departments-list"></ul></div>
-        <div class="col-md-6"><h3 class="h6">Buildings</h3><ul data-ev-action="View Buildings" data-ev-action-key="buildings-list" id="buildings-list"></ul></div>
+      <div ev-activities="departments-list,buildings-list" class="row mt-2 g-3">
+        <div ev-activities="departments-list" class="col-md-6"><ul ev-activities="departments-list" data-ev-action="View Departments" data-ev-action-key="departments-list" id="departments-list"></ul></div>
+        <div ev-activities="buildings-list" class="col-md-6"><ul ev-activities="buildings-list" data-ev-action="View Buildings" data-ev-action-key="buildings-list" id="buildings-list"></ul></div>
       </div>
     </section>
   </div>

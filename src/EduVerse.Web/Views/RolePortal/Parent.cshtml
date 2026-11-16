@@ -1,28 +1,32 @@
 @{ViewData["Title"]="Parent portal";}
-<div class="ev-module-workspace">
-<header class="mb-4"><p class="ev-eyebrow">EduVerse · Parent</p><h1 class="h3">My children</h1>
-<p class="text-secondary">Access is limited to children linked and verified by your institution.</p></header>
-<div class="ev-card p-4 mb-3"><h2 class="h5">Linked children</h2><div data-ev-action="View Linked children" data-ev-action-key="links" id="links" aria-live="polite"></div></div>
-<div class="row g-3"><div class="col-lg-4"><section class="ev-card p-4"><h2 class="h5">Attendance</h2><div data-ev-action="View Attendance" data-ev-action-key="attendance" id="attendance"></div></section></div>
-<div class="col-lg-4"><section class="ev-card p-4"><h2 class="h5">Published results</h2><div data-ev-action="View Published results" data-ev-action-key="results" id="results"></div></section></div>
-<div class="col-lg-4"><section class="ev-card p-4"><h2 class="h5">Announcements</h2><div data-ev-action="View Announcements" data-ev-action-key="notices" id="notices"></div></section></div></div>
+@{ ViewData["Title"] = ViewData["ActivityTitle"]; }
+<div class="ev-module-workspace" data-activity-page="true" data-activity-base="/portal/parent">
+<header class="mb-4"><p class="ev-eyebrow">EduVerse · Parent</p><h1 class="h2">@ViewData["ActivityTitle"]</h1>
+<p class="text-secondary">Access is limited to children linked and verified by your institution.</p></header><p><a class="ev-module-home" href="/portal/parent">← All parent activities</a></p>
+
+@Html.AntiForgeryToken()
+<section class="ev-card p-3 mb-3" ev-activities="phase23-parent-message,p23-load-conversations,p23-load-notifications"><label class="form-label" for="p23-campus">Campus ID</label><input form="phase23-parent-message" class="form-control mb-2" id="p23-campus" required/></section><section class="ev-card p-3 mb-3" ev-activities="phase23-parent-message,p23-load-conversations"><label class="form-label" for="p23-child">Linked student ID</label><input form="phase23-parent-message" class="form-control mb-2" id="p23-child" required/></section>
+<div class="ev-card p-4 mb-3"><label for="links" class="form-label">Choose student</label><select id="links" class="form-select"></select></div>
+<div ev-activities="attendance,results,notices" class="row g-3"><div ev-activities="attendance" class="col-lg-4"><section ev-activities="attendance" class="ev-card p-4"><div ev-activities="attendance" data-ev-action="View Attendance" data-ev-action-key="attendance" id="attendance"></div></section></div>
+<div ev-activities="results" class="col-lg-4"><section ev-activities="results" class="ev-card p-4"><div ev-activities="results" data-ev-action="View Published results" data-ev-action-key="results" id="results"></div></section></div>
+<div ev-activities="notices" class="col-lg-4"><section ev-activities="notices" class="ev-card p-4"><div ev-activities="notices" data-ev-action="View Announcements" data-ev-action-key="notices" id="notices"></div></section></div></div>
 <p id="portal-message" role="status" class="mt-3"></p>
 
 @section Scripts {<script src="~/js/role-portals.js" asp-append-version="true"></script>}
 
 <form id="p23-anti">@Html.AntiForgeryToken()</form>
-<section class="ev-card p-4 my-3"><h2 class="h5">Contact a teacher</h2>
-<form data-ev-action="Start conversation" data-ev-action-key="phase23-parent-message" id="phase23-parent-message">
-<label class="form-label" for="p23-child">Linked student ID</label><input class="form-control mb-2" id="p23-child" required/>
-<label class="form-label" for="p23-campus">Campus ID</label><input class="form-control mb-2" id="p23-campus" required/>
+<section ev-activities="phase23-parent-message,p23-load-conversations" class="ev-card p-4 my-3">
+<form ev-activities="phase23-parent-message" data-ev-action="Start conversation" data-ev-action-key="phase23-parent-message" id="phase23-parent-message">
+
+
 <label class="form-label" for="p23-subject">Subject</label><input class="form-control mb-2" id="p23-subject" maxlength="160" required/>
 <label class="form-label" for="p23-message">Message</label><textarea class="form-control mb-2" id="p23-message" maxlength="5000" required></textarea>
 <button class="btn btn-primary" type="submit">Start conversation</button></form>
-<button data-ev-action="View conversations" data-ev-action-key="p23-load-conversations" class="btn btn-outline-secondary btn-sm mt-3" id="p23-load-conversations">View conversations</button>
-<div data-ev-action="View conversations" data-ev-action-key="p23-load-conversations" id="p23-conversations"></div></section><p id="p23-status" role="status"></p>
-<section class="ev-card p-4 my-3"><h2 class="h5">In-app notifications</h2>
-<button data-ev-action="Refresh inbox" data-ev-action-key="p23-load-notifications" type="button" class="btn btn-outline-secondary btn-sm" id="p23-load-notifications">Refresh inbox</button>
-<div data-ev-action="Refresh inbox" data-ev-action-key="p23-load-notifications" class="mt-2" id="p23-notifications" aria-live="polite"></div></section>
+<button ev-activities="p23-load-conversations" data-ev-action="View conversations" data-ev-action-key="p23-load-conversations" class="btn btn-outline-secondary btn-sm mt-3" id="p23-load-conversations">View conversations</button>
+<div ev-activities="p23-load-conversations" data-ev-action="View conversations" data-ev-action-key="p23-load-conversations" id="p23-conversations"></div></section><p id="p23-status" role="status"></p>
+<section ev-activities="p23-load-notifications" class="ev-card p-4 my-3">
+<button ev-activities="p23-load-notifications" data-ev-action="Refresh inbox" data-ev-action-key="p23-load-notifications" type="button" class="btn btn-outline-secondary btn-sm" id="p23-load-notifications">Refresh inbox</button>
+<div ev-activities="p23-load-notifications" data-ev-action="Refresh inbox" data-ev-action-key="p23-load-notifications" class="mt-2" id="p23-notifications" aria-live="polite"></div></section>
 <script defer src="/js/phase23-portals.js"></script>
 
 </div>

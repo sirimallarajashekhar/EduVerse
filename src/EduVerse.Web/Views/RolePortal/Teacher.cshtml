@@ -1,34 +1,39 @@
 @{ViewData["Title"]="Teacher portal";}
-<div class="ev-module-workspace">
-<header class="mb-4"><p class="ev-eyebrow">EduVerse · Teacher</p><h1 class="h3">My teaching workspace</h1>
-<p class="text-secondary">Only classes and subjects assigned to your account are accessible.</p></header>
+@{ ViewData["Title"] = ViewData["ActivityTitle"]; }
+<div class="ev-module-workspace" data-activity-page="true" data-activity-base="/portal/teacher">
+<header class="mb-4"><p class="ev-eyebrow">EduVerse · Teacher</p><h1 class="h2">@ViewData["ActivityTitle"]</h1>
+<p class="text-secondary">Only classes and subjects assigned to your account are accessible.</p></header><p><a class="ev-module-home" href="/portal/teacher">← All teacher activities</a></p>
+
+@Html.AntiForgeryToken()
+<section class="ev-card p-3 mb-3" ev-activities="load-classes,classes,roster,attendance-form,marks-form,lessons,lesson-form,phase23-assignment-form,p23-load-submissions,phase23-grade-form,p23-load-conversations,p23-load-notifications"><label class="form-label" for="campus">Your assigned campus ID</label><input type="text" id="campus" class="form-control" placeholder="Campus UUID" required/></section>
+<section ev-activities="roster,attendance-form,marks-form" class="ev-card p-3 mb-3"><label for="teacher-class" class="form-label">Assigned class</label><select id="teacher-class" class="form-select"></select></section>
 <form id="portal-token">@Html.AntiForgeryToken()</form>
-<div class="ev-card p-4 mb-3">
-<label class="form-label" for="campus">Your assigned campus ID</label>
-<div class="input-group"><input type="text" id="campus" class="form-control" placeholder="Campus UUID" required/>
-<button data-ev-action="Load my classes" data-ev-action-key="load-classes" class="btn btn-primary" id="load-classes" type="button">Load my classes</button></div>
+<div ev-activities="load-classes" class="ev-card p-4 mb-3">
+
+<div ev-activities="load-classes" class="input-group">
+<button ev-activities="load-classes" data-ev-action="Load my classes" data-ev-action-key="load-classes" class="btn btn-primary" id="load-classes" type="button">Load my classes</button></div>
 <p class="form-text">Obtain your campus ID from your institution administrator.</p></div>
-<div class="row g-3">
-<div class="col-lg-6"><section class="ev-card p-4"><h2 class="h5">Assigned classes</h2><div data-ev-action="View Assigned classes" data-ev-action-key="classes" id="classes" aria-live="polite"></div>
-<h3 class="h6 mt-4">Roster</h3><div data-ev-action="View Roster" data-ev-action-key="roster" id="roster"></div></section></div>
-<div class="col-lg-6"><section class="ev-card p-4 mb-3"><h2 class="h5">Mark attendance</h2>
-<form data-ev-action="Save attendance" data-ev-action-key="attendance-form" id="attendance-form">
+<div ev-activities="classes,roster,attendance-form,marks-form,lessons,lesson-form" class="row g-3">
+<div ev-activities="classes,roster" class="col-lg-6"><section ev-activities="classes,roster" class="ev-card p-4"><div ev-activities="classes" data-ev-action="View Assigned classes" data-ev-action-key="classes" id="classes" aria-live="polite"></div>
+<div ev-activities="roster" data-ev-action="View Roster" data-ev-action-key="roster" id="roster"></div></section></div>
+<div ev-activities="attendance-form,marks-form,lessons,lesson-form" class="col-lg-6"><section ev-activities="attendance-form" class="ev-card p-4 mb-3">
+<form ev-activities="attendance-form" data-ev-action="Save attendance" data-ev-action-key="attendance-form" id="attendance-form">
 <label class="form-label" for="enrollment">Enrollment UUID (from assigned class)</label><input class="form-control mb-2" id="enrollment" required/>
 <label class="form-label" for="on">Date</label><input class="form-control mb-2" id="on" type="date" required/>
 <label class="form-label" for="attendance-status">Status</label><select class="form-select mb-2" id="attendance-status">
 <option>PRESENT</option><option>ABSENT</option><option>LATE</option><option>EXCUSED</option></select>
 <label class="form-label" for="period">Period UUID (optional)</label><input class="form-control mb-2" id="period"/>
 <button class="btn btn-primary" type="submit">Save attendance</button></form></section>
-<section class="ev-card p-4 mb-3"><h2 class="h5">Enter assessment marks</h2>
-<form data-ev-action="Save marks" data-ev-action-key="marks-form" id="marks-form">
+<section ev-activities="marks-form" class="ev-card p-4 mb-3">
+<form ev-activities="marks-form" data-ev-action="Save marks" data-ev-action-key="marks-form" id="marks-form">
 <label class="form-label" for="assessment">Assessment UUID</label><input class="form-control mb-2" id="assessment" required/>
 <label class="form-label" for="marks-enrollment">Enrollment UUID</label><input class="form-control mb-2" id="marks-enrollment" required/>
 <label class="form-label" for="marks">Marks</label><input class="form-control mb-2" id="marks" type="number" min="0" step="0.01"/>
 <label class="form-check mb-2"><input class="form-check-input" type="checkbox" id="absent"/> Absent</label>
 <button class="btn btn-primary" type="submit">Save marks</button></form></section>
-<section class="ev-card p-4"><h2 class="h5">My lessons</h2><div data-ev-action="View My lessons" data-ev-action-key="lessons" id="lessons"></div>
-<h3 class="h6 mt-3">Prepare a draft lesson</h3>
-<form data-ev-action="Prepare lesson" data-ev-action-key="lesson-form" id="lesson-form">
+<section ev-activities="lessons,lesson-form" class="ev-card p-4"><div ev-activities="lessons" data-ev-action="View My lessons" data-ev-action-key="lessons" id="lessons"></div>
+
+<form ev-activities="lesson-form" data-ev-action="Prepare lesson" data-ev-action-key="lesson-form" id="lesson-form">
 <label class="form-label" for="lesson-year">Academic year UUID</label><input class="form-control mb-2" id="lesson-year" required/>
 <label class="form-label" for="lesson-class">Class UUID (your assigned class)</label><input class="form-control mb-2" id="lesson-class" required/>
 <label class="form-label" for="lesson-subject">Subject UUID (your assigned subject)</label><input class="form-control mb-2" id="lesson-subject" required/>
@@ -40,27 +45,27 @@
 
 @section Scripts {<script src="~/js/role-portals.js" asp-append-version="true"></script>}
 
-<section class="ev-card p-4 my-3"><h2 class="h5">Assignments and grading</h2>
-<form data-ev-action="Prepare draft assignment" data-ev-action-key="phase23-assignment-form" id="phase23-assignment-form">
+<section ev-activities="phase23-assignment-form,p23-load-submissions,phase23-grade-form" class="ev-card p-4 my-3">
+<form ev-activities="phase23-assignment-form" data-ev-action="Prepare draft assignment" data-ev-action-key="phase23-assignment-form" id="phase23-assignment-form">
 <label class="form-label" for="p23-lesson">Published lesson UUID</label><input class="form-control mb-2" id="p23-lesson" required/>
 <label class="form-label" for="p23-title">Assignment title</label><input class="form-control mb-2" id="p23-title" maxlength="160" required/>
 <label class="form-label" for="p23-instructions">Instructions</label><textarea class="form-control mb-2" id="p23-instructions" maxlength="8000" required></textarea>
 <label class="form-label" for="p23-due">Deadline</label><input type="datetime-local" class="form-control mb-2" id="p23-due" required/>
 <label class="form-label" for="p23-max">Maximum score</label><input type="number" class="form-control mb-2" id="p23-max" step=".01" min=".01" required/>
 <button class="btn btn-primary" type="submit">Prepare draft assignment</button></form>
-<h3 class="h6 mt-4">Assigned submissions</h3><button data-ev-action="Refresh submissions" data-ev-action-key="p23-load-submissions" class="btn btn-outline-secondary btn-sm" id="p23-load-submissions">Refresh submissions</button>
-<div data-ev-action="Refresh submissions" data-ev-action-key="p23-load-submissions" id="p23-submissions" class="mt-2"></div>
-<h3 class="h6 mt-4">Grade a submission</h3><form data-ev-action="Grade submission" data-ev-action-key="phase23-grade-form" id="phase23-grade-form">
+<button ev-activities="p23-load-submissions" data-ev-action="Refresh submissions" data-ev-action-key="p23-load-submissions" class="btn btn-outline-secondary btn-sm" id="p23-load-submissions">Refresh submissions</button>
+<div ev-activities="p23-load-submissions" data-ev-action="Refresh submissions" data-ev-action-key="p23-load-submissions" id="p23-submissions" class="mt-2"></div>
+<form ev-activities="phase23-grade-form" data-ev-action="Grade submission" data-ev-action-key="phase23-grade-form" id="phase23-grade-form">
 <label class="form-label" for="p23-submission">Submission UUID</label><input class="form-control mb-2" id="p23-submission" required/>
 <label class="form-label" for="p23-score">Score</label><input type="number" class="form-control mb-2" id="p23-score" step=".01" min="0" required/>
 <label class="form-label" for="p23-feedback">Feedback</label><textarea class="form-control mb-2" id="p23-feedback" maxlength="1000"></textarea>
 <button class="btn btn-primary" type="submit">Grade submission</button></form>
 </section>
-<section class="ev-card p-4 my-3"><h2 class="h5">Parent conversations</h2><button data-ev-action="Load messages" data-ev-action-key="p23-load-conversations" class="btn btn-outline-secondary btn-sm" id="p23-load-conversations">Load messages</button><div data-ev-action="Load messages" data-ev-action-key="p23-load-conversations" id="p23-conversations"></div></section>
+<section ev-activities="p23-load-conversations" class="ev-card p-4 my-3"><button ev-activities="p23-load-conversations" data-ev-action="Load messages" data-ev-action-key="p23-load-conversations" class="btn btn-outline-secondary btn-sm" id="p23-load-conversations">Load messages</button><div ev-activities="p23-load-conversations" data-ev-action="Load messages" data-ev-action-key="p23-load-conversations" id="p23-conversations"></div></section>
 <p id="p23-status" role="status"></p>
-<section class="ev-card p-4 my-3"><h2 class="h5">In-app notifications</h2>
-<button data-ev-action="Refresh inbox" data-ev-action-key="p23-load-notifications" type="button" class="btn btn-outline-secondary btn-sm" id="p23-load-notifications">Refresh inbox</button>
-<div data-ev-action="Refresh inbox" data-ev-action-key="p23-load-notifications" class="mt-2" id="p23-notifications" aria-live="polite"></div></section>
+<section ev-activities="p23-load-notifications" class="ev-card p-4 my-3">
+<button ev-activities="p23-load-notifications" data-ev-action="Refresh inbox" data-ev-action-key="p23-load-notifications" type="button" class="btn btn-outline-secondary btn-sm" id="p23-load-notifications">Refresh inbox</button>
+<div ev-activities="p23-load-notifications" data-ev-action="Refresh inbox" data-ev-action-key="p23-load-notifications" class="mt-2" id="p23-notifications" aria-live="polite"></div></section>
 <script defer src="/js/phase23-portals.js"></script>
 
 </div>

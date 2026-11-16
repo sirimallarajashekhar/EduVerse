@@ -1,3 +1,4 @@
+using EduVerse.DesignSystem.Activities;
 using System.Net.Http.Headers;
 using EduVerse.AuthWeb;
 using Microsoft.AspNetCore.Authentication;
@@ -10,7 +11,8 @@ namespace EduVerse.Web.Controllers;
 [Route("platform")]
 public sealed class PlatformConsoleController:Controller
 {
-    [HttpGet("console")] public IActionResult Index()=>View();
+    [HttpGet("console")]
+    [HttpGet("console/activities/{activity}")] public IActionResult Index(string? activity=null)=>this.ActivityPage("platform",activity);
 }
 
 /// <summary>Strict same-origin allowlist. Operator bearer token is never exposed to JavaScript.</summary>

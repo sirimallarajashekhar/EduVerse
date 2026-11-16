@@ -1,0 +1,255 @@
+namespace EduVerse.DesignSystem.Activities;
+
+public static class ActivityCatalog
+{
+    public static IReadOnlyDictionary<string,ActivityMenu> Menus {get;} = new Dictionary<string,ActivityMenu>(StringComparer.Ordinal)
+    {
+        ["hrms"] = new("Human resource activities","/hrms", new ActivityLink[]
+        {
+            new("designation-form","Create designation"),
+            new("designations","View Departments & designations"),
+            new("employee-form","Register employee"),
+            new("lifecycle-form","Apply lifecycle transition"),
+            new("document-form","Upload securely"),
+            new("documents","View Private employee documents"),
+            new("leave-type-form","Create leave type"),
+            new("leave-form","Submit leave request"),
+            new("leaves","View Leave approvals"),
+            new("salary-form","Save salary structure"),
+            new("payroll-form","Calculate preview"),
+            new("load-attendance","Load attendance"),
+        }),
+        ["learning"] = new("Learning activities","/admin/learning", new ActivityLink[]
+        {
+            new("lesson-form","Save draft lesson"),
+            new("lessons","View Lessons & learning materials"),
+            new("assignment-form","Save draft assignment"),
+            new("assignments","View Assignments"),
+            new("submission-form","Record submission"),
+            new("submissions","View Review submissions"),
+            new("announcement-form","Publish announcement"),
+            new("announcements","View Announcements"),
+            new("notifications","View In-app notifications"),
+            new("thread-form","Open thread"),
+            new("message-form","Record message"),
+            new("messages","View Parent–teacher communication (administrator-mediated)"),
+        }),
+        ["parent"] = new("Parent activities","/portal/parent", new ActivityLink[]
+        {
+            new("attendance","View Attendance"),
+            new("results","View Published results"),
+            new("notices","View Announcements"),
+            new("phase23-parent-message","Start conversation"),
+            new("p23-load-conversations","View conversations"),
+            new("p23-load-notifications","Refresh inbox"),
+        }),
+        ["student"] = new("Student activities","/portal/student", new ActivityLink[]
+        {
+            new("timetable","View Timetable"),
+            new("attendance","View Attendance"),
+            new("results","View Published results"),
+            new("assignments","View Assignments"),
+            new("notices","View Announcements"),
+            new("phase23-student-submit","Submit work"),
+            new("p23-load-work","View my submissions"),
+        }),
+        ["learningreview"] = new("LearningReview activities","/portal/learning-review", new ActivityLink[]
+        {
+            new("p23-load-reviews","Review learning content"),
+        }),
+        ["teacher"] = new("Teacher activities","/portal/teacher", new ActivityLink[]
+        {
+            new("load-classes","Load my classes"),
+            new("classes","View Assigned classes"),
+            new("roster","View Roster"),
+            new("attendance-form","Save attendance"),
+            new("marks-form","Save marks"),
+            new("lessons","View My lessons"),
+            new("lesson-form","Prepare lesson"),
+            new("phase23-assignment-form","Prepare draft assignment"),
+            new("p23-load-submissions","Refresh submissions"),
+            new("phase23-grade-form","Grade submission"),
+            new("p23-load-conversations","Load messages"),
+            new("p23-load-notifications","Refresh inbox"),
+        }),
+        ["college"] = new("College activities","/admin/college", new ActivityLink[]
+        {
+            new("regulation-form","Create regulation"),
+            new("regulations","View Academic regulations"),
+            new("program-form","Register degree program"),
+            new("programs","View Degree programs"),
+            new("semester-form","Create semester"),
+            new("semesters","View Semester registration"),
+            new("course-form","Add course"),
+            new("courses","View Core and elective course offerings"),
+            new("registration-form","Enroll in course"),
+            new("finalize-form","Finalize semester results"),
+            new("registrations","View Course registrations"),
+            new("term-results","View transcript"),
+        }),
+        ["users"] = new("User activities","/admin/users", new ActivityLink[]
+        {
+            new("invite-form","Invite"),
+            new("user-rows","View Active users"),
+        }),
+        ["academics"] = new("Academic activities","/admin/academics", new ActivityLink[]
+        {
+            new("year-form","Add academic year"),
+            new("catalog-form","Add catalog item"),
+            new("faculty-form","Assign faculty"),
+            new("calendar-form","Add calendar event"),
+            new("academic-years","View Years"),
+            new("academic-items","View Catalog"),
+            new("academic-events","View Holidays & events"),
+        }),
+        ["operations"] = new("Library, transport and hostel activities","/admin/operations", new ActivityLink[]
+        {
+            new("title-form","Add title"),
+            new("copy-form","Register copy"),
+            new("loan-form","Lend copy"),
+            new("reservation-form","Reserve"),
+            new("loan-list","View Loans and returns"),
+            new("reservation-list","View Reservations"),
+            new("vehicle-form","Add vehicle"),
+            new("route-form","Create route"),
+            new("stop-form","Add stop"),
+            new("route-assignment-form","Assign route"),
+            new("route-assignments","View Student transport assignments"),
+            new("block-form","Create block"),
+            new("room-form","Add room"),
+            new("bed-form","Create bed"),
+            new("beds-list","View Bed inventory"),
+            new("hostel-allocation-form","Allocate bed"),
+            new("hostel-allocations","View Student bed allocations"),
+        }),
+        ["exams"] = new("Examination activities","/admin/exams", new ActivityLink[]
+        {
+            new("scheme-form","Create scheme"),
+            new("exam-form","Create examination"),
+            new("approve","Approve results"),
+            new("publish","Publish results"),
+            new("assessment-form","Add assessment"),
+            new("assessments","View Subject assessments & schedule"),
+            new("mark-form","Save draft marks"),
+            new("mark-list","View Student marks entry"),
+            new("result-view","View result"),
+            new("result-download","Download report card"),
+        }),
+        ["reporting"] = new("Campus reports","/admin/reporting", new ActivityLink[]
+        {
+            new("report-filter","Generate campus report"),
+        }),
+        ["workflows"] = new("Institution workflows","/admin/workflows", new ActivityLink[]
+        {
+            new("binding-form","Link identity and campus access"),
+            new("clearance-form","Check asset clearance"),
+            new("exit-button","Confirm offboarding"),
+            new("purchase-form","Submit to finance review"),
+        }),
+        ["platform"] = new("Platform activities","/platform/console", new ActivityLink[]
+        {
+            new("platform-overview","View platform overview"),
+            new("platform-modules-section","All EduVerse modules"),
+            new("platform-refresh","Find an institution"),
+            new("platform-modules","View Subscribed modules"),
+            new("platform-users","View Institution users"),
+            new("platform-invite","Invite institution user"),
+            new("platform-load-actions","Load API actions"),
+        }),
+        ["rbac"] = new("Roles and permissions","/admin/rbac", new ActivityLink[]
+        {
+            new("rbac-create","Create role"),
+            new("rbac-assign","Assign role"),
+            new("rbac-assignments","View Current assignments"),
+            new("rbac-permissions","Edit role permissions"),
+        }),
+        ["institution"] = new("Institution activities","/admin/institution", new ActivityLink[]
+        {
+            new("institution-metrics","View institution overview"),
+            new("profile-form","Save profile"),
+            new("mark-ready","Mark ready"),
+            new("module-features","View Subscription & module access"),
+            new("plans-list","View Available plans"),
+            new("setting-form","Save setting"),
+            new("settings-list","View Institution settings"),
+            new("campus-form","Add campus"),
+            new("campuses-list","View Registered campuses"),
+            new("resource-form","Add department or building"),
+            new("departments-list","View Departments"),
+            new("buildings-list","View Buildings"),
+        }),
+        ["finance"] = new("Finance activities","/admin/finance", new ActivityLink[]
+        {
+            new("fee-form","Create fee"),
+            new("fee-list","View Fee structure"),
+            new("charge-form","Assign fee"),
+            new("concession-form","Apply concession"),
+            new("payment-form","Record payment"),
+            new("refund-form","Record refund"),
+            new("reconcile-form","Update reconciliation"),
+            new("payments","View Recent payments and receipts"),
+        }),
+        ["attendance"] = new("Attendance activities","/admin/attendance", new ActivityLink[]
+        {
+            new("period-form","Add period"),
+            new("period-list","View Academic periods"),
+            new("timetable-form","Allocate timetable slot"),
+            new("timetable-list","View Timetable & teacher allocation"),
+            new("student-mark-form","Save student attendance"),
+            new("student-marks","View Student daily / period attendance"),
+            new("staff-mark-form","Save staff attendance"),
+            new("staff-marks","View Faculty / staff attendance"),
+            new("action-9","Campus attendance overview"),
+        }),
+        ["reports"] = new("Reports and analytics","/admin/reports", new ActivityLink[]
+        {
+            new("reports-refresh","Refresh reports"),
+            new("action-10","Institution overview"),
+            new("action-11","Attendance operations"),
+            new("action-12","Admissions"),
+            new("action-13","Fees & Finance"),
+            new("reports-exam-rows","View Published exam analytics"),
+            new("reports-export-csv","Export Excel-compatible CSV"),
+            new("reports-print","Print / Save as PDF"),
+            new("reports-receipts-table","View Receipts in selected date range"),
+            new("reports-api-filter","Generate historical report"),
+            new("reports-specialized-links","View Specialized reporting"),
+        }),
+        ["ams"] = new("Asset activities","/ams", new ActivityLink[]
+        {
+            new("category-form","Add category"),
+            new("category-list","View Asset categories"),
+            new("asset-form","Register asset"),
+            new("allocate-form","Allocate / transfer"),
+            new("action-15","Return"),
+            new("action-16","Maintenance"),
+            new("action-17","Repair complete"),
+            new("action-18","Retire"),
+            new("action-19","Dispose"),
+            new("asset-events","View Asset history"),
+            new("maintenance-form","Create work order"),
+            new("work-orders","View Maintenance schedules and work orders"),
+            new("stock-form","Create stock item"),
+            new("stock-items","View Inventory items"),
+            new("movement-form","Record stock movement"),
+            new("vendor-form","Register vendor"),
+            new("vendor-list","View Vendors"),
+            new("purchase-form","Save draft purchase"),
+            new("purchases","View Purchase order foundation"),
+        }),
+        ["students"] = new("Student activities","/admin/students", new ActivityLink[]
+        {
+            new("application-form","Submit application"),
+            new("applications","View Application review"),
+            new("student-form","Register student"),
+            new("student-detail","View Students"),
+            new("guardian-form","Save guardian"),
+            new("guardians","View Parent / guardian"),
+            new("enroll-form","Enroll student"),
+            new("enrollments","View Academic enrollment"),
+            new("lifecycle-form","Change student status"),
+            new("document-form","Upload document"),
+            new("documents","View Documents & verification"),
+        }),
+    };
+}
