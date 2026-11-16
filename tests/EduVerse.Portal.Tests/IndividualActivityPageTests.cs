@@ -119,4 +119,22 @@ public sealed class IndividualActivityPageTests
         Assert.Equal(HttpStatusCode.Redirect,response.StatusCode);
         Assert.Equal(menu,response.Headers.Location?.ToString());
     }
+    [Theory]
+    [InlineData("/portal/teacher/activities/attendance-form","enrollment")]
+    [InlineData("/portal/teacher/activities/marks-form","assessment")]
+    [InlineData("/portal/teacher/activities/phase23-assignment-form","p23-lesson")]
+    [InlineData("/portal/teacher/activities/phase23-grade-form","p23-submission")]
+    [InlineData("/portal/student/activities/phase23-student-submit","p23-assignment")]
+    [InlineData("/portal/parent/activities/phase23-parent-message","p23-child")]
+    [InlineData("/admin/workflows/activities/binding-form","binding-user")]
+    [InlineData("/admin/workflows/activities/purchase-form","purchase-id")]
+    public async Task RecordReferencesRenderAsSelectionsRatherThanManualIds(string route,string field)
+    {
+        using var host=Host();using var client=host.CreateClient();
+        var html=await client.GetStringAsync(route);
+        Assert.Matches("<select[^>]*id=\""+field+"\"",html);
+        Assert.DoesNotMatch("<input[^>]*id=\""+field+"\"",html);
+        Assert.DoesNotContain("UUID",html);
+        Assert.Contains("record-lookups.js",html);
+    }
 }

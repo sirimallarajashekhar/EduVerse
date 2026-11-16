@@ -189,6 +189,9 @@ builder.Services.AddScoped<RoleLearningWorkflowStore>(p=>new RoleLearningWorkflo
         ?? throw new InvalidOperationException("ConnectionStrings:EduVerse is required."),
     p.GetRequiredService<ITenantContext>(),p.GetRequiredService<IIdentityStore>(),
     p.GetRequiredService<TenantReadAuthorizer>()));
+builder.Services.AddScoped<ActivityLookupStore>(p=>new ActivityLookupStore(
+    p.GetRequiredService<IConfiguration>().GetConnectionString("EduVerse")??throw new InvalidOperationException("Database connection required."),
+    p.GetRequiredService<ITenantContext>(),p.GetRequiredService<IIdentityStore>(),p.GetRequiredService<EduVerse.Application.Administration.IInstitutionAdminStore>(),p.GetRequiredService<TenantReadAuthorizer>()));
 builder.Services.AddScoped<RolePortalStore>(p=>new RolePortalStore(
     p.GetRequiredService<IConfiguration>().GetConnectionString("EduVerse")
         ?? throw new InvalidOperationException("ConnectionStrings:EduVerse is required."),
@@ -248,6 +251,13 @@ app.MapIdentityEndpoints();
 app.MapAdvancedRbacEndpoints();
 app.MapOwnershipEndpoints();
 app.MapRolePortalEndpoints();
+app.MapGet("/api/v1/activity-lookups/{resource}",async (string resource,Guid? campusId,string? q,ActivityLookupStore store,CancellationToken ct)=>
+{
+    if(!ActivityLookupStore.Resources.Contains(resource))return Results.NotFound();
+    try{return Results.Ok(await store.Choices(resource,campusId,q,ct));}
+    catch(UnauthorizedAccessException){return Results.Forbid();}
+    catch(ArgumentException ex){return Results.BadRequest(new {message=ex.Message});}
+}).RequireAuthorization();
 app.MapRoleLearningWorkflowEndpoints();
 app.MapInstitutionEndpoints();
 app.MapInstitutionAdminEndpoints();

@@ -5,7 +5,7 @@
 <p class="text-secondary">Timetable, daily attendance, assignments and published results for your own linked student profile.</p></header><p><a class="ev-module-home" href="/portal/student">← All student activities</a></p>
 
 @Html.AntiForgeryToken()
-<section class="ev-card p-3 mb-3" ev-activities="phase23-student-submit,p23-load-work"><label class="form-label" for="p23-campus">Campus ID</label><input form="phase23-student-submit" class="form-control mb-2" id="p23-campus" required/></section><section class="ev-card p-3 mb-3" ev-activities="phase23-student-submit,p23-load-work"><label class="form-label" for="p23-student">Your linked student ID</label><input form="phase23-student-submit" class="form-control mb-2" id="p23-student" required/></section>
+<section class="ev-card p-3 mb-3" ev-activities="phase23-student-submit,p23-load-work"><label class="form-label" for="p23-campus">Campus</label><select form="phase23-student-submit" class="form-control mb-2" id="p23-campus" required data-record-choice="campus"></select></section><section class="ev-card p-3 mb-3" ev-activities="phase23-student-submit,p23-load-work"><label class="form-label" for="p23-student">Student profile</label><select form="phase23-student-submit" class="form-control mb-2" id="p23-student" required data-record-choice="linked-student"></select></section>
 <div class="ev-card p-4 mb-3"><label for="links" class="form-label">Choose student</label><select id="links" class="form-select"></select></div>
 <div ev-activities="timetable,attendance,results,assignments,notices" class="row g-3">
 <div ev-activities="timetable" class="col-lg-6"><section ev-activities="timetable" class="ev-card p-4"><div ev-activities="timetable" data-ev-action="View Timetable" data-ev-action-key="timetable" id="timetable"></div></section></div>
@@ -22,7 +22,7 @@
 <form ev-activities="phase23-student-submit" data-ev-action="Submit work" data-ev-action-key="phase23-student-submit" id="phase23-student-submit">
 
 
-<label class="form-label" for="p23-assignment">Published assignment UUID</label><input class="form-control mb-2" id="p23-assignment" required/>
+<label class="form-label" for="p23-assignment">Published assignment</label><select class="form-control mb-2" id="p23-assignment" required data-record-choice="assignment"></select>
 <label class="form-label" for="p23-response">Your response</label><textarea class="form-control mb-2" id="p23-response" maxlength="8000" required></textarea>
 <button class="btn btn-primary" type="submit">Submit work</button></form>
 <button ev-activities="p23-load-work" data-ev-action="View my submissions" data-ev-action-key="p23-load-work" class="btn btn-outline-secondary btn-sm mt-3" id="p23-load-work">View my submissions</button>

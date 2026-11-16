@@ -32,7 +32,7 @@
     if (!links.length) {notice('No linked profiles. Ask your institution administrator to verify your account.');return;}
     if (!host) return;
     for (const link of links) {
-      const option = make('option', 'Student ' + link.studentId);
+      const option = make('option', link.studentName + ' · ' + link.campusName);
       option.value = link.studentId; host.append(option);
     }
     host.addEventListener('change', () => {
@@ -64,48 +64,12 @@
     } catch (e) {notice(e.message, true);}
   }
   async function loadTeacher() {
-    const campus = el('campus')?.value?.trim();
-    if (!uuid.test(campus)) {notice('Enter a valid campus UUID.', true);return;}
-    try {
-      const [classes, lessons] = await Promise.all([
-      api('teacher/classes' + query(campus)), api('teacher/lessons' + query(campus))]
-      );
-      const host = el('classes') || el('teacher-class');host?.replaceChildren();
-      for (const item of classes) {
-        const button = make(host?.tagName === 'SELECT' ? 'option' : 'button', 'Class ' + item.classId, 'btn btn-outline-secondary btn-sm me-2 mb-2');
-        button.value=item.classId;
-        button.type = 'button';
-        const openClass=async () => {
-          try {
-            const rows = await api('teacher/classes/' + item.classId + '/students' + query(campus));
-            const roster = el('roster');roster?.replaceChildren();
-            if (!rows.length) roster?.append(make('p', 'No students for this assigned class.'));
-            for (const student of rows) {
-              const pick = make('button', student.givenName + ' ' + student.familyName + ' · ' + student.admissionNumber,
-              'btn btn-outline-secondary btn-sm d-block mb-2');
-              pick.type = 'button';
-              pick.addEventListener('click', () => {
-                el('enrollment') ? el('enrollment').value = student.enrollmentId : void 0;
-                el('marks-enrollment') ? el('marks-enrollment').value = student.enrollmentId : void 0;
-                notice('Selected ' + student.givenName + ' ' + student.familyName + '.');
-              });
-              roster?.append(pick);
-            }
-          } catch (e) {notice(e.message, true);}
-        };
-        button.addEventListener('click',openClass);
-        if(host?.tagName==='SELECT')host.addEventListener('change',()=>{if(host.value===item.classId)openClass();});
-        host?.append(button);
-      }
-      if (!classes.length) host?.append(make('p', 'No assigned classes.', 'text-secondary'));
-      renderList(el('lessons'), lessons.map((x) => x.title + ' · ' + x.status), 'lessons');
-      notice('Assigned teaching records loaded.');
-    } catch (e) {notice(e.message, true);}
+    document.dispatchEvent(new Event('ev:reload-choices'));
   }
   function validateCampus() {const campus = el('campus')?.value?.trim();
-    if (!uuid.test(campus)) throw new Error('Enter a valid campus UUID first.');return campus;}
+    if (!uuid.test(campus)) throw new Error('Choose your campus first.');return campus;}
   function requireUuid(id, name) {const value = el(id)?.value?.trim();
-    if (!uuid.test(value)) throw new Error('Enter a valid ' + name + ' UUID.');return value;}
+    if (!uuid.test(value)) throw new Error('Choose a ' + name + '.');return value;}
   if (route === '/portal/teacher') {
     el('load-classes')?.addEventListener('click', loadTeacher);
     el('campus')?.addEventListener('change',loadTeacher);

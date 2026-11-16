@@ -5,38 +5,39 @@
 <p class="text-secondary">Only classes and subjects assigned to your account are accessible.</p></header><p><a class="ev-module-home" href="/portal/teacher">← All teacher activities</a></p>
 
 @Html.AntiForgeryToken()
-<section class="ev-card p-3 mb-3" ev-activities="load-classes,classes,roster,attendance-form,marks-form,lessons,lesson-form,phase23-assignment-form,p23-load-submissions,phase23-grade-form,p23-load-conversations,p23-load-notifications"><label class="form-label" for="campus">Your assigned campus ID</label><input type="text" id="campus" class="form-control" placeholder="Campus UUID" required/></section>
-<section ev-activities="roster,attendance-form,marks-form" class="ev-card p-3 mb-3"><label for="teacher-class" class="form-label">Assigned class</label><select id="teacher-class" class="form-select"></select></section>
+<section class="ev-card p-3 mb-3" ev-activities="load-classes,classes,roster,attendance-form,marks-form,lessons,lesson-form,phase23-assignment-form,p23-load-submissions,phase23-grade-form,p23-load-conversations,p23-load-notifications"><label class="form-label" for="campus">Campus</label><select id="campus" class="form-control" required data-record-choice="campus"></select></section>
+<section ev-activities="roster,attendance-form" class="ev-card p-3 mb-3"><label for="teacher-class" class="form-label">Assigned class</label><select id="teacher-class" class="form-select" data-record-choice="class"></select></section>
+<section ev-activities="lesson-form" class="ev-card p-3 mb-3"><label for="teaching-context" class="form-label">Teaching assignment</label><select id="teaching-context" class="form-select" data-record-choice="context" required form="lesson-form"></select></section>
 <form id="portal-token">@Html.AntiForgeryToken()</form>
 <div ev-activities="load-classes" class="ev-card p-4 mb-3">
 
 <div ev-activities="load-classes" class="input-group">
 <button ev-activities="load-classes" data-ev-action="Load my classes" data-ev-action-key="load-classes" class="btn btn-primary" id="load-classes" type="button">Load my classes</button></div>
-<p class="form-text">Obtain your campus ID from your institution administrator.</p></div>
+<p class="form-text">Choose your campus to load your assigned teaching records.</p></div>
 <div ev-activities="classes,roster,attendance-form,marks-form,lessons,lesson-form" class="row g-3">
 <div ev-activities="classes,roster" class="col-lg-6"><section ev-activities="classes,roster" class="ev-card p-4"><div ev-activities="classes" data-ev-action="View Assigned classes" data-ev-action-key="classes" id="classes" aria-live="polite"></div>
 <div ev-activities="roster" data-ev-action="View Roster" data-ev-action-key="roster" id="roster"></div></section></div>
 <div ev-activities="attendance-form,marks-form,lessons,lesson-form" class="col-lg-6"><section ev-activities="attendance-form" class="ev-card p-4 mb-3">
 <form ev-activities="attendance-form" data-ev-action="Save attendance" data-ev-action-key="attendance-form" id="attendance-form">
-<label class="form-label" for="enrollment">Enrollment UUID (from assigned class)</label><input class="form-control mb-2" id="enrollment" required/>
+<label class="form-label" for="enrollment">Student</label><select class="form-control mb-2" id="enrollment" required data-record-choice="enrollment"></select>
 <label class="form-label" for="on">Date</label><input class="form-control mb-2" id="on" type="date" required/>
 <label class="form-label" for="attendance-status">Status</label><select class="form-select mb-2" id="attendance-status">
 <option>PRESENT</option><option>ABSENT</option><option>LATE</option><option>EXCUSED</option></select>
-<label class="form-label" for="period">Period UUID (optional)</label><input class="form-control mb-2" id="period"/>
+<label class="form-label" for="period">Attendance period (optional)</label><select class="form-control mb-2" id="period" data-record-choice="period"></select>
 <button class="btn btn-primary" type="submit">Save attendance</button></form></section>
 <section ev-activities="marks-form" class="ev-card p-4 mb-3">
 <form ev-activities="marks-form" data-ev-action="Save marks" data-ev-action-key="marks-form" id="marks-form">
-<label class="form-label" for="assessment">Assessment UUID</label><input class="form-control mb-2" id="assessment" required/>
-<label class="form-label" for="marks-enrollment">Enrollment UUID</label><input class="form-control mb-2" id="marks-enrollment" required/>
+<label class="form-label" for="assessment">Assessment</label><select class="form-control mb-2" id="assessment" required data-record-choice="assessment"></select>
+<label class="form-label" for="marks-enrollment">Student</label><select class="form-control mb-2" id="marks-enrollment" required data-record-choice="enrollment"></select>
 <label class="form-label" for="marks">Marks</label><input class="form-control mb-2" id="marks" type="number" min="0" step="0.01"/>
 <label class="form-check mb-2"><input class="form-check-input" type="checkbox" id="absent"/> Absent</label>
 <button class="btn btn-primary" type="submit">Save marks</button></form></section>
 <section ev-activities="lessons,lesson-form" class="ev-card p-4"><div ev-activities="lessons" data-ev-action="View My lessons" data-ev-action-key="lessons" id="lessons"></div>
 
 <form ev-activities="lesson-form" data-ev-action="Prepare lesson" data-ev-action-key="lesson-form" id="lesson-form">
-<label class="form-label" for="lesson-year">Academic year UUID</label><input class="form-control mb-2" id="lesson-year" required/>
-<label class="form-label" for="lesson-class">Class UUID (your assigned class)</label><input class="form-control mb-2" id="lesson-class" required/>
-<label class="form-label" for="lesson-subject">Subject UUID (your assigned subject)</label><input class="form-control mb-2" id="lesson-subject" required/>
+<input type="hidden" id="lesson-year"/>
+<input type="hidden" id="lesson-class"/>
+<input type="hidden" id="lesson-subject"/>
 <label class="form-label" for="lesson-title">Title</label><input class="form-control mb-2" id="lesson-title" maxlength="160" required/>
 <label class="form-label" for="lesson-body">Lesson content</label><textarea class="form-control mb-2" id="lesson-body" maxlength="8000" rows="4" required></textarea>
 <button type="submit" class="btn btn-primary">Create draft</button>
@@ -47,7 +48,7 @@
 
 <section ev-activities="phase23-assignment-form,p23-load-submissions,phase23-grade-form" class="ev-card p-4 my-3">
 <form ev-activities="phase23-assignment-form" data-ev-action="Prepare draft assignment" data-ev-action-key="phase23-assignment-form" id="phase23-assignment-form">
-<label class="form-label" for="p23-lesson">Published lesson UUID</label><input class="form-control mb-2" id="p23-lesson" required/>
+<label class="form-label" for="p23-lesson">Published lesson</label><select class="form-control mb-2" id="p23-lesson" required data-record-choice="lesson"></select>
 <label class="form-label" for="p23-title">Assignment title</label><input class="form-control mb-2" id="p23-title" maxlength="160" required/>
 <label class="form-label" for="p23-instructions">Instructions</label><textarea class="form-control mb-2" id="p23-instructions" maxlength="8000" required></textarea>
 <label class="form-label" for="p23-due">Deadline</label><input type="datetime-local" class="form-control mb-2" id="p23-due" required/>
@@ -56,7 +57,7 @@
 <button ev-activities="p23-load-submissions" data-ev-action="Refresh submissions" data-ev-action-key="p23-load-submissions" class="btn btn-outline-secondary btn-sm" id="p23-load-submissions">Refresh submissions</button>
 <div ev-activities="p23-load-submissions" data-ev-action="Refresh submissions" data-ev-action-key="p23-load-submissions" id="p23-submissions" class="mt-2"></div>
 <form ev-activities="phase23-grade-form" data-ev-action="Grade submission" data-ev-action-key="phase23-grade-form" id="phase23-grade-form">
-<label class="form-label" for="p23-submission">Submission UUID</label><input class="form-control mb-2" id="p23-submission" required/>
+<label class="form-label" for="p23-submission">Submission</label><select class="form-control mb-2" id="p23-submission" required data-record-choice="submission"></select>
 <label class="form-label" for="p23-score">Score</label><input type="number" class="form-control mb-2" id="p23-score" step=".01" min="0" required/>
 <label class="form-label" for="p23-feedback">Feedback</label><textarea class="form-control mb-2" id="p23-feedback" maxlength="1000"></textarea>
 <button class="btn btn-primary" type="submit">Grade submission</button></form>
