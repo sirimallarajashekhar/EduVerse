@@ -3,7 +3,7 @@
   const el = (id) => document.getElementById(id);
   const value = (id) => (el(id)?.value || '').trim();
   const uid = /^[a-f\d]{8}-([a-f\d]{4}-){3}[a-f\d]{12}$/i;
-  const valid = (id, label) => {const v = value(id);if (!uid.test(v)) throw new Error('Enter a valid ' + label + ' ID.');return v;};
+  const valid = (id, label) => {const v = value(id);if (!uid.test(v)) throw new Error('Choose a ' + label + '.');return v;};
   const status = (message, error = false) => {if (!el('p23-status')) return;
     el('p23-status') ? el('p23-status').textContent = message : void 0;el('p23-status') ? el('p23-status').className = error ? 'text-danger' : 'text-success' : void 0;};
   const token = document.querySelector('[name="__RequestVerificationToken"]')?.value || '';
@@ -47,7 +47,7 @@
     const result = await request('student/submit', {
       campusId: valid('p23-campus', 'campus'), studentId: valid('p23-student', 'student'),
       assignmentId: valid('p23-assignment', 'assignment'), responseText: value('p23-response')
-    });status('Assignment submitted: ' + result.id);el('p23-load-work')?.click();
+    });status('Assignment submitted.');el('p23-load-work')?.click();
   });
   attach('p23-load-work', async () => {
     const rows = await request('student/' + valid('p23-student', 'student') +

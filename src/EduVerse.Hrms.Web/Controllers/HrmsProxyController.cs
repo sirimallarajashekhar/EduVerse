@@ -12,6 +12,16 @@ namespace EduVerse.Hrms.Web.Controllers;
 [Route("hrms/bff")]
 public sealed class HrmsProxyController(IHttpClientFactory clients):ControllerBase
 {
+ [HttpGet("activity-lookups/users")]
+ public async Task<IActionResult> UserChoices(Guid campusId,string? q,CancellationToken ct)
+ {
+  var token=await HttpContext.GetTokenAsync(EduVerseCookieAuth.Scheme,"access_token");
+  if(string.IsNullOrWhiteSpace(token))return Unauthorized();
+  using var request=new HttpRequestMessage(HttpMethod.Get,"api/v1/activity-lookups/users?campusId="+campusId.ToString("D")+"&q="+Uri.EscapeDataString(q??string.Empty));
+  request.Headers.Authorization=new AuthenticationHeaderValue("Bearer",token);
+  Response.Headers["Cache-Control"]="no-store";
+  return await Send(request,ct);
+ }
  private static readonly HashSet<string> GetRoutes=new(StringComparer.Ordinal)
    {"designations","employees","leave-types","leaves","attendance","dashboard"};
  private static readonly HashSet<string> PostRoutes=new(StringComparer.Ordinal)

@@ -68,7 +68,7 @@ public sealed class ExamManagementTests:IAsyncLifetime
   new("F",0m,34.99m,0m),new("C",35m,49.99m,5m),
   new("B",50m,74.99m,7m),new("A",75m,100m,10m)
  ];
- private async Task<(ExamRecord Exam,AssessmentRecord Assessment,EnrollmentRecord Enroll,StudentRecord Student)> Setup(HttpClient c)
+ private async Task<(ExamRecord Exam,AssessmentRecord Assessment,EnrollmentRecord Enroll,StudentRecord Student)> Setup(HttpClient c,bool viaAdmission=false)
  {
   using var yearResponse=await c.PostAsJsonAsync("/api/v1/academic/years",
    new AcademicYearCreate(campus,"2026-27","Academic 2026-27",new DateOnly(2026,6,1),new DateOnly(2027,5,31)));
@@ -83,8 +83,18 @@ public sealed class ExamManagementTests:IAsyncLifetime
   }
   var cls=await Item("CLASS","C09","Class Nine");
   var subject=await Item("SUBJECT","MATH","Mathematics");
+  Guid? application=null;
+  if(viaAdmission)
+  {
+   using var publicClient=host!.CreateClient();
+   using var applied=await publicClient.PostAsJsonAsync("/api/v1/admissions/apply",new AdmissionSubmit(campus,"Sneha","Rao",new DateOnly(2013,4,1),"guardian@example.org",null));
+   Assert.Equal(HttpStatusCode.Accepted,applied.StatusCode);
+   application=(await applied.Content.ReadFromJsonAsync<AdmissionReceipt>())!.RequestId;
+   using var approved=await c.PostAsJsonAsync($"/api/v1/students/applications/{application:D}/decision?campusId={campus:D}",new AdmissionDecision("APPROVED"));
+   Assert.Equal(HttpStatusCode.NoContent,approved.StatusCode);
+  }
   using var studentResponse=await c.PostAsJsonAsync("/api/v1/students",
-   new StudentCreate(campus,null,"Sneha","Rao",new DateOnly(2013,4,1)));
+   new StudentCreate(campus,application,"Sneha","Rao",new DateOnly(2013,4,1)));
   Assert.Equal(HttpStatusCode.Created,studentResponse.StatusCode);
   var student=(await studentResponse.Content.ReadFromJsonAsync<StudentRecord>())!;
   using var enrollmentResponse=await c.PostAsJsonAsync(
@@ -106,6 +116,69 @@ public sealed class ExamManagementTests:IAsyncLifetime
   Assert.Equal(HttpStatusCode.OK,assessmentResponse.StatusCode);
   var assessment=(await assessmentResponse.Content.ReadFromJsonAsync<AssessmentRecord>())!;
   return(exam,assessment,enrollment,student);
+ }
+ [Fact]
+ public async Task AdmissionEnrollmentAttendanceFeesExamsResultsJourneyUsesOneStudent()
+ {
+  if(host is null)return; // CI requires EDUVERSE_TEST_MYSQL and applies all migrations.
+  using var client=await Client();
+  var setup=await Setup(client,true);
+  using var attendance=await client.PostAsJsonAsync("/api/v1/attendance/students",new StudentAttendanceMark(campus,setup.Enroll.Id,new DateOnly(2026,11,16),null,"PRESENT","Journey test"));
+  Assert.Equal(HttpStatusCode.OK,attendance.StatusCode);
+  var marked=(await attendance.Content.ReadFromJsonAsync<AttendanceRecord>())!;
+  Assert.Equal(setup.Student.Id,marked.StudentId);Assert.Equal("PRESENT",marked.Status);
+  using var feeResponse=await client.PostAsJsonAsync("/api/v1/finance/fees",new FeeStructureCreate(campus,setup.Exam.AcademicYearId,"JOURNEY","Annual tuition",1000m));
+  Assert.Equal(HttpStatusCode.OK,feeResponse.StatusCode);
+  var fee=(await feeResponse.Content.ReadFromJsonAsync<FeeStructureRecord>())!;
+  using var chargeResponse=await client.PostAsJsonAsync("/api/v1/finance/charges",new ChargeCreate(campus,setup.Enroll.Id,fee.Id,[new InstallmentInput(1,new DateOnly(2026,11,16),1000m)]));
+  Assert.Equal(HttpStatusCode.OK,chargeResponse.StatusCode);
+  var charge=(await chargeResponse.Content.ReadFromJsonAsync<ChargeRecord>())!;
+  var installments=(await client.GetFromJsonAsync<InstallmentRecord[]>($"/api/v1/finance/charges/{charge.Id:D}/installments?campusId={campus:D}"))!;
+  Assert.Single(installments);
+  var key="journey-"+Guid.NewGuid().ToString("N");
+  async Task<PaymentRecord> Pay()
+  {
+   using var request=new HttpRequestMessage(HttpMethod.Post,"/api/v1/finance/payments"){Content=JsonContent.Create(new PaymentCreate(campus,installments[0].Id,1000m,"CASH","Journey"))};
+   request.Headers.Add("Idempotency-Key",key);
+   using var response=await client.SendAsync(request);Assert.Equal(HttpStatusCode.OK,response.StatusCode);
+   return (await response.Content.ReadFromJsonAsync<PaymentRecord>())!;
+  }
+  var payment=await Pay();var replay=await Pay();Assert.Equal(payment.Id,replay.Id);
+  var receipt=(await client.GetFromJsonAsync<ReceiptRecord>($"/api/v1/finance/payments/{payment.Id:D}/receipt?campusId={campus:D}"))!;
+  Assert.Equal(setup.Student.AdmissionNumber,receipt.AdmissionNumber);Assert.Equal(1000m,receipt.Amount);
+  using var marks=await client.PostAsJsonAsync("/api/v1/exams/marks",new MarkCreate(campus,setup.Assessment.Id,setup.Enroll.Id,85.50m,false));
+  Assert.Equal(HttpStatusCode.OK,marks.StatusCode);
+  using var approve=await client.PostAsync($"/api/v1/exams/{setup.Exam.Id:D}/approve?campusId={campus:D}",null);Assert.Equal(HttpStatusCode.NoContent,approve.StatusCode);
+  using var publish=await client.PostAsync($"/api/v1/exams/{setup.Exam.Id:D}/publish?campusId={campus:D}",null);Assert.Equal(HttpStatusCode.NoContent,publish.StatusCode);
+  var result=(await client.GetFromJsonAsync<ResultRecord>($"/api/v1/exams/{setup.Exam.Id:D}/results/{setup.Enroll.Id:D}?campusId={campus:D}"))!;
+  Assert.Equal(setup.Student.AdmissionNumber,result.AdmissionNumber);Assert.Equal(85.50m,result.Percentage);Assert.True(result.Passed);
+  var charges=(await client.GetFromJsonAsync<ChargeRecord[]>($"/api/v1/finance/charges?campusId={campus:D}"))!;
+  Assert.Equal(0m,Assert.Single(charges).Balance);
+  using var foreign=await client.GetAsync($"/api/v1/exams/{setup.Exam.Id:D}/results/{setup.Enroll.Id:D}?campusId={otherCampus:D}");
+  Assert.True(foreign.StatusCode is HttpStatusCode.NotFound or HttpStatusCode.Forbidden);
+ }
+
+ [Fact]
+ public async Task NamedChoicesRespectTenantCampusAndAssignedClassScope()
+ {
+  if(host is null)return;
+  using var client=await Client();var setup=await Setup(client);
+  var periodId=Guid.NewGuid();
+  await Exec("INSERT INTO academic_periods(id,tenant_id,campus_id,code,display_name,starts_at,ends_at) VALUES(@id,@t,@c,'P1','Morning','09:00:00','10:00:00')",("@id",periodId.ToString("D")),("@t",tenant.ToString("D")),("@c",campus.ToString("D")));
+  await Exec("INSERT INTO academic_timetable_slots(id,tenant_id,campus_id,academic_year_id,class_item_id,subject_id,period_id,teacher_subject_id,day_of_week) VALUES(@id,@t,@c,@y,@cls,@sub,@p,@u,1)",("@id",Guid.NewGuid().ToString("D")),("@t",tenant.ToString("D")),("@c",campus.ToString("D")),("@y",setup.Exam.AcademicYearId.ToString("D")),("@cls",setup.Assessment.AcademicItemId.ToString("D")),("@sub",setup.Assessment.SubjectId.ToString("D")),("@p",periodId.ToString("D")),("@u",admin.ToString("D")));
+  using var link=await client.PostAsJsonAsync("/api/v1/ownership/links",new EduVerse.Api.Security.StudentPortalLinkRequest(campus,setup.Student.Id,admin,"SELF"));Assert.Equal(HttpStatusCode.NoContent,link.StatusCode);
+  foreach(var resource in EduVerse.Api.Security.ActivityLookupStore.Resources)
+  {
+   using var response=await client.GetAsync($"/api/v1/activity-lookups/{resource}?campusId={campus:D}");Assert.Equal(HttpStatusCode.OK,response.StatusCode);
+   var rows=(await response.Content.ReadFromJsonAsync<EduVerse.Api.Security.ActivityChoice[]>())!;
+   Assert.DoesNotContain(rows,x=>x.CampusId==otherCampus);
+   if(resource=="teacher-contexts")Assert.Contains(rows,x=>x.ClassName=="Class Nine"&&x.SubjectName=="Mathematics");
+   if(resource=="linked-students")Assert.Contains(rows,x=>x.Id==setup.Student.Id&&x.Label.Contains("Sneha Rao"));
+  }
+  using var denied=await client.GetAsync($"/api/v1/activity-lookups/teacher-contexts?campusId={otherCampus:D}");Assert.Equal(HttpStatusCode.Forbidden,denied.StatusCode);
+  using var memberClient=await Client(false);
+  using var users=await memberClient.GetAsync($"/api/v1/activity-lookups/users?campusId={otherCampus:D}");Assert.Equal(HttpStatusCode.Forbidden,users.StatusCode);
+  using var unknown=await client.GetAsync($"/api/v1/activity-lookups/sql-table?campusId={campus:D}");Assert.Equal(HttpStatusCode.NotFound,unknown.StatusCode);
  }
  [Fact]
  public async Task GradeRangesMustBeCompleteAndNonOverlapping()

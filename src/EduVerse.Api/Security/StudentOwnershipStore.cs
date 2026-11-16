@@ -7,7 +7,7 @@ namespace EduVerse.Api.Security;
 public sealed record StudentPortalLinkRequest(Guid CampusId,Guid StudentId,Guid UserId,string Relationship);
 public sealed record OwnedStudent(Guid Id,Guid CampusId,string AdmissionNumber,string GivenName,string FamilyName,string Status);
 public sealed record AssignedClass(Guid ClassId,Guid CampusId,Guid AcademicYearId);
-public sealed record LinkedStudent(Guid StudentId,Guid CampusId,string Relationship);
+public sealed record LinkedStudent(Guid StudentId,Guid CampusId,string Relationship,string StudentName="",string CampusName="");
 
 /// <summary>
 /// Subject always comes from validated tenant JWT; all record lookups are scoped in SQL.
@@ -86,7 +86,7 @@ public sealed class StudentOwnershipStore(string connectionString,IIdentityStore
         var links=new List<LinkedStudent>();
         await using var db=Open();await db.OpenAsync(ct);
         await using var cmd=new MySqlCommand("""
-            SELECT l.student_id,l.campus_id,l.relationship_code
+            SELECT l.student_id,l.campus_id,l.relationship_code,CONCAT(s.given_name,' ',s.family_name,' · ',s.admission_number),c.display_name
             FROM student_portal_links l
             JOIN students s ON s.tenant_id=l.tenant_id AND s.campus_id=l.campus_id AND s.id=l.student_id
             JOIN campuses c ON c.tenant_id=l.tenant_id AND c.id=l.campus_id
@@ -98,7 +98,7 @@ public sealed class StudentOwnershipStore(string connectionString,IIdentityStore
         Add(cmd,("@tenant",actor.Tenant.ToString("D")),("@subject",actor.Subject));
         await using var reader=await cmd.ExecuteReaderAsync(ct);
         while(await reader.ReadAsync(ct))
-            links.Add(new LinkedStudent(reader.GetGuid(0),reader.GetGuid(1),reader.GetString(2)));
+            links.Add(new LinkedStudent(reader.GetGuid(0),reader.GetGuid(1),reader.GetString(2),reader.GetString(3),reader.GetString(4)));
         return links;
     }
 

@@ -5,12 +5,12 @@
 <h1 class="h2">@ViewData["ActivityTitle"]</h1><p><a class="ev-module-home" href="/admin/workflows">← All institution workflows</a></p>
 
 @Html.AntiForgeryToken()
-<section class="ev-card p-3 mb-3" ev-activities="clearance-form,exit-button"><label class="form-label" for="exit-employee">Employee ID</label><input form="clearance-form" class="form-control mb-2" id="exit-employee" required /></section>
+<section class="ev-card p-3 mb-3" ev-activities="clearance-form,exit-button"><label class="form-label" for="exit-employee">Employee</label><select form="clearance-form" class="form-control mb-2" id="exit-employee" required data-record-choice="employee"></select></section>
 <p class="text-secondary">Link employee identities, verify exit asset clearance, and submit ordered purchases for finance review. Actions are validated by the tenant-secured API.</p>
 <section class="ev-card p-4 mb-3">
     @Html.AntiForgeryToken()
-    <label class="form-label" for="campus">Campus ID</label>
-    <input class="form-control" id="campus" type="text" placeholder="Campus UUID" autocomplete="off" required />
+    <label class="form-label" for="campus">Campus</label>
+    <select class="form-control" id="campus" required data-record-choice="campus"></select>
     <p class="small mt-2" id="workflow-status" role="status" aria-live="polite"></p>
 </section>
 <div ev-activities="binding-form,clearance-form,exit-button,purchase-form" class="row g-3">
@@ -18,10 +18,10 @@
         <section ev-activities="binding-form" class="ev-card p-4 h-100">
 
             <form ev-activities="binding-form" data-ev-action="Link identity and campus access" data-ev-action-key="binding-form" id="binding-form">
-                <label class="form-label" for="binding-employee">Employee ID</label>
-                <input class="form-control mb-2" id="binding-employee" required />
-                <label class="form-label" for="binding-user">Existing Identity User ID</label>
-                <input class="form-control mb-3" id="binding-user" required />
+                <label class="form-label" for="binding-employee">Employee</label>
+                <select class="form-control mb-2" id="binding-employee" required data-record-choice="employee"></select>
+                <label class="form-label" for="binding-user">User account</label>
+                <select class="form-control mb-3" id="binding-user" required data-record-choice="user"></select>
                 <button class="btn btn-primary" type="submit">Link identity and campus access</button>
             </form>
         </section>
@@ -43,8 +43,8 @@
 
             <p class="small text-secondary">Records a pending finance handoff; does not post the general ledger.</p>
             <form ev-activities="purchase-form" data-ev-action="Submit to finance review" data-ev-action-key="purchase-form" id="purchase-form">
-                <label for="purchase-id" class="form-label">Ordered purchase ID</label>
-                <input id="purchase-id" class="form-control mb-3" required />
+                <label for="purchase-id" class="form-label">Ordered purchase</label>
+                <select id="purchase-id" class="form-control mb-3" required data-record-choice="purchase"></select>
                 <button type="submit" class="btn btn-primary">Submit to finance review</button>
             </form>
         </section>

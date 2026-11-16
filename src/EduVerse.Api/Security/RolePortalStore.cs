@@ -9,7 +9,7 @@ public sealed record PortalResult(Guid ExamId,string Exam,decimal Total,decimal 
 public sealed record PortalTimetable(int DayOfWeek,string Class,string Subject,TimeOnly StartsAt,TimeOnly EndsAt);
 public sealed record PortalAssignment(Guid Id,string Title,string Instructions,DateTime DueUtc,decimal MaximumScore);
 public sealed record PortalNotice(string Title,string Body,DateTime PublishedUtc);
-public sealed record PortalRoster(Guid StudentId,Guid EnrollmentId,string AdmissionNumber,string GivenName,string FamilyName);
+public sealed record PortalRoster(Guid StudentId,Guid EnrollmentId,string AdmissionNumber,string GivenName,string FamilyName,Guid? AcademicYearId=null);
 public sealed record PortalLesson(Guid Id,string Title,string Body,string? ResourceUrl,string Status);
 
 /// <summary>Self-service SQL projections; every query uses verified link + current JWT subject.</summary>
@@ -180,7 +180,7 @@ public sealed class RolePortalStore(string connectionString,ITenantContext conte
         var items=new List<PortalRoster>();
         await using var db=Open();await db.OpenAsync(ct);
         await using var cmd=new MySqlCommand("""
-            SELECT DISTINCT s.id,e.id,s.admission_number,s.given_name,s.family_name
+            SELECT DISTINCT s.id,e.id,s.admission_number,s.given_name,s.family_name,e.academic_year_id
             FROM student_enrollments e
             JOIN students s ON s.tenant_id=e.tenant_id AND s.campus_id=e.campus_id
              AND s.id=e.student_id AND s.status='ACTIVE'
@@ -197,7 +197,7 @@ public sealed class RolePortalStore(string connectionString,ITenantContext conte
         await using var reader=await cmd.ExecuteReaderAsync(ct);
         while(await reader.ReadAsync(ct))
             items.Add(new PortalRoster(reader.GetGuid(0),reader.GetGuid(1),reader.GetString(2),
-                reader.GetString(3),reader.GetString(4)));
+                reader.GetString(3),reader.GetString(4),reader.GetGuid(5)));
         return items;
     }
 
